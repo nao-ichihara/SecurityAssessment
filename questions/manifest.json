@@ -93,6 +93,22 @@
       "refsFiles": [
         "content/refs_iso27001.json"
       ]
+    },
+    {
+      "id": "nist_csf",
+      "label": "NIST Cybersecurity Framework",
+      "sublabel": "v2.0 全6機能",
+      "icon": "🛡️",
+      "color": "#0891b2",
+      "description": "NISTが策定したサイバーセキュリティフレームワーク v2.0。GOVERN・IDENTIFY・PROTECT・DETECT・RESPOND・RECOVER の6機能・22カテゴリで構成。全業種・全規模の組織に適用可能。",
+      "file": "questions/nist_csf.json",
+      "env": null,
+      "tags": [
+        "NIST CSF v2.0"
+      ],
+      "refsFiles": [
+        "content/refs_csf.json"
+      ]
     }
   ]
 }
