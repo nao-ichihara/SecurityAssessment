@@ -1,0 +1,64 @@
+{
+  "appName": "Security/Assessment",
+  "appNameJa": "企業セキュリティ リスクアセスメントシステム",
+  "version": "2.2",
+  "releaseDate": "2026-03-21",
+  "rows": [
+    {
+      "label": "バージョン",
+      "value": "2.2"
+    },
+    {
+      "label": "アーキテクチャ",
+      "value": "マルチフレームワーク対応（拡張可能）"
+    },
+    {
+      "label": "対応フレームワーク",
+      "value": "NIST SP 800-53 Rev.5"
+    },
+    {
+      "label": "",
+      "value": "CIS Controls v8.1"
+    },
+    {
+      "label": "",
+      "value": "CSA CCM v4"
+    },
+    {
+      "label": "",
+      "value": "ISO/IEC 27001:2022"
+    },
+    {
+      "label": "",
+      "value": "NIST SP 800-207（ゼロトラスト）"
+    },
+    {
+      "label": "対応環境",
+      "value": "オンプレミス / クラウド / ハイブリッド"
+    },
+    {
+      "label": "質問数",
+      "value": "NIST系 最大90問 / CIS v8.1 98問 / ISO 27001 93問"
+    },
+    {
+      "label": "識別番号辞書",
+      "value": "フレームワーク別外部ファイル管理：321件（NIST 99件 / CIS 113件 / CSA CCM 16件 / ISO 27001 93件）"
+    },
+    {
+      "label": "AI機能",
+      "value": "なし（オフライン完結）"
+    },
+    {
+      "label": "データ形式",
+      "value": "JSON（保存・復元・質問データ埋込対応）"
+    },
+    {
+      "label": "PDF出力",
+      "value": "ブラウザ印刷方式（4ページ構成・日本語対応）"
+    },
+    {
+      "label": "拡張方式",
+      "value": "manifest.json + 質問JSON + refs_*.json の追加のみ"
+    }
+  ]
+}

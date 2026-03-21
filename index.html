@@ -1,0 +1,3184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企業セキュリティ リスクアセスメント</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1c2438;
+    --border: #2a3550;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --accent3: #8b5cf6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --success: #10b981;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    background: rgba(10,14,26,0.9);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--text-muted); }
+  .progress-bar-outer {
+    flex: 1;
+    max-width: 300px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 32px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* Steps */
+  .step { display: none; padding: 40px 0 80px; }
+  .step.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* Step 0: Environment Select */
+  .hero {
+    text-align: center;
+    padding: 60px 0 40px;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.4);
+    padding: 4px 12px;
+    border-radius: 2px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    color: var(--text-dim);
+    font-size: 16px;
+    font-weight: 300;
+    margin-bottom: 48px;
+  }
+
+  .env-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  @media (max-width: 640px) { .env-cards { grid-template-columns: 1fr; } }
+
+  .env-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: var(--surface);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+  .env-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .env-card.onprem::before { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+  .env-card.cloud::before  { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+  .env-card.hybrid::before { background: linear-gradient(90deg, #f59e0b, #10b981); }
+  .env-card:hover, .env-card.selected {
+    border-color: var(--accent);
+    background: var(--surface2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(59,130,246,0.15);
+  }
+  .env-card:hover::before, .env-card.selected::before { opacity: 1; }
+  .env-icon { font-size: 32px; margin-bottom: 12px; }
+  .env-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .env-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+  /* Section & Questions */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-top: 3px;
+  }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .section-ref { font-size: 11px; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+
+  .subsection { margin-bottom: 32px; }
+  .subsection-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    padding-left: 10px;
+    border-left: 2px solid var(--accent);
+  }
+
+  .question-row {
+    display: grid;
+    grid-template-columns: 28px 48px 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 8px 12px;
+    align-items: start;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+  .question-row:hover { background: rgba(255,255,255,0.02); margin: 0 -16px; padding: 14px 16px; border-radius: 4px; }
+  .question-row.row-checked { background: rgba(59,130,246,0.05); }
+
+  /* Checkbox column */
+  .q-check {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 3px;
+  }
+  .q-check input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Bulk action toolbar */
+  .bulk-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .bulk-toolbar-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+  .bulk-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    min-width: 60px;
+  }
+  .bulk-divider { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
+  .bulk-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 5px 11px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .bulk-btn:hover  { border-color: var(--text-dim); color: var(--text); }
+  .bulk-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .bulk-btn.yes  { border-color: rgba(16,185,129,0.4);  color: var(--success); }
+  .bulk-btn.yes:hover  { background: rgba(16,185,129,0.12); }
+  .bulk-btn.most { border-color: rgba(20,184,166,0.4);  color: #14b8a6; }
+  .bulk-btn.most:hover { background: rgba(20,184,166,0.12); }
+  .bulk-btn.part { border-color: rgba(245,158,11,0.4);  color: var(--warn); }
+  .bulk-btn.part:hover  { background: rgba(245,158,11,0.12); }
+  .bulk-btn.no   { border-color: rgba(239,68,68,0.4);   color: var(--danger); }
+  .bulk-btn.no:hover   { background: rgba(239,68,68,0.12); }
+  .bulk-btn.clear { border-color: rgba(148,163,184,0.4); color: var(--text-muted); }
+  .bulk-btn.clear:hover { background: rgba(148,163,184,0.1); color: var(--text); }
+  .bulk-btn.sel-all   { border-color: rgba(99,102,241,0.4); color: #818cf8; }
+  .bulk-btn.sel-all:hover   { background: rgba(99,102,241,0.1); }
+  .bulk-btn.sel-none  { border-color: rgba(148,163,184,0.4); color: var(--text-muted); }
+  .bulk-btn.sel-none:hover  { background: rgba(148,163,184,0.1); }
+  .q-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-top: 2px;
+  }
+  .q-text { font-size: 14px; line-height: 1.7; color: var(--text); }
+  .q-answers {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .ans-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .ans-btn:hover { border-color: var(--text-dim); color: var(--text); }
+  .ans-btn.yes.active  { background: rgba(16,185,129,0.15); border-color: var(--success); color: var(--success); }
+  .ans-btn.most.active { background: rgba(20,184,166,0.15); border-color: #14b8a6; color: #14b8a6; }
+  .ans-btn.part.active { background: rgba(245,158,11,0.15); border-color: var(--warn); color: var(--warn); }
+  .ans-btn.no.active   { background: rgba(239,68,68,0.15); border-color: var(--danger); color: var(--danger); }
+
+  /* Memo input */
+  .q-memo-row {
+    grid-column: 3 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .q-memo-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--border);
+    color: var(--text-dim);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    padding: 3px 4px;
+    outline: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .q-memo-input::placeholder { color: var(--text-muted); font-size: 11px; }
+  .q-memo-input:focus {
+    border-bottom-color: var(--accent);
+    color: var(--text);
+  }
+  .q-memo-input:not(:placeholder-shown) {
+    border-bottom-color: rgba(99,102,241,0.5);
+    color: var(--text-dim);
+  }
+  .q-memo-icon { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+
+  /* Framework reference tags — interactive links */
+  .q-refs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 5px;
+  }
+  .q-ref-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    position: relative;
+    transition: filter 0.15s, transform 0.1s;
+    user-select: none;
+  }
+  .q-ref-tag:hover { filter: brightness(1.4); transform: translateY(-1px); }
+  .q-ref-tag.nist  { color: #60a5fa; border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.08); }
+  .q-ref-tag.cis   { color: #34d399; border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.08); }
+  .q-ref-tag.csa   { color: #f472b6; border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.08); }
+  .q-ref-tag.other { color: #a78bfa; border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.08); }
+
+  /* Hover tooltip */
+  #refTooltip {
+    position: fixed;
+    z-index: 500;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    max-width: 260px;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  #refTooltip.visible { opacity: 1; }
+  #refTooltip .tip-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  /* Popover window */
+  #refPopover {
+    position: fixed;
+    z-index: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #refPopover.open { display: flex; animation: popIn 0.18s ease; }
+  @keyframes popIn {
+    from { opacity:0; transform: scale(0.94) translateY(6px); }
+    to   { opacity:1; transform: scale(1)    translateY(0);   }
+  }
+  .pop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .pop-ref-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .pop-copy-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .pop-copy-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .pop-copy-btn.copied { border-color: var(--success); color: var(--success); }
+  .pop-close-btn {
+    font-size: 14px;
+    line-height: 1;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .pop-close-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .pop-body {
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text-dim);
+    max-height: 320px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  .pop-body::-webkit-scrollbar { width: 4px; }
+  .pop-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .pop-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .pop-spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  /* Arrow/caret for popover */
+  #refPopoverArrow {
+    position: fixed;
+    z-index: 599;
+    width: 10px; height: 10px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    border-top:  1px solid var(--border);
+    transform: rotate(45deg);
+    display: none;
+  }
+  #refPopoverArrow.open { display: block; }
+
+  /* Navigation */
+  .nav-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .nav-info { font-size: 12px; color: var(--text-muted); }
+  .nav-info strong { color: var(--text); }
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 10px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+    border: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .btn-secondary:hover { border-color: var(--text-dim); color: var(--text); }
+  .btn-jump {
+    background: rgba(6,182,212,0.1);
+    border: 1px solid rgba(6,182,212,0.4);
+    color: var(--accent2);
+    font-size: 11px;
+  }
+  .btn-jump:hover { background: rgba(6,182,212,0.2); border-color: var(--accent2); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Section tabs */
+  .section-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .section-tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .section-tab:hover { border-color: var(--text-dim); color: var(--text); }
+  .section-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .section-tab.done { border-color: var(--success); color: var(--success); }
+
+  /* Results */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 800px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .result-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .result-card-title::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .score-big {
+    font-family: 'Space Mono', monospace;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .score-label { font-size: 13px; color: var(--text-muted); }
+
+  .radar-wrapper { position: relative; height: 360px; }
+  .radar-wrapper canvas { cursor: pointer; }
+
+  .section-scores { display: flex; flex-direction: column; gap: 10px; }
+  .section-score-row { display: grid; grid-template-columns: 1fr 60px 120px; align-items: center; gap: 12px; }
+  .section-score-label { font-size: 13px; }
+  .section-score-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    text-align: right;
+  }
+  .score-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+
+  .maturity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .findings-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .finding-item {
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border-left: 3px solid;
+    background: rgba(255,255,255,0.03);
+    line-height: 1.5;
+  }
+  .finding-item.critical { border-color: var(--danger); }
+  .finding-item.warn     { border-color: var(--warn); }
+  .finding-item.ok       { border-color: var(--success); }
+
+  /* Collapsible section for questions */
+  .section-block { margin-bottom: 12px; }
+  .section-q-container { display: block; }
+
+  /* Override for specific label types */
+  .tag-onprem { background: rgba(59,130,246,0.1); color: #60a5fa; border-color: rgba(59,130,246,0.3); }
+  .tag-cloud  { background: rgba(139,92,246,0.1); color: #a78bfa; border-color: rgba(139,92,246,0.3); }
+  .tag-hybrid { background: rgba(245,158,11,0.1); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+
+  /* Section score clickable link */
+  .section-score-label-link {
+    font-size: 13px;
+    color: var(--text-dim);
+    cursor: pointer;
+    text-decoration: none;
+    border-bottom: 1px dashed transparent;
+    transition: color 0.15s, border-color 0.15s;
+    display: inline-block;
+  }
+  .section-score-label-link:hover { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .section-score-label-link.active { color: var(--accent2); border-bottom-color: var(--accent2); font-weight: 700; }
+
+  /* Detail panel */
+  #sectionDetailPanel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0;
+    margin-bottom: 32px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+  #sectionDetailPanel.open {
+    max-height: 2000px;
+    padding: 28px;
+  }
+  .detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .detail-score-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .detail-close {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .detail-close:hover { border-color: var(--text-dim); color: var(--text); }
+  .detail-subsection { margin-bottom: 20px; }
+  .detail-subsection-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    padding-left: 8px;
+    border-left: 2px solid var(--border);
+  }
+  .detail-q-row {
+    display: grid;
+    grid-template-columns: 52px 1fr 80px;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .detail-q-no {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .detail-ans {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .detail-ans.yes  { background: rgba(16,185,129,0.15);  color: var(--success); }
+  .detail-ans.part { background: rgba(245,158,11,0.15);  color: var(--warn);    }
+  .detail-ans.no   { background: rgba(239,68,68,0.15);   color: var(--danger);  }
+  .detail-ans.none { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+
+  /* Inline edit answer buttons in detail panel */
+  .detail-q-answers {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .detail-ans-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .detail-ans-btn:hover { border-color: var(--text-dim); color: var(--text); }
+  .detail-ans-btn.yes.active  { background: rgba(16,185,129,0.15); border-color: var(--success); color: var(--success); }
+  .detail-ans-btn.most.active { background: rgba(20,184,166,0.15); border-color: #14b8a6; color: #14b8a6; }
+  .detail-ans-btn.part.active { background: rgba(245,158,11,0.15);  border-color: var(--warn);    color: var(--warn);    }
+  .detail-ans-btn.no.active   { background: rgba(239,68,68,0.15);   border-color: var(--danger);  color: var(--danger);  }
+  .detail-q-row { transition: background 0.15s; }
+  .detail-q-row:hover { background: rgba(255,255,255,0.02); }
+  .detail-memo {
+    grid-column: 2 / -1;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 2px 0 6px;
+    font-style: italic;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .detail-memo-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--border);
+    color: var(--text-dim);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    padding: 3px 4px;
+    outline: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .detail-memo-input::placeholder { color: var(--text-muted); font-size: 11px; }
+  .detail-memo-input:focus { border-bottom-color: var(--accent); color: var(--text); }
+  .detail-memo-input:not(:placeholder-shown) { border-bottom-color: rgba(99,102,241,0.5); }
+
+  /* Unsaved indicator */
+  .results-updating {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+  .results-updating.visible { display: flex; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .pulse-dot { width:6px; height:6px; border-radius:50%; background:var(--accent2); animation: pulse 1.2s infinite; }
+
+  /* Org info form */
+  .org-form {
+    max-width: 560px;
+    margin: 0 auto 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    text-align: left;
+  }
+  .org-form-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .org-form-title::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+  .org-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 480px) { .org-fields { grid-template-columns: 1fr; } }
+  .org-field { display: flex; flex-direction: column; gap: 6px; }
+  .org-field.full { grid-column: 1 / -1; }
+  .org-field label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .org-field input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  .org-field input::placeholder { color: var(--text-muted); font-size: 13px; }
+  .org-field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  }
+  .org-field input[type="date"] {
+    color-scheme: dark;
+  }
+  .org-info-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .org-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 20px;
+    border-right: 1px solid var(--border);
+    flex: 1;
+    min-width: 120px;
+  }
+  .org-info-item:last-child { border-right: none; }
+  .org-info-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .org-info-value { font-size: 14px; color: var(--text); font-weight: 500; }
+  .org-info-value.empty { color: var(--text-muted); font-style: italic; font-size: 12px; }
+
+  /* Save / Load buttons */
+  .btn-save {
+    background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(139,92,246,0.4);
+    color: #a78bfa;
+    font-size: 11px;
+  }
+  .btn-save:hover { background: rgba(139,92,246,0.22); border-color: #a78bfa; }
+
+  /* Upload drop area on start screen */
+  .upload-zone {
+    max-width: 560px;
+    margin: 0 auto 24px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 18px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent3);
+    background: rgba(139,92,246,0.06);
+  }
+  .upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-zone-inner {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-size: 13px; color: var(--text-muted); pointer-events: none;
+  }
+  .upload-zone-inner strong { color: #a78bfa; }
+
+  /* Toast notification */
+  #toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-size: 13px;
+    padding: 10px 20px; border-radius: 6px;
+    opacity: 0; transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none; z-index: 200; white-space: nowrap;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--success); color: var(--success); }
+  #toast.error   { border-color: var(--danger);  color: var(--danger);  }
+
+  /* ===== MENU BAR ===== */
+  .menu-bar {
+    background: rgba(10,14,26,0.97);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    position: sticky;
+    top: 61px; /* below header */
+    z-index: 90;
+    backdrop-filter: blur(12px);
+  }
+  .menu-item {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .menu-item:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+  .menu-item .menu-icon { font-size: 14px; }
+  .menu-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+
+  /* ===== GENERIC MODAL ===== */
+  .g-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 700;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+  }
+  .g-modal-backdrop.open { display: flex; }
+  .g-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 680px;
+    max-width: calc(100vw - 32px);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+    animation: popIn 0.18s ease;
+  }
+  .g-modal-sm { width: 420px; }
+  .g-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .g-modal-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .g-modal-close {
+    background: none; border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-muted); cursor: pointer; padding: 4px 10px; font-size: 13px;
+    transition: all 0.15s;
+  }
+  .g-modal-close:hover { border-color: var(--danger); color: var(--danger); }
+  .g-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+    line-height: 1.8;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .g-modal-body::-webkit-scrollbar { width: 4px; }
+  .g-modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Guide styles */
+  .guide-section { margin-bottom: 28px; }
+  .guide-section:last-child { margin-bottom: 0; }
+  .guide-h2 {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .guide-h3 { font-size: 13px; font-weight: 700; color: var(--text-dim); margin: 12px 0 6px; }
+  .guide-p { margin-bottom: 8px; }
+  .guide-ol, .guide-ul { padding-left: 20px; margin-bottom: 8px; }
+  .guide-ol li, .guide-ul li { margin-bottom: 4px; }
+  .guide-badge {
+    display: inline-block; font-family: 'Space Mono', monospace;
+    font-size: 10px; padding: 2px 7px; border-radius: 3px; border: 1px solid;
+    vertical-align: middle; margin: 0 2px;
+  }
+  .guide-badge.blue  { color: #60a5fa; border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.08); }
+  .guide-badge.green { color: #34d399; border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.08); }
+  .guide-badge.amber { color: #fbbf24; border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.08); }
+  .guide-badge.red   { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.08); }
+  .guide-badge.teal  { color: #2dd4bf; border-color: rgba(45,212,191,0.4); background: rgba(45,212,191,0.08); }
+
+  /* Upload zone in modal */
+  .modal-upload-zone {
+    border: 2px dashed var(--border); border-radius: 8px;
+    padding: 32px 20px; text-align: center; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s; position: relative;
+    margin-bottom: 16px;
+  }
+  .modal-upload-zone:hover, .modal-upload-zone.drag-over {
+    border-color: var(--accent3); background: rgba(139,92,246,0.06);
+  }
+  .modal-upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  /* Version info */
+  .ver-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+  .ver-row:last-child { border-bottom: none; }
+  .ver-label { color: var(--text-muted); }
+  .ver-value { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text); }
+
+  /* ===== FRAMEWORK SELECTOR ===== */
+  .fw-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 980px;
+    margin: 0 auto 8px;
+  }
+  .fw-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--surface);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+  .fw-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--fw-color, var(--accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .fw-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .fw-card:hover::before { opacity: 1; }
+  .fw-card.selected { border-color: var(--fw-color, var(--accent)); background: var(--surface2); }
+  .fw-card.selected::before { opacity: 1; }
+  .fw-card-icon { font-size: 26px; margin-bottom: 10px; }
+  .fw-card-label { font-size: 14px; font-weight: 700; margin-bottom: 2px; color: var(--text); }
+  .fw-card-sublabel { font-size: 11px; font-weight: 600; margin-bottom: 8px; font-family: 'Space Mono', monospace; }
+  .fw-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px; }
+  .fw-card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .fw-tag { font-family: 'Space Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-muted); }
+  .fw-loading { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .fw-loading .pop-spinner { width:18px; height:18px; }
+  .fw-error { text-align: center; padding: 32px; color: var(--danger); font-size: 13px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; max-width: 600px; margin: 0 auto; }
+  .btn-start { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; font-size: 14px; padding: 12px 36px; border-radius: 6px; border: none; cursor: pointer; transition: opacity 0.2s, transform 0.2s; margin-top: 24px; font-family: 'Noto Sans JP', sans-serif; }
+  .btn-start:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-start:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+</style>
+</head>
+<body>
+
+
+
+<header>
+  <div class="header-inner">
+    <div class="logo">Security<span>/</span>Assessment</div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">0 / 0</div>
+  </div>
+</header>
+
+<!-- Menu Bar -->
+<nav class="menu-bar">
+  <button class="menu-item" onclick="openGuideModal()"><span class="menu-icon">📖</span>解説書</button>
+  <div class="menu-divider"></div>
+  <button class="menu-item" id="menuSaveBtn" onclick="saveToFile()" disabled
+          style="opacity:0.4;cursor:not-allowed;pointer-events:none;">
+    <span class="menu-icon">💾</span>保存
+  </button>
+  <button class="menu-item" onclick="openLoadModal()"><span class="menu-icon">📂</span>読み込み</button>
+  <div class="menu-divider"></div>
+  <button class="menu-item" onclick="openVersionModal()"><span class="menu-icon">ℹ️</span>バージョン情報</button>
+</nav>
+
+<!-- ===== GUIDE MODAL ===== -->
+<!-- ===== GUIDE MODAL (content loaded from content/guide.json) ===== -->
+<div class="g-modal-backdrop" id="guideModal">
+  <div class="g-modal">
+    <div class="g-modal-header">
+      <div class="g-modal-title">📖 解説書 — 使い方ガイド</div>
+      <button class="g-modal-close" onclick="closeModal('guideModal')">✕ 閉じる</button>
+    </div>
+    <div class="g-modal-body" id="guideModalBody">
+      <div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LOAD MODAL ===== -->
+<div class="g-modal-backdrop" id="loadModal">
+  <div class="g-modal g-modal-sm">
+    <div class="g-modal-header">
+      <div class="g-modal-title">📂 回答ファイルの読み込み</div>
+      <button class="g-modal-close" onclick="closeModal('loadModal')">✕ 閉じる</button>
+    </div>
+    <div class="g-modal-body">
+      <p class="guide-p" style="margin-bottom:16px;">以前に保存した <strong>.json</strong> ファイルを選択するか、ここにドラッグ＆ドロップしてください。回答内容・アセスメント情報・メモがすべて復元されます。</p>
+      <div class="modal-upload-zone" id="modalUploadZone"
+           ondragover="event.preventDefault(); this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="handleModalFileDrop(event)">
+        <input type="file" accept=".json" onchange="handleModalFileSelect(event)">
+        <div style="pointer-events:none;">
+          <div style="font-size:36px; margin-bottom:10px;">📂</div>
+          <div style="font-size:13px; color:var(--text-muted);">クリックしてファイルを選択<br><span style="font-size:11px;">または .json ファイルをドロップ</span></div>
+        </div>
+      </div>
+      <p style="font-size:11px; color:var(--text-muted); text-align:center;">※ 現在の回答内容は読み込んだファイルの内容で上書きされます</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VERSION MODAL (content loaded from content/version.json) ===== -->
+<div class="g-modal-backdrop" id="versionModal">
+  <div class="g-modal g-modal-sm">
+    <div class="g-modal-header">
+      <div class="g-modal-title">ℹ️ バージョン情報</div>
+      <button class="g-modal-close" onclick="closeModal('versionModal')">✕ 閉じる</button>
+    </div>
+    <div class="g-modal-body" id="versionModalBody">
+      <div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESTART CONFIRM DIALOG ===== -->
+<div class="g-modal-backdrop" id="restartConfirmModal">
+  <div class="g-modal g-modal-sm" style="max-width:400px;">
+    <div class="g-modal-header">
+      <div class="g-modal-title">🔄 最初からやり直す</div>
+    </div>
+    <div class="g-modal-body" style="padding:20px 24px 8px;">
+      <p style="font-size:14px;line-height:1.7;color:var(--text-dim);margin:0 0 8px;">
+        これまでの<strong>回答内容・メモ・組織情報がすべてクリア</strong>されます。
+      </p>
+      <p style="font-size:13px;color:var(--text-muted);margin:0;">
+        よろしいですか？
+      </p>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 24px 20px;">
+      <button class="btn btn-secondary"
+              onclick="closeModal('restartConfirmModal')"
+              style="min-width:80px;">キャンセル</button>
+      <button class="btn"
+              onclick="confirmRestart()"
+              style="min-width:80px;background:var(--danger);border-color:var(--danger);color:#fff;">
+        やり直す
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 0: Framework Selection -->
+<div class="step active" id="step-0">
+  <div class="container">
+    <div class="hero">
+      <div class="hero-tag">Security Assessment</div>
+      <h1>企業セキュリティ<br><em>リスクアセスメント</em></h1>
+      <p class="hero-sub">評価するフレームワーク・カテゴリを選択してください</p>
+
+      <div class="org-form">
+        <div class="org-form-title">アセスメント情報</div>
+        <div class="org-fields">
+          <div class="org-field full">
+            <label>企業名</label>
+            <input type="text" id="orgCompany" placeholder="例：株式会社〇〇" oninput="saveOrgInfo()">
+          </div>
+          <div class="org-field">
+            <label>組織名 / 部署名</label>
+            <input type="text" id="orgDept" placeholder="例：情報システム部" oninput="saveOrgInfo()">
+          </div>
+          <div class="org-field">
+            <label>入力管理者</label>
+            <input type="text" id="orgAdmin" placeholder="例：山田 太郎" oninput="saveOrgInfo()">
+          </div>
+          <div class="org-field full">
+            <label>評価実施日</label>
+            <input type="date" id="orgDate" oninput="saveOrgInfo()">
+          </div>
+        </div>
+      </div>
+
+      <div id="fwLoadingArea" class="fw-loading">
+        <div class="pop-spinner"></div>質問セットを読み込み中...
+      </div>
+      <div id="fwErrorArea" style="display:none;"></div>
+
+      <div id="fwGridArea" style="display:none;">
+        <div class="fw-grid" id="fwGrid"></div>
+        <div style="text-align:center;">
+          <button class="btn-start" id="btnStartAssessment" onclick="startAssessment()" disabled>
+            アセスメントを開始する →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="uploadZone"
+         ondragover="event.preventDefault(); this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleFileDrop(event)">
+      <input type="file" accept=".json" onchange="handleFileSelect(event)">
+      <div class="upload-zone-inner">
+        <span style="font-size:18px;">📂</span>
+        <span>以前の回答ファイルを読み込む &nbsp;—&nbsp; <strong>クリックまたはドラッグ＆ドロップ（.json）</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Step 1: Questions -->
+<div class="step" id="step-1">
+  <div class="container">
+    <div class="org-info-strip" id="orgInfoStripQ"></div>
+    <div class="section-tabs" id="sectionTabs"></div>
+    <div id="questionArea"></div>
+  </div>
+</div>
+
+<!-- Step 2: Results -->
+<div class="step" id="step-2">
+  <div class="container">
+    <div style="padding: 40px 0 20px;">
+      <div class="hero-tag" id="envBadge">結果</div>
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1 style="font-size:32px; margin-bottom:8px;">セキュリティ評価結果</h1>
+          <p style="color:var(--text-dim); font-size:14px;">NIST SP 800-53 / CIS Controls 準拠</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div class="results-updating" id="resultsUpdating">
+            <div class="pulse-dot"></div>結果を更新中...
+          </div>
+          <button class="btn btn-save" id="btnExportPdf" onclick="exportPDF()"
+                  style="gap:6px;display:flex;align-items:center;">
+            📄 PDFレポート出力
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall score + maturity -->
+    <div class="org-info-strip" id="orgInfoStrip"></div>
+    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-bottom:24px;" id="topCards"></div>
+
+    <!-- Radar + section scores -->
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-card-title">レーダーチャート</div>
+        <div class="radar-wrapper"><canvas id="radarChart"></canvas></div>
+      </div>
+      <div class="result-card">
+        <div class="result-card-title">セクション別スコア</div>
+        <div class="section-scores" id="sectionScores"></div>
+      </div>
+    </div>
+
+    <!-- Section Detail Panel -->
+    <div id="sectionDetailPanel"></div>
+
+    <!-- Findings -->
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-card-title">要対応事項</div>
+        <div class="findings-list" id="criticalFindings"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-card-title">改善推奨事項</div>
+        <div class="findings-list" id="warnFindings"></div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:32px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-save" onclick="saveToFile()">💾 回答をファイル保存</button>
+      <button class="btn btn-jump" onclick="backToQuestions()" style="font-size:12px;">← 回答ページに戻る</button>
+      <button class="btn btn-secondary" onclick="restart()">🔄 最初からやり直す</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Save Modal -->
+<div id="saveModal" style="display:none; position:fixed; inset:0; z-index:700; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; width:560px; max-width:calc(100vw - 32px); max-height:80vh; display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,0.7);">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:14px; font-weight:700;">💾 回答データの保存</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">以下のJSONをコピーして、テキストファイル（.json）として保存してください</div>
+      </div>
+      <button onclick="closeSaveModal()" style="background:none; border:1px solid var(--border); border-radius:4px; color:var(--text-muted); cursor:pointer; padding:4px 10px; font-size:13px;">✕</button>
+    </div>
+    <div style="padding:12px 20px; border-bottom:1px solid var(--border); display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--text-muted);" id="saveFilename"></span>
+      <button id="saveModalCopyBtn" onclick="copyModalJson()" style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 14px; border:1px solid var(--accent); border-radius:4px; cursor:pointer; background:rgba(59,130,246,0.1); color:var(--accent); transition:all 0.15s;">📋 全てコピー</button>
+    </div>
+    <textarea id="saveModalTextarea" readonly style="flex:1; min-height:300px; background:var(--bg); border:none; color:var(--text-dim); font-family:'Space Mono',monospace; font-size:11px; line-height:1.6; padding:16px 20px; resize:none; outline:none; overflow-y:auto;"></textarea>
+    <div style="padding:12px 20px; border-top:1px solid var(--border); font-size:11px; color:var(--text-muted);">
+      ① 「全てコピー」→ ② テキストエディタに貼り付け → ③ ファイル名を <code style="background:rgba(255,255,255,0.06); padding:1px 5px; border-radius:3px;">.json</code> で保存
+    </div>
+  </div>
+</div>
+
+<!-- Ref hover tooltip -->
+<div id="refTooltip">
+  <div class="tip-label" id="tipLabel"></div>
+  <div id="tipBody">ホバーで概要を表示 / クリックで詳細</div>
+</div>
+
+<!-- Ref click popover -->
+<div id="refPopoverArrow"></div>
+<div id="refPopover">
+  <div class="pop-header">
+    <span class="pop-ref-name" id="popRefName"></span>
+    <button class="pop-copy-btn" id="popCopyBtn" onclick="copyPopoverContent()">コピー</button>
+    <button class="pop-close-btn" onclick="closePopover()">✕ 閉じる</button>
+  </div>
+  <div class="pop-body" id="popBody">
+    <div class="pop-loading"><div class="pop-spinner"></div>定義を取得中...</div>
+  </div>
+</div>
+
+<!-- Nav Bar -->
+<div class="nav-bar" id="navBar" style="display:none;">
+  <div class="nav-inner">
+    <div class="nav-info" id="navInfo"></div>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <button class="btn btn-save" onclick="saveToFile()" title="回答内容をJSONファイルに保存">💾 保存</button>
+      <button class="btn btn-secondary" onclick="restart()" title="最初からやり直す" style="font-size:11px;">🔄 最初からやり直す</button>
+      <button class="btn btn-jump" id="btnJumpResult" onclick="showResults()" title="途中でも結果ページへ移動できます">📊 評価結果を見る</button>
+      <button class="btn btn-secondary" id="btnBack" onclick="prevSection()">← 戻る</button>
+      <button class="btn btn-primary" id="btnNext" onclick="nextSection()">次へ →</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+// ===================== FRAMEWORK LOADER =====================
+const MANIFEST_URL = 'questions/manifest.json';
+
+async function loadManifest() {
+  try {
+    const res = await fetch(MANIFEST_URL);
+    if (!res.ok) throw new Error('manifest.json の読み込みに失敗しました (HTTP ' + res.status + ')');
+    const manifest = await res.json();
+    frameworkCatalog = manifest.frameworks;
+    renderFrameworkGrid();
+  } catch(e) {
+    document.getElementById('fwLoadingArea').style.display = 'none';
+    const errEl = document.getElementById('fwErrorArea');
+    errEl.style.display = 'block';
+    errEl.innerHTML = '<div class="fw-error">⚠️ 質問セットの読み込みに失敗しました。<br><br>' +
+      '<code>' + e.message + '</code><br><br>' +
+      'このファイルはWebサーバー経由で開く必要があります。<br>' +
+      '例: <code>python3 -m http.server 8080</code> → <code>http://localhost:8080</code></div>';
+  }
+}
+
+function renderFrameworkGrid() {
+  document.getElementById('fwLoadingArea').style.display = 'none';
+  document.getElementById('fwGridArea').style.display = 'block';
+  const grid = document.getElementById('fwGrid');
+  grid.innerHTML = '';
+  frameworkCatalog.forEach(fw => {
+    const card = document.createElement('div');
+    card.className = 'fw-card';
+    card.id = 'fw-card-' + fw.id;
+    card.style.setProperty('--fw-color', fw.color);
+    card.innerHTML =
+      '<div class="fw-card-icon">' + fw.icon + '</div>' +
+      '<div class="fw-card-label">' + fw.label + '</div>' +
+      '<div class="fw-card-sublabel" style="color:' + fw.color + '">' + fw.sublabel + '</div>' +
+      '<div class="fw-card-desc">' + fw.description + '</div>' +
+      '<div class="fw-card-tags">' +
+        fw.tags.map(t => '<span class="fw-tag">' + t + '</span>').join('') +
+      '</div>';
+    card.onclick = () => selectFramework(fw.id);
+    grid.appendChild(card);
+  });
+}
+
+function selectFramework(fwId) {
+  currentFrameworkId = fwId;
+  currentFrameworkMeta = frameworkCatalog.find(f => f.id === fwId);
+  document.querySelectorAll('.fw-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('fw-card-' + fwId).classList.add('selected');
+  document.getElementById('btnStartAssessment').disabled = false;
+}
+
+async function startAssessment() {
+  if (!currentFrameworkId || !currentFrameworkMeta) return;
+  const btn = document.getElementById('btnStartAssessment');
+  btn.disabled = true;
+  btn.textContent = '読み込み中...';
+
+  try {
+    // 質問データと識別番号定義を並列 fetch
+    const [qdata] = await Promise.all([
+      fetch(currentFrameworkMeta.file).then(r => {
+        if (!r.ok) throw new Error(currentFrameworkMeta.file + ' の読み込みに失敗しました');
+        return r.json();
+      }),
+      loadRefDefinitions(currentFrameworkMeta.refsFiles || [])
+    ]);
+
+    sections = qdata.sections;
+    currentEnv = currentFrameworkMeta.env || currentFrameworkId;
+    answers = {};
+    memos = {};
+    activeSectionDetail = null;
+
+    showStep(1);
+    buildTabs();
+    renderSection(0);
+    updateProgress();
+    renderOrgInfoStrip('orgInfoStripQ');
+    document.getElementById('navBar').style.display = 'block';
+    updateNav();
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'アセスメントを開始する →';
+    const msg = e.message.includes('refs') || e.message.includes('content/')
+      ? '識別番号定義ファイルの読み込みに失敗しました。\ncontent/ フォルダが正しく配置されているか確認してください。\n\n' + e.message
+      : '質問データの読み込みに失敗しました: ' + e.message;
+    showToast(msg, 'error');
+    console.error('[startAssessment]', e);
+  }
+}
+
+// ===================== FRAMEWORK CATALOG (loaded from manifest) =====================
+let frameworkCatalog = [];
+
+// ===================== STATE =====================
+let currentEnv = null;     // kept for NIST env compatibility
+let currentFrameworkId = null;
+let currentFrameworkMeta = null;
+let sections = [];
+let currentSectionIdx = 0;
+let answers = {}; // { "1.1": "yes"|"most"|"part"|"no" }
+let memos   = {}; // { "1.1": "メモテキスト" }
+let radarChart = null;
+let orgInfo = { company: '', dept: '', admin: '', date: '' };
+
+function saveOrgInfo() {
+  orgInfo.company = document.getElementById('orgCompany').value.trim();
+  orgInfo.dept    = document.getElementById('orgDept').value.trim();
+  orgInfo.admin   = document.getElementById('orgAdmin').value.trim();
+  orgInfo.date    = document.getElementById('orgDate').value; // YYYY-MM-DD
+}
+
+// ===================== INIT =====================
+// selectEnv is replaced by selectFramework() + startAssessment()
+function selectEnv(env) {
+  console.warn('selectEnv() is deprecated. Use selectFramework() + startAssessment() instead.');
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  closePopover();
+  window.scrollTo(0, 0);
+  // step-0（初期画面）では保存ボタンを無効化
+  const saveBtn = document.getElementById('menuSaveBtn');
+  if (saveBtn) {
+    const enabled = n > 0;
+    saveBtn.disabled = !enabled;
+    saveBtn.style.opacity = enabled ? '' : '0.4';
+    saveBtn.style.cursor = enabled ? '' : 'not-allowed';
+    saveBtn.style.pointerEvents = enabled ? '' : 'none';
+  }
+}
+
+// ===================== TABS =====================
+function buildTabs() {
+  const container = document.getElementById('sectionTabs');
+  container.innerHTML = '';
+  sections.forEach((sec, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'section-tab';
+    btn.textContent = sec.label;
+    btn.onclick = () => { closePopover(); currentSectionIdx = i; renderSection(i); updateNav(); updateTabs(); };
+    container.appendChild(btn);
+  });
+  updateTabs();
+}
+
+function updateTabs() {
+  const tabs = document.querySelectorAll('.section-tab');
+  tabs.forEach((tab, i) => {
+    tab.classList.toggle('active', i === currentSectionIdx);
+    const sec = sections[i];
+    const allQ = sec.subsections.flatMap(s => s.questions);
+    const answered = allQ.filter(q => answers[q.no]).length;
+    tab.classList.toggle('done', answered === allQ.length && allQ.length > 0);
+  });
+}
+
+// ===================== QUESTIONS =====================
+function refTagClass(ref) {
+  if (ref.startsWith('NIST')) return 'nist';
+  if (ref.startsWith('CIS'))  return 'cis';
+  if (ref.startsWith('CSA'))  return 'csa';
+  if (ref.startsWith('ISO'))  return 'other';
+  return 'other';
+}
+function renderRefs(refs) {
+  if (!refs || !refs.length) return '';
+  const tags = refs.map(r => {
+    const esc = r.replace(/'/g, "\\'");
+    return `<span class="q-ref-tag ${refTagClass(r)}"
+      onmouseenter="showRefTooltip(event,'${esc}')"
+      onmouseleave="hideRefTooltip()"
+      onclick="openRefPopover(event,'${esc}')">${r}</span>`;
+  }).join('');
+  return `<div class="q-refs">${tags}</div>`;
+}
+
+// ===================== REF TOOLTIP & POPOVER =====================
+const _defCache = {};
+
+// 識別番号定義はフレームワーク選択時に必要なファイルのみ fetch
+// manifest.json の refsFiles フィールドで対象ファイルを管理
+let REF_DEFINITIONS = {}; // { "NIST AC-2": { summary: "...", detail: "..." }, ... }
+
+async function loadRefDefinitions(refsFiles) {
+  if (!refsFiles || refsFiles.length === 0) return;
+  const results = await Promise.all(
+    refsFiles.map(f =>
+      fetch(f).then(r => {
+        if (!r.ok) throw new Error(f + ' が見つかりません (HTTP ' + r.status + ')');
+        return r.json();
+      })
+    )
+  );
+  results.forEach(data => {
+    Object.keys(data).forEach(k => {
+      if (k !== '_meta') REF_DEFINITIONS[k] = data[k];
+    });
+  });
+  console.log('[RefDefs] loaded', Object.keys(REF_DEFINITIONS).length, 'entries');
+}
+
+function showRefTooltip(event, ref) {
+  const tooltip = document.getElementById('refTooltip');
+  const entry = REF_DEFINITIONS[ref];
+  const summary = entry ? entry.summary : null;
+  if (!summary) return;
+  document.getElementById('tipLabel').textContent = ref;
+  document.getElementById('tipBody').textContent = summary;
+  tooltip.classList.add('visible');
+  const margin = 12, w = 260, h = 70;
+  let x = event.clientX + margin, y = event.clientY + margin;
+  if (x + w > window.innerWidth - 8)  x = event.clientX - w - margin;
+  if (y + h > window.innerHeight - 8) y = event.clientY - h - margin;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideRefTooltip() {
+  document.getElementById('refTooltip').classList.remove('visible');
+}
+
+let _popoverRef = null;
+
+function openRefPopover(event, ref) {
+  event.stopPropagation();
+  hideRefTooltip();
+
+  if (_popoverRef === ref && document.getElementById('refPopover').classList.contains('open')) {
+    closePopover(); return;
+  }
+  _popoverRef = ref;
+
+  const popover = document.getElementById('refPopover');
+  const arrow   = document.getElementById('refPopoverArrow');
+  document.getElementById('popRefName').textContent = ref;
+  document.getElementById('popCopyBtn').textContent = 'コピー';
+  document.getElementById('popCopyBtn').classList.remove('copied');
+  document.getElementById('popBody').innerHTML =
+    '<div class="pop-loading"><div class="pop-spinner"></div>定義を取得中...</div>';
+
+  popover.classList.add('open');
+  arrow.classList.add('open');
+
+  // Position
+  const rect = event.target.getBoundingClientRect();
+  const pw = 340, margin = 12;
+  let x = rect.left;
+  let y = rect.bottom + margin;
+  let arrowX = rect.left + rect.width / 2 - 5;
+  let arrowY = y - 6;
+  let arrowRot = 'rotate(45deg)';
+  if (x + pw > window.innerWidth - 8) x = window.innerWidth - pw - 8;
+  if (x < 8) x = 8;
+  if (y + 360 > window.innerHeight - 8) {
+    y = rect.top - 360 - margin;
+    arrowY = rect.top - margin - 4;
+    arrowRot = 'rotate(225deg)';
+  }
+  popover.style.left  = x + 'px';
+  popover.style.top   = y + 'px';
+  arrow.style.left    = arrowX + 'px';
+  arrow.style.top     = arrowY + 'px';
+  arrow.style.transform = arrowRot;
+
+  setTimeout(() => document.addEventListener('click', _outsideClick, { once: true }), 0);
+
+  if (_defCache[ref]) {
+    document.getElementById('popBody').innerHTML = _defCache[ref];
+  } else {
+    fetchRefDefinition(ref);
+  }
+}
+
+function _outsideClick(e) {
+  const pop = document.getElementById('refPopover');
+  if (!pop.contains(e.target)) closePopover();
+}
+
+function closePopover() {
+  document.getElementById('refPopover').classList.remove('open');
+  document.getElementById('refPopoverArrow').classList.remove('open');
+  _popoverRef = null;
+}
+
+function copyPopoverContent() {
+  const bodyEl = document.getElementById('popBody');
+  const text = (bodyEl.innerText || bodyEl.textContent || '').trim();
+  if (!text || text.includes('取得中')) return;
+  navigator.clipboard.writeText(`${_popoverRef}\n\n${text}`).then(() => {
+    const btn = document.getElementById('popCopyBtn');
+    btn.textContent = '✓ コピー済';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+async function fetchRefDefinition(ref) {
+  const bodyEl = document.getElementById('popBody');
+
+  // REF_DEFINITIONS がまだ空なら再ロードを試みる
+  if (Object.keys(REF_DEFINITIONS).length === 0 && currentFrameworkMeta && currentFrameworkMeta.refsFiles) {
+    try {
+      bodyEl.innerHTML = '<div class="pop-loading"><div class="pop-spinner"></div>定義ファイルを読み込み中...</div>';
+      await loadRefDefinitions(currentFrameworkMeta.refsFiles);
+    } catch(e) {
+      bodyEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;">定義ファイルの読み込みに失敗しました。<br><small>${e.message}</small></div>`;
+      return;
+    }
+  }
+
+  const entry = REF_DEFINITIONS[ref];
+
+  if (entry && entry.detail) {
+    // detail テキストを段落ごとに分割して整形表示
+    const lines = entry.detail.split('\n').filter(l => l.trim() !== '');
+    let html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+    lines.forEach(line => {
+      if (line.startsWith('【') && line.endsWith('】')) {
+        // 見出し行
+        html += `<div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--accent2);margin-top:4px;">${line}</div>`;
+      } else if (line.startsWith('・')) {
+        // 箇条書き行
+        html += `<div style="font-size:12px;line-height:1.65;color:var(--text-dim);padding-left:8px;">${line}</div>`;
+      } else {
+        // 通常テキスト
+        html += `<div style="font-size:13px;line-height:1.7;color:var(--text-dim);">${line}</div>`;
+      }
+    });
+    html += '</div>';
+    _defCache[ref] = html;
+    if (_popoverRef === ref && document.getElementById('refPopover').classList.contains('open')) {
+      bodyEl.innerHTML = html;
+    }
+  } else if (entry && entry.summary) {
+    // detail がない場合は summary を表示（CIS/CSA/ISO など未追加のフレームワーク）
+    const dashIdx = entry.summary.indexOf(' — ');
+    const label = dashIdx >= 0 ? entry.summary.slice(0, dashIdx) : ref;
+    const desc  = dashIdx >= 0 ? entry.summary.slice(dashIdx + 3) : entry.summary;
+    const html = `<div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--text-dim);">${label}</div>
+      <div style="font-size:13px;line-height:1.75;color:var(--text-dim);">${desc}</div>
+      <div style="font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:8px;">詳細定義は今後追加予定です。</div>
+    </div>`;
+    _defCache[ref] = html;
+    if (_popoverRef === ref && document.getElementById('refPopover').classList.contains('open')) {
+      bodyEl.innerHTML = html;
+    }
+  } else {
+    const msg = `<div style="color:var(--text-muted);font-size:13px;">「${ref}」の定義情報が見つかりませんでした。</div>`;
+    _defCache[ref] = msg;
+    if (_popoverRef === ref) bodyEl.innerHTML = msg;
+  }
+}
+
+function renderSection(idx) {
+  currentSectionIdx = idx;
+  const sec = sections[idx];
+  const area = document.getElementById('questionArea');
+
+  const tagClass = sec.tag ? `tag-${sec.tag}` : '';
+  const allQNos = sec.subsections.flatMap(s => s.questions).map(q => `'${q.no}'`).join(',');
+
+  let html = `
+    <div class="section-header">
+      <div>
+        <div class="section-num" style="${tagClass ? '' : ''}">${sec.id.toUpperCase()}</div>
+      </div>
+      <div>
+        <div class="section-title">${sec.label}</div>
+        <div class="section-ref">${sec.ref}</div>
+      </div>
+    </div>
+
+    <div class="bulk-toolbar">
+      <span class="bulk-toolbar-label">一括操作：</span>
+      <button class="bulk-btn sel-all"  onclick="bulkSelectAll()">☑ 全て選択</button>
+      <button class="bulk-btn sel-none" onclick="bulkSelectNone()">☐ 選択解除</button>
+      <div class="bulk-divider"></div>
+      <span class="bulk-count" id="bulkCount">0件選択中</span>
+      <div class="bulk-divider"></div>
+      <button class="bulk-btn yes"   onclick="bulkSetAnswer('yes')"  id="bBtn-yes"  disabled>✓ はい</button>
+      <button class="bulk-btn most"  onclick="bulkSetAnswer('most')" id="bBtn-most" disabled>◎ ほとんど</button>
+      <button class="bulk-btn part"  onclick="bulkSetAnswer('part')" id="bBtn-part" disabled>△ 一部</button>
+      <button class="bulk-btn no"    onclick="bulkSetAnswer('no')"   id="bBtn-no"   disabled>✗ いいえ</button>
+      <button class="bulk-btn clear" onclick="bulkSetAnswer(null)"   id="bBtn-clr"  disabled>× クリア</button>
+    </div>
+  `;
+
+  sec.subsections.forEach(sub => {
+    html += `<div class="subsection"><div class="subsection-title">${sub.title}</div>`;
+    sub.questions.forEach(q => {
+      const ans  = answers[q.no] || '';
+      const memo = memos[q.no]   || '';
+      html += `
+        <div class="question-row" id="qrow-${q.no}">
+          <div class="q-check">
+            <input type="checkbox" id="chk-${q.no}" onchange="onRowCheck('${q.no}', this.checked)">
+          </div>
+          <div class="q-num">${q.no}</div>
+          <div>
+            <div class="q-text">${q.text}</div>
+            ${renderRefs(q.refs)}
+          </div>
+          <div class="q-answers">
+            <button class="ans-btn yes  ${ans==='yes' ?'active':''}" onclick="setAnswer('${q.no}','yes', this)">はい</button>
+            <button class="ans-btn most ${ans==='most'?'active':''}" onclick="setAnswer('${q.no}','most',this)">ほとんど</button>
+            <button class="ans-btn part ${ans==='part'?'active':''}" onclick="setAnswer('${q.no}','part',this)">一部</button>
+            <button class="ans-btn no   ${ans==='no'  ?'active':''}" onclick="setAnswer('${q.no}','no',  this)">いいえ</button>
+          </div>
+          <div class="q-memo-row">
+            <span class="q-memo-icon">📝</span>
+            <input class="q-memo-input" type="text" placeholder="メモ（任意）"
+              value="${memo.replace(/"/g,'&quot;')}"
+              onchange="setMemo('${q.no}', this.value)">
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+
+  area.innerHTML = html;
+  updateTabs();
+  updateNav();
+  updateBulkCount();
+}
+
+function setAnswer(no, val, btn) {
+  answers[no] = val;
+  const row = document.getElementById('qrow-' + no);
+  row.querySelectorAll('.ans-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateProgress();
+  updateTabs();
+  updateNav();
+}
+
+function setMemo(no, val) {
+  if (val.trim()) {
+    memos[no] = val.trim();
+  } else {
+    delete memos[no];
+  }
+}
+
+// ===================== BULK OPERATIONS =====================
+function currentSectionQNos() {
+  return sections[currentSectionIdx].subsections.flatMap(s => s.questions).map(q => q.no);
+}
+
+function onRowCheck(no, checked) {
+  const row = document.getElementById('qrow-' + no);
+  if (checked) {
+    row.classList.add('row-checked');
+  } else {
+    row.classList.remove('row-checked');
+  }
+  updateBulkCount();
+}
+
+function getCheckedNos() {
+  return currentSectionQNos().filter(no => {
+    const chk = document.getElementById('chk-' + no);
+    return chk && chk.checked;
+  });
+}
+
+function updateBulkCount() {
+  const checked = getCheckedNos();
+  const n = checked.length;
+  const countEl = document.getElementById('bulkCount');
+  if (countEl) countEl.textContent = n + '件選択中';
+  const disabled = n === 0;
+  ['bBtn-yes','bBtn-most','bBtn-part','bBtn-no','bBtn-clr'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = disabled;
+  });
+}
+
+function bulkSelectAll() {
+  currentSectionQNos().forEach(no => {
+    const chk = document.getElementById('chk-' + no);
+    const row = document.getElementById('qrow-' + no);
+    if (chk) { chk.checked = true; row.classList.add('row-checked'); }
+  });
+  updateBulkCount();
+}
+
+function bulkSelectNone() {
+  currentSectionQNos().forEach(no => {
+    const chk = document.getElementById('chk-' + no);
+    const row = document.getElementById('qrow-' + no);
+    if (chk) { chk.checked = false; row.classList.remove('row-checked'); }
+  });
+  updateBulkCount();
+}
+
+function bulkSetAnswer(val) {
+  const nos = getCheckedNos();
+  if (!nos.length) return;
+  nos.forEach(no => {
+    const row = document.getElementById('qrow-' + no);
+    if (!row) return;
+    if (val === null) {
+      delete answers[no];
+      row.querySelectorAll('.ans-btn').forEach(b => b.classList.remove('active'));
+    } else {
+      answers[no] = val;
+      row.querySelectorAll('.ans-btn').forEach(b => {
+        b.classList.toggle('active', b.classList.contains(val));
+      });
+    }
+  });
+  updateProgress();
+  updateTabs();
+  updateNav();
+}
+
+// ===================== NAVIGATION =====================
+function updateNav() {
+  const sec = sections[currentSectionIdx];
+  const allQ = sections.flatMap(s => s.subsections.flatMap(sub => sub.questions));
+  const answered = allQ.filter(q => answers[q.no]).length;
+  const curQ = sec.subsections.flatMap(s => s.questions);
+  const curAnswered = curQ.filter(q => answers[q.no]).length;
+
+  document.getElementById('navInfo').innerHTML =
+    `セクション <strong>${currentSectionIdx + 1}/${sections.length}</strong>　回答済み <strong>${curAnswered}/${curQ.length}</strong>`;
+
+  document.getElementById('btnBack').disabled = currentSectionIdx === 0;
+
+  const isLast = currentSectionIdx === sections.length - 1;
+  const btnNext = document.getElementById('btnNext');
+  if (isLast) {
+    btnNext.textContent = '結果を見る →';
+    btnNext.onclick = showResults;
+  } else {
+    btnNext.textContent = '次へ →';
+    btnNext.onclick = nextSection;
+  }
+}
+
+function nextSection() {
+  if (currentSectionIdx < sections.length - 1) {
+    closePopover();
+    currentSectionIdx++;
+    renderSection(currentSectionIdx);
+    window.scrollTo(0, 0);
+  }
+}
+
+function prevSection() {
+  if (currentSectionIdx > 0) {
+    closePopover();
+    currentSectionIdx--;
+    renderSection(currentSectionIdx);
+    window.scrollTo(0, 0);
+  }
+}
+
+function updateProgress() {
+  const allQ = sections.flatMap(s => s.subsections.flatMap(sub => sub.questions));
+  const answered = allQ.filter(q => answers[q.no]).length;
+  const pct = allQ.length ? Math.round(answered / allQ.length * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${answered} / ${allQ.length}`;
+}
+
+// ===================== RESULTS =====================
+function calcScore(questions) {
+  if (!questions.length) return 0;
+  let score = 0;
+  questions.forEach(q => {
+    if (answers[q.no] === 'yes')  score += 1;
+    if (answers[q.no] === 'most') score += 0.75;
+    if (answers[q.no] === 'part') score += 0.5;
+  });
+  return Math.round(score / questions.length * 100);
+}
+
+function getMaturity(score) {
+  if (score >= 85) return { level: 5, label: '最適化', color: '#10b981', desc: '継続的改善が実施されている最高水準' };
+  if (score >= 70) return { level: 4, label: '管理', color: '#3b82f6', desc: '定量的管理と測定が実施されている' };
+  if (score >= 55) return { level: 3, label: '定義', color: '#06b6d4', desc: 'プロセスが標準化・文書化されている' };
+  if (score >= 35) return { level: 2, label: '管理的', color: '#f59e0b', desc: '基本的なプロセスはあるが標準化不足' };
+  return { level: 1, label: '初期', color: '#ef4444', desc: 'アドホックな対応が中心、整備が必要' };
+}
+
+function renderOrgInfoStrip(targetId) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  const fmtDate = (iso) => {
+    if (!iso) return null;
+    const [y, m, d] = iso.split('-');
+    return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+  };
+  const displayDate = orgInfo.date
+    ? fmtDate(orgInfo.date)
+    : new Date().toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' });
+  const envLabel = currentFrameworkMeta
+    ? currentFrameworkMeta.label + ' ' + currentFrameworkMeta.sublabel
+    : (currentEnv || '—');
+  el.innerHTML = `
+    <div class="org-info-item">
+      <span class="org-info-label">企業名</span>
+      <span class="org-info-value ${orgInfo.company ? '' : 'empty'}">${orgInfo.company || '未入力'}</span>
+    </div>
+    <div class="org-info-item">
+      <span class="org-info-label">組織名 / 部署名</span>
+      <span class="org-info-value ${orgInfo.dept ? '' : 'empty'}">${orgInfo.dept || '未入力'}</span>
+    </div>
+    <div class="org-info-item">
+      <span class="org-info-label">入力管理者</span>
+      <span class="org-info-value ${orgInfo.admin ? '' : 'empty'}">${orgInfo.admin || '未入力'}</span>
+    </div>
+    <div class="org-info-item">
+      <span class="org-info-label">対象環境</span>
+      <span class="org-info-value">${envLabel}</span>
+    </div>
+    <div class="org-info-item">
+      <span class="org-info-label">評価実施日</span>
+      <span class="org-info-value ${orgInfo.date ? '' : 'empty'}">${displayDate}${!orgInfo.date ? '（自動）' : ''}</span>
+    </div>
+  `;
+}
+
+function showResults() {
+  showStep(2);
+  document.getElementById('navBar').style.display = 'none';
+
+  // Env badge + org info strip
+  const fwLabel = currentFrameworkMeta
+    ? currentFrameworkMeta.label + ' ' + currentFrameworkMeta.sublabel
+    : currentEnv;
+  document.getElementById('envBadge').textContent = fwLabel;
+
+  renderOrgInfoStrip('orgInfoStrip');
+
+  // Section scores
+  const sectionData = sections.map(sec => {
+    const qs = sec.subsections.flatMap(s => s.questions);
+    return { label: sec.label, score: calcScore(qs), id: sec.id };
+  });
+
+  const overallScore = Math.round(sectionData.reduce((a, b) => a + b.score, 0) / sectionData.length);
+  const maturity = getMaturity(overallScore);
+
+  // Top cards
+  document.getElementById('topCards').innerHTML = `
+    <div class="result-card">
+      <div class="result-card-title">総合スコア</div>
+      <div class="score-big" style="color:${maturity.color}">${overallScore}<span style="font-size:24px; color:var(--text-muted)">%</span></div>
+      <div class="score-label">全 ${sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length} 項目の平均</div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-title">成熟度レベル</div>
+      <div style="margin:8px 0;">
+        <div class="maturity-badge" style="background:${maturity.color}20; color:${maturity.color}; border:1px solid ${maturity.color}40;">
+          <span style="font-family:'Space Mono',monospace; font-size:20px;">Lv.${maturity.level}</span>
+          <span>${maturity.label}</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--text-muted);">${maturity.desc}</div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-title">回答率</div>
+      <div class="score-big" style="color:var(--accent2)">
+        ${Math.round(Object.keys(answers).length / sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length * 100)}<span style="font-size:24px; color:var(--text-muted)">%</span>
+      </div>
+      <div class="score-label">${Object.keys(answers).length} / ${sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length} 項目</div>
+    </div>
+  `;
+
+  // Section score bars
+  const scoreColors = ['#3b82f6','#06b6d4','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#84cc16','#a78bfa','#fb923c'];
+  let scoresHtml = '';
+  sectionData.forEach((s, i) => {
+    const col = scoreColors[i % scoreColors.length];
+    const m = getMaturity(s.score);
+    scoresHtml += `
+      <div class="section-score-row" id="score-row-${i}">
+        <a class="section-score-label-link" onclick="toggleDetail(${i})" title="クリックで回答詳細を表示">${s.label}</a>
+        <div class="section-score-pct" style="color:${m.color}">${s.score}%</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${s.score}%; background:${col};"></div></div>
+      </div>
+    `;
+  });
+  document.getElementById('sectionScores').innerHTML = scoresHtml;
+
+  // Radar chart
+  if (radarChart) { radarChart.destroy(); radarChart = null; }
+  const ctx = document.getElementById('radarChart').getContext('2d');
+
+  const radarLabels = sectionData.map(s => s.label);
+  const radarScores = sectionData.map(s => s.score);
+
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: radarLabels,
+      datasets: [{
+        label: 'スコア',
+        data: radarScores,
+        backgroundColor: 'rgba(59,130,246,0.15)',
+        borderColor: 'rgba(59,130,246,0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: radarScores.map(s => getMaturity(s).color),
+        pointBorderColor: 'transparent',
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { display: false, stepSize: 25 },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: {
+            font: { family: "'Noto Sans JP', sans-serif", size: 11 },
+            color: '#94a3b8',
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.raw}%`
+          }
+        }
+      },
+      onClick: (evt, elements, chart) => {
+        // Click on data point
+        if (elements.length > 0) {
+          toggleDetail(elements[0].index);
+          return;
+        }
+        // Click on point label area
+        const { left, top, right, bottom } = chart.chartArea;
+        const cx = (left + right) / 2;
+        const cy = (top + bottom) / 2;
+        const x = evt.x - cx;
+        const y = evt.y - cy;
+        const angle = Math.atan2(y, x);
+        const n = radarLabels.length;
+        let idx = Math.round((angle / (2 * Math.PI) * n + n / 4 * 0 + n) % n);
+        // Map angle to nearest label
+        const startAngle = -Math.PI / 2;
+        const angles = radarLabels.map((_, i) => startAngle + (2 * Math.PI / n) * i);
+        let minDiff = Infinity, nearest = 0;
+        angles.forEach((a, i) => {
+          let diff = Math.abs(angle - a);
+          if (diff > Math.PI) diff = 2 * Math.PI - diff;
+          if (diff < minDiff) { minDiff = diff; nearest = i; }
+        });
+        const dist = Math.sqrt(x*x + y*y);
+        const radius = Math.min((right-left),(bottom-top)) / 2;
+        if (dist > radius * 0.85 && minDiff < 0.4) {
+          toggleDetail(nearest);
+        }
+      }
+    }
+  });
+
+  // Findings
+  const allQuestions = sections.flatMap(sec =>
+    sec.subsections.flatMap(sub => sub.questions.map(q => ({ ...q, section: sec.label })))
+  );
+  const critical = allQuestions.filter(q => answers[q.no] === 'no');
+  const warns = allQuestions.filter(q => answers[q.no] === 'part' || answers[q.no] === 'most');
+  const oks = allQuestions.filter(q => answers[q.no] === 'yes');
+
+  const buildFindingHtml = (q, cls) => {
+    const memo = memos[q.no];
+    return `<div class="finding-item ${cls}">
+      <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);">${q.section} / ${q.no}</span><br>
+      ${q.text}
+      ${memo ? `<div style="margin-top:5px;font-size:11px;color:var(--text-muted);border-left:2px solid var(--border);padding-left:8px;">📝 ${memo}</div>` : ''}
+    </div>`;
+  };
+
+  let critHtml = '';
+  if (critical.length === 0) {
+    critHtml = `<div class="finding-item ok">未対応項目はありません ✓</div>`;
+  } else {
+    critical.slice(0, 8).forEach(q => { critHtml += buildFindingHtml(q, 'critical'); });
+    if (critical.length > 8) critHtml += `<div style="font-size:12px;color:var(--text-muted);padding:8px;">他 ${critical.length-8} 件...</div>`;
+  }
+
+  let warnHtml = '';
+  if (warns.length === 0) {
+    warnHtml = `<div class="finding-item ok">部分対応項目はありません ✓</div>`;
+  } else {
+    warns.slice(0, 8).forEach(q => { warnHtml += buildFindingHtml(q, 'warn'); });
+    if (warns.length > 8) warnHtml += `<div style="font-size:12px;color:var(--text-muted);padding:8px;">他 ${warns.length-8} 件...</div>`;
+  }
+
+  document.getElementById('criticalFindings').innerHTML = critHtml;
+  document.getElementById('warnFindings').innerHTML = warnHtml;
+}
+
+let activeSectionDetail = null;
+
+function toggleDetail(idx) {
+  const panel = document.getElementById('sectionDetailPanel');
+  if (activeSectionDetail === idx && panel.classList.contains('open')) {
+    // Close
+    panel.classList.remove('open');
+    activeSectionDetail = null;
+    document.querySelectorAll('.section-score-label-link').forEach(el => el.classList.remove('active'));
+    // Reset radar label colors
+    updateRadarLabelColors(-1);
+  } else {
+    activeSectionDetail = idx;
+    renderDetailPanel(idx);
+    panel.classList.add('open');
+    // Scroll to panel
+    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    // Highlight active link
+    document.querySelectorAll('.section-score-label-link').forEach((el, i) => el.classList.toggle('active', i === idx));
+    updateRadarLabelColors(idx);
+  }
+}
+
+function updateRadarLabelColors(activeIdx) {
+  if (!radarChart) return;
+  const n = radarChart.data.labels.length;
+  radarChart.options.scales.r.pointLabels.color = (ctx) => {
+    if (activeIdx < 0) return '#94a3b8';
+    return ctx.index === activeIdx ? '#06b6d4' : '#94a3b8';
+  };
+  radarChart.update('none');
+}
+
+function renderDetailPanel(idx) {
+  const sec = sections[idx];
+  const qs = sec.subsections.flatMap(s => s.questions);
+  const score = calcScore(qs);
+  const m = getMaturity(score);
+
+  let html = `
+    <div class="detail-header">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);margin-bottom:4px;">${sec.ref}</div>
+        <div class="detail-title">${sec.label}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="detail-score-badge" id="detail-score-${idx}" style="color:${m.color}">${score}%
+          <span style="font-size:13px;font-weight:400;color:var(--text-muted);"> Lv.${m.level} ${m.label}</span>
+        </div>
+        <button class="detail-close" onclick="toggleDetail(${idx})">✕ 閉じる</button>
+      </div>
+    </div>
+  `;
+
+  sec.subsections.forEach(sub => {
+    html += `<div class="detail-subsection"><div class="detail-subsection-title">${sub.title}</div>`;
+    sub.questions.forEach(q => {
+      const ans  = answers[q.no] || '';
+      const memo = memos[q.no]   || '';
+      html += `
+        <div class="detail-q-row" id="drow-${q.no}" style="grid-template-columns:52px 1fr auto; grid-template-rows:auto auto;">
+          <div class="detail-q-no">${q.no}</div>
+          <div>
+            <div>${q.text}</div>
+            ${renderRefs(q.refs)}
+          </div>
+          <div class="detail-q-answers">
+            <button class="detail-ans-btn yes  ${ans==='yes' ?'active':''}" onclick="setAnswerFromResult('${q.no}','yes', ${idx},this)">はい</button>
+            <button class="detail-ans-btn most ${ans==='most'?'active':''}" onclick="setAnswerFromResult('${q.no}','most',${idx},this)">ほとんど</button>
+            <button class="detail-ans-btn part ${ans==='part'?'active':''}" onclick="setAnswerFromResult('${q.no}','part',${idx},this)">一部</button>
+            <button class="detail-ans-btn no   ${ans==='no'  ?'active':''}" onclick="setAnswerFromResult('${q.no}','no',  ${idx},this)">いいえ</button>
+          </div>
+          <div class="detail-memo" style="grid-column:2/-1;">
+            <span style="font-size:11px;color:var(--text-muted);flex-shrink:0;">📝</span>
+            <input class="detail-memo-input" type="text" placeholder="メモ（任意）"
+              value="${memo.replace(/"/g,'&quot;')}"
+              onchange="setMemoFromResult('${q.no}', this.value, ${idx})">
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById('sectionDetailPanel').innerHTML = html;
+}
+
+// Called when user changes an answer from the results page detail panel
+function setAnswerFromResult(no, val, sectionIdx, btn) {
+  // Toggle: clicking same answer deselects
+  if (answers[no] === val) {
+    delete answers[no];
+    btn.classList.remove('active');
+  } else {
+    answers[no] = val;
+    // Update button states in the row
+    const row = document.getElementById('drow-' + no);
+    row.querySelectorAll('.detail-ans-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // Show updating indicator
+  const indicator = document.getElementById('resultsUpdating');
+  indicator.classList.add('visible');
+
+  // Debounce refresh so rapid clicks batch together
+  clearTimeout(setAnswerFromResult._timer);
+  setAnswerFromResult._timer = setTimeout(() => {
+    refreshResults(sectionIdx);
+    indicator.classList.remove('visible');
+  }, 400);
+}
+
+function setMemoFromResult(no, val, sectionIdx) {
+  setMemo(no, val);
+  // No need to refresh scores — memo doesn't affect scoring
+}
+
+// Re-render scores, chart, findings while keeping the detail panel open
+function refreshResults(openSectionIdx) {
+  const sectionData = sections.map(sec => {
+    const qs = sec.subsections.flatMap(s => s.questions);
+    return { label: sec.label, score: calcScore(qs), id: sec.id };
+  });
+  const overallScore = Math.round(sectionData.reduce((a, b) => a + b.score, 0) / sectionData.length);
+  const maturity = getMaturity(overallScore);
+  const totalQ = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
+
+  // Update top cards
+  document.getElementById('topCards').innerHTML = `
+    <div class="result-card">
+      <div class="result-card-title">総合スコア</div>
+      <div class="score-big" style="color:${maturity.color}">${overallScore}<span style="font-size:24px; color:var(--text-muted)">%</span></div>
+      <div class="score-label">全 ${totalQ} 項目の平均</div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-title">成熟度レベル</div>
+      <div style="margin:8px 0;">
+        <div class="maturity-badge" style="background:${maturity.color}20; color:${maturity.color}; border:1px solid ${maturity.color}40;">
+          <span style="font-family:'Space Mono',monospace; font-size:20px;">Lv.${maturity.level}</span>
+          <span>${maturity.label}</span>
+        </div>
+      </div>
+      <div style="font-size:13px; color:var(--text-muted);">${maturity.desc}</div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-title">回答率</div>
+      <div class="score-big" style="color:var(--accent2)">
+        ${Math.round(Object.keys(answers).length / totalQ * 100)}<span style="font-size:24px; color:var(--text-muted)">%</span>
+      </div>
+      <div class="score-label">${Object.keys(answers).length} / ${totalQ} 項目</div>
+    </div>
+  `;
+
+  // Update section score bars (rebuild preserving click handlers)
+  const scoreColors = ['#3b82f6','#06b6d4','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#84cc16','#a78bfa','#fb923c'];
+  let scoresHtml = '';
+  sectionData.forEach((s, i) => {
+    const col = scoreColors[i % scoreColors.length];
+    const m2 = getMaturity(s.score);
+    scoresHtml += `
+      <div class="section-score-row" id="score-row-${i}">
+        <a class="section-score-label-link ${i === openSectionIdx ? 'active' : ''}" onclick="toggleDetail(${i})" title="クリックで回答詳細を表示">${s.label}</a>
+        <div class="section-score-pct" style="color:${m2.color}">${s.score}%</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${s.score}%; background:${col};"></div></div>
+      </div>
+    `;
+  });
+  document.getElementById('sectionScores').innerHTML = scoresHtml;
+
+  // Update open section's score badge in panel
+  if (openSectionIdx !== null && openSectionIdx >= 0) {
+    const sec = sections[openSectionIdx];
+    const qs = sec.subsections.flatMap(s => s.questions);
+    const sc = calcScore(qs);
+    const m2 = getMaturity(sc);
+    const badge = document.getElementById('detail-score-' + openSectionIdx);
+    if (badge) {
+      badge.style.color = m2.color;
+      badge.innerHTML = `${sc}%<span style="font-size:13px;font-weight:400;color:var(--text-muted);"> Lv.${m2.level} ${m2.label}</span>`;
+    }
+  }
+
+  // Update radar chart
+  const radarScores = sectionData.map(s => s.score);
+  if (radarChart) {
+    radarChart.data.datasets[0].data = radarScores;
+    radarChart.data.datasets[0].pointBackgroundColor = radarScores.map(s => getMaturity(s).color);
+    radarChart.update();
+    updateRadarLabelColors(openSectionIdx !== null ? openSectionIdx : -1);
+  }
+
+  // Update findings
+  const allQuestions = sections.flatMap(sec =>
+    sec.subsections.flatMap(sub => sub.questions.map(q => ({ ...q, section: sec.label })))
+  );
+  const critical = allQuestions.filter(q => answers[q.no] === 'no');
+  const warns = allQuestions.filter(q => answers[q.no] === 'part' || answers[q.no] === 'most');
+
+  const buildFindingHtml = (q, cls) => {
+    const memo = memos[q.no];
+    return `<div class="finding-item ${cls}">
+      <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);">${q.section} / ${q.no}</span><br>
+      ${q.text}
+      ${memo ? `<div style="margin-top:5px;font-size:11px;color:var(--text-muted);border-left:2px solid var(--border);padding-left:8px;">📝 ${memo}</div>` : ''}
+    </div>`;
+  };
+
+  let critHtml = '';
+  if (critical.length === 0) {
+    critHtml = `<div class="finding-item ok">未対応項目はありません ✓</div>`;
+  } else {
+    critical.slice(0, 8).forEach(q => { critHtml += buildFindingHtml(q, 'critical'); });
+    if (critical.length > 8) critHtml += `<div style="font-size:12px;color:var(--text-muted);padding:8px;">他 ${critical.length-8} 件...</div>`;
+  }
+  let warnHtml = '';
+  if (warns.length === 0) {
+    warnHtml = `<div class="finding-item ok">部分対応項目はありません ✓</div>`;
+  } else {
+    warns.slice(0, 8).forEach(q => { warnHtml += buildFindingHtml(q, 'warn'); });
+    if (warns.length > 8) warnHtml += `<div style="font-size:12px;color:var(--text-muted);padding:8px;">他 ${warns.length-8} 件...</div>`;
+  }
+  document.getElementById('criticalFindings').innerHTML = critHtml;
+  document.getElementById('warnFindings').innerHTML = warnHtml;
+
+  // Sync progress bar
+  updateProgress();
+}
+
+function backToQuestions() {
+  showStep(1);
+  document.getElementById('navBar').style.display = 'block';
+  renderOrgInfoStrip('orgInfoStripQ');
+  renderSection(currentSectionIdx);
+  updateProgress();
+}
+
+// ===================== SAVE / LOAD =====================
+function saveToFile() {
+  if (!currentEnv) { showToast('環境タイプを選択してください', 'error'); return; }
+
+  const totalQ = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
+  const answered = Object.keys(answers).length;
+
+  const data = {
+    version: '2.2',
+    savedAt: new Date().toISOString(),
+    orgInfo,
+    env: currentEnv,
+    answeredCount: answered,
+    totalCount: totalQ,
+    answers,
+    memos,
+    frameworkId: currentFrameworkId,
+    sections  // embed question data for self-contained restore
+  };
+
+  const json = JSON.stringify(data, null, 2);
+  const company = orgInfo.company ? orgInfo.company.replace(/[\\/:*?"<>|]/g, '_') : 'assessment';
+  const date = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
+  const filename = `security_assessment_${company}_${date}.json`;
+
+  // Show modal with JSON content
+  document.getElementById('saveFilename').textContent = filename;
+  document.getElementById('saveModalTextarea').value = json;
+  document.getElementById('saveModalCopyBtn').textContent = '📋 全てコピー';
+  document.getElementById('saveModalCopyBtn').style.borderColor = 'var(--accent)';
+  document.getElementById('saveModalCopyBtn').style.color = 'var(--accent)';
+  const modal = document.getElementById('saveModal');
+  modal.style.display = 'flex';
+
+  // Auto-copy to clipboard
+  navigator.clipboard.writeText(json).then(() => {
+    document.getElementById('saveModalCopyBtn').textContent = '✓ コピー済み';
+    document.getElementById('saveModalCopyBtn').style.borderColor = 'var(--success)';
+    document.getElementById('saveModalCopyBtn').style.color = 'var(--success)';
+    showToast(`📋 クリップボードにコピーしました（${answered} / ${totalQ} 項目）`, 'success');
+  }).catch(() => {
+    // Clipboard not available — user can manually select and copy from textarea
+  });
+}
+
+function copyModalJson() {
+  const ta = document.getElementById('saveModalTextarea');
+  const btn = document.getElementById('saveModalCopyBtn');
+  navigator.clipboard.writeText(ta.value).then(() => {
+    btn.textContent = '✓ コピー済み';
+    btn.style.borderColor = 'var(--success)';
+    btn.style.color = 'var(--success)';
+    setTimeout(() => {
+      btn.textContent = '📋 全てコピー';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'var(--accent)';
+    }, 2000);
+  }).catch(() => {
+    // Fallback: select all text in textarea
+    ta.focus();
+    ta.select();
+    showToast('テキストを選択しました。Ctrl+C でコピーしてください。', 'success');
+  });
+}
+
+function closeSaveModal() {
+  document.getElementById('saveModal').style.display = 'none';
+}
+
+function _finishLoadFromData(data) {
+  answers = data.answers || {};
+  memos   = data.memos   || {};
+  currentSectionIdx = 0;
+  activeSectionDetail = null;
+  if (data.orgInfo) {
+    orgInfo = { ...orgInfo, ...data.orgInfo };
+    document.getElementById('orgCompany').value = orgInfo.company || '';
+    document.getElementById('orgDept').value    = orgInfo.dept    || '';
+    document.getElementById('orgAdmin').value   = orgInfo.admin   || '';
+    document.getElementById('orgDate').value    = orgInfo.date    || '';
+  }
+  document.querySelectorAll('.fw-card').forEach(c => c.classList.remove('selected'));
+  if (document.getElementById('fw-card-' + currentFrameworkId))
+    document.getElementById('fw-card-' + currentFrameworkId).classList.add('selected');
+
+  showStep(1);
+  buildTabs();
+  renderSection(0);
+  updateProgress();
+  renderOrgInfoStrip('orgInfoStripQ');
+  document.getElementById('navBar').style.display = 'block';
+  updateNav();
+  const answered = Object.keys(answers).length;
+  const total = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
+  showToast('📂 読み込み完了（' + answered + ' / ' + total + ' 項目）', 'success');
+}
+
+function handleFileDrop(event) {
+  event.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (file) readFile(file);
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) readFile(file);
+  event.target.value = ''; // reset so same file can be re-selected
+}
+
+// ===== MENU MODAL FUNCTIONS =====
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modal on backdrop click
+document.addEventListener('click', e => {
+  ['guideModal','loadModal','versionModal','restartConfirmModal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && e.target === el) closeModal(id);
+  });
+});
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['guideModal','loadModal','versionModal','restartConfirmModal'].forEach(id => closeModal(id));
+  }
+});
+
+function openGuideModal() {
+  openModal('guideModal');
+  loadGuide();
+}
+function openLoadModal()    { openModal('loadModal'); }
+function openVersionModal() {
+  openModal('versionModal');
+  loadVersion();
+}
+
+// ===== CONTENT LOADERS =====
+const _contentCache = {};
+
+async function loadGuide() {
+  const body = document.getElementById('guideModalBody');
+  if (_contentCache.guide) { body.innerHTML = _contentCache.guide; return; }
+  body.innerHTML = '<div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>';
+  try {
+    const res = await fetch('content/guide.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const html = renderGuide(data);
+    _contentCache.guide = html;
+    body.innerHTML = html;
+  } catch(e) {
+    console.error('loadGuide error:', e);
+    body.innerHTML = `<div class="fw-error">⚠️ 解説書の読み込みに失敗しました。<br><code>content/guide.json</code> が存在するか確認してください。<br><small style="color:var(--text-muted)">${e.message}</small></div>`;
+  }
+}
+
+async function loadVersion() {
+  const body = document.getElementById('versionModalBody');
+  if (_contentCache.version) { body.innerHTML = _contentCache.version; return; }
+  body.innerHTML = '<div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>';
+  try {
+    const res = await fetch('content/version.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const html = renderVersion(data);
+    _contentCache.version = html;
+    body.innerHTML = html;
+  } catch(e) {
+    console.error('loadVersion error:', e);
+    body.innerHTML = `<div class="fw-error">⚠️ バージョン情報の読み込みに失敗しました。<br><code>content/version.json</code> が存在するか確認してください。<br><small style="color:var(--text-muted)">${e.message}</small></div>`;
+  }
+}
+
+function renderGuide(data) {
+  return data.sections.map(sec => {
+    const contentHtml = sec.content.map(block => {
+      switch(block.type) {
+        case 'p':
+          return `<p class="guide-p">${block.text}</p>`;
+        case 'p_html':
+          return `<p class="guide-p">${block.html}</p>`;
+        case 'p_muted':
+          return `<p class="guide-p" style="font-size:12px;color:var(--text-muted);">${block.text}</p>`;
+        case 'h3':
+          return `<div class="guide-h3">${block.text}</div>`;
+        case 'ul':
+          return `<ul class="guide-ul">${block.items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        case 'ol':
+          return `<ol class="guide-ol">${block.items.map(i => `<li>${i}</li>`).join('')}</ol>`;
+        case 'ul_badges':
+          return `<ul class="guide-ul">${block.items.map(i =>
+            `<li><span class="guide-badge ${i.color}">${i.badge}</span> — ${i.text}</li>`
+          ).join('')}</ul>`;
+        default:
+          return '';
+      }
+    }).join('');
+    return `<div class="guide-section">
+      <div class="guide-h2">${sec.icon} ${sec.heading}</div>
+      ${contentHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderVersion(data) {
+  const rows = data.rows.map((r, i) =>
+    `<div class="ver-row"><span class="ver-label">${r.label}</span><span class="ver-value">${r.value}</span></div>`
+  ).join('');
+  return `
+    <div style="text-align:center; padding:16px 0 24px;">
+      <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);margin-bottom:6px;">${data.appName}</div>
+      <div style="font-size:12px;color:var(--text-muted);">${data.appNameJa}</div>
+    </div>
+    ${rows}`;
+}
+
+function handleModalFileDrop(event) {
+  event.preventDefault();
+  document.getElementById('modalUploadZone').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (file) { readFile(file); closeModal('loadModal'); }
+}
+
+function handleModalFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) { readFile(file); closeModal('loadModal'); }
+  event.target.value = '';
+}
+
+function readFile(file) {
+  if (!file.name.endsWith('.json')) {
+    showToast('JSONファイル（.json）を選択してください', 'error'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      loadFromData(data);
+    } catch {
+      showToast('ファイルの読み込みに失敗しました', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function loadFromData(data) {
+  // Validate structure
+  if (!data.version || !data.env || !data.answers) {
+    showToast('対応していないファイル形式です', 'error'); return;
+  }
+  if (!['onprem', 'cloud', 'hybrid'].includes(data.env)) {
+    showToast('環境タイプが不正なファイルです', 'error'); return;
+  }
+
+  // Restore org info
+  if (data.orgInfo) {
+    orgInfo = { ...orgInfo, ...data.orgInfo };
+    document.getElementById('orgCompany').value = orgInfo.company || '';
+    document.getElementById('orgDept').value    = orgInfo.dept    || '';
+    document.getElementById('orgAdmin').value   = orgInfo.admin   || '';
+    document.getElementById('orgDate').value    = orgInfo.date    || '';
+  }
+
+  // Restore env + answers — load question data from file
+  currentEnv = data.env;
+  currentFrameworkId = data.frameworkId || data.env;
+  currentFrameworkMeta = frameworkCatalog.find(f => f.id === currentFrameworkId) || null;
+  // sections will be set asynchronously
+  if (data.sections) {
+    sections = data.sections;
+    _finishLoadFromData(data);
+    return;
+  }
+  // Load question file
+  const fwMeta = frameworkCatalog.find(f => f.id === currentFrameworkId);
+  if (!fwMeta) { showToast('対応フレームワークが見つかりません: ' + currentFrameworkId, 'error'); return; }
+  fetch(fwMeta.file).then(r => r.json()).then(qdata => {
+    sections = qdata.sections;
+    _finishLoadFromData(data);
+  }).catch(() => showToast('質問データの読み込みに失敗しました', 'error'));
+  return; // async
+  answers = data.answers || {};
+  memos   = data.memos   || {};
+  currentSectionIdx = 0;
+  activeSectionDetail = null;
+
+  // Mark env card as selected
+  document.querySelectorAll('.env-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector('.env-card.' + currentEnv).classList.add('selected');
+
+  // Move to question page
+  showStep(1);
+  buildTabs();
+  renderSection(0);
+  updateProgress();
+  renderOrgInfoStrip('orgInfoStripQ');
+  document.getElementById('navBar').style.display = 'block';
+  updateNav();
+
+  const answered = Object.keys(answers).length;
+  const total = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
+  showToast(`📂 読み込み完了（${answered} / ${total} 項目）`, 'success');
+}
+
+// ===================== PDF EXPORT =====================
+function exportPDF() {
+  const btn = document.getElementById('btnExportPdf');
+  btn.disabled = true;
+  btn.textContent = '⏳ 生成中...';
+
+  try {
+    // ── データ収集 ────────────────────────────────────────
+    const fwLabel = currentFrameworkMeta
+      ? currentFrameworkMeta.label + ' ' + currentFrameworkMeta.sublabel
+      : (currentEnv || '');
+    const fmtDate = iso => {
+      if (!iso) return new Date().toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'});
+      const [y,m,d] = iso.split('-');
+      return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+    };
+    const today = fmtDate(orgInfo.date);
+
+    const sectionData = sections.map(sec => {
+      const qs = sec.subsections.flatMap(s => s.questions);
+      return { label: sec.label, score: calcScore(qs), count: qs.length };
+    });
+    const overallScore = Math.round(
+      sectionData.reduce((a,b) => a + b.score, 0) / sectionData.length
+    );
+    const maturity = getMaturity(overallScore);
+
+    const allQ = sections.flatMap(sec =>
+      sec.subsections.flatMap(sub => sub.questions.map(q => ({...q, section: sec.label})))
+    );
+    const critical = allQ.filter(q => answers[q.no] === 'no');
+    const warns    = allQ.filter(q => answers[q.no] === 'part' || answers[q.no] === 'most');
+    const answered = allQ.filter(q => answers[q.no]);
+    const ansRate  = Math.round(answered.length / allQ.length * 100);
+
+    // ── レーダーチャート画像取得 ──────────────────────────
+    const canvas  = document.getElementById('radarChart');
+    const chartImg = canvas ? canvas.toDataURL('image/png') : '';
+
+    // ── スコアバー生成 ────────────────────────────────────
+    const scoreBar = (score) => {
+      const filled = Math.round(score / 5);
+      return '■'.repeat(filled) + '□'.repeat(20 - filled);
+    };
+
+    // ── セクションテーブルHTML ────────────────────────────
+    const secRows = sectionData.map(s => {
+      const m = getMaturity(s.score);
+      return `<tr>
+        <td>${s.label}</td>
+        <td class="num" style="color:${m.color};font-weight:700;">${s.score}%</td>
+        <td class="cen">Lv.${m.level} ${m.label}</td>
+        <td class="bar">${scoreBar(s.score)}</td>
+      </tr>`;
+    }).join('');
+
+    // ── findingsテーブルHTML ──────────────────────────────
+    const findingRow = (q, bg) => {
+      const memo = memos[q.no] || '';
+      return `<tr style="background:${bg}">
+        <td>${q.section}</td>
+        <td class="cen">${q.no}</td>
+        <td>${q.text}${memo ? `<div class="memo">📝 ${memo}</div>` : ''}</td>
+      </tr>`;
+    };
+    const critRows = critical.length === 0
+      ? '<tr><td colspan="3" class="ok">✓ 要対応事項はありません</td></tr>'
+      : critical.map((q,i) => findingRow(q, i%2===0 ? '#fff5f5' : '#fff')).join('');
+    const warnRows = warns.length === 0
+      ? '<tr><td colspan="3" class="ok">✓ 改善推奨事項はありません</td></tr>'
+      : warns.map((q,i) => {
+          const ans = answers[q.no] === 'most' ? 'ほとんど' : '一部';
+          const memo = memos[q.no] || '';
+          return `<tr style="background:${i%2===0 ? '#fffbeb' : '#fff'}">
+            <td>${q.section}</td>
+            <td class="cen">${q.no}</td>
+            <td class="cen">${ans}</td>
+            <td>${q.text}${memo ? `<div class="memo">📝 ${memo}</div>` : ''}</td>
+          </tr>`;
+        }).join('');
+
+    // ── 印刷ウィンドウのHTML ──────────────────────────────
+    const html = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>セキュリティ評価報告書</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans JP', 'Hiragino Sans', 'Meiryo', sans-serif;
+         font-size: 10pt; color: #1e293b; background: #fff; }
+
+  /* 表紙ヘッダー */
+  .cover-header {
+    background: #1e3a5f; color: #fff;
+    text-align: center; padding: 28pt 20pt 22pt;
+    margin-bottom: 16pt;
+  }
+  .cover-header h1 { font-size: 22pt; letter-spacing: .04em; margin-bottom: 6pt; }
+  .cover-header h2 { font-size: 12pt; font-weight: 400; margin-bottom: 6pt; }
+  .cover-header .fw  { font-size: 9pt; color: #93c5fd; }
+
+  /* ページ共通ヘッダー（印刷用） */
+  .page-header {
+    background: #1e3a5f; color: #fff;
+    font-size: 8pt; padding: 5pt 14pt;
+    display: flex; justify-content: space-between;
+    margin-bottom: 14pt;
+  }
+
+  /* セクションタイトル */
+  .section-title { font-size: 13pt; font-weight: 700; color: #1e3a5f;
+                   margin: 0 0 10pt; padding-bottom: 4pt;
+                   border-bottom: 2px solid #2563eb; }
+  .section-sub   { font-size: 8pt; color: #64748b; margin-top: -6pt; margin-bottom: 10pt; }
+
+  /* アセスメント情報テーブル */
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 14pt; }
+  .info-table td { padding: 6pt 10pt; border: 1px solid #e2e8f0; font-size: 10pt; }
+  .info-table td:first-child { width: 110pt; background: #f1f5f9;
+                                font-weight: 700; color: #64748b; }
+
+  /* サマリーカード */
+  .cards { display: flex; gap: 10pt; margin-bottom: 16pt; }
+  .card  { flex: 1; border-radius: 6pt; padding: 10pt 12pt; color: #fff; text-align: center; }
+  .card .lbl { font-size: 8pt; margin-bottom: 4pt; opacity: .9; }
+  .card .val { font-size: 16pt; font-weight: 700; line-height: 1.2; }
+  .card .sub { font-size: 8pt; opacity: .85; }
+  .card-blue  { background: #2563eb; }
+  .card-red   { background: #dc2626; }
+  .card-green { background: #059669; }
+  .card-amber { background: #d97706; }
+  .card-gray  { background: #64748b; }
+
+  /* チャート */
+  .chart-wrap { text-align: center; margin-bottom: 14pt; }
+  .chart-wrap img { max-width: 220pt; }
+
+  /* 汎用テーブル */
+  table.data { width: 100%; border-collapse: collapse; margin-bottom: 14pt;
+               font-size: 9pt; }
+  table.data th { background: #1e3a5f; color: #fff; padding: 5pt 8pt;
+                  font-weight: 700; text-align: left; }
+  table.data td { padding: 5pt 8pt; border-bottom: 1px solid #e2e8f0;
+                  vertical-align: top; }
+  table.data .num  { text-align: right; white-space: nowrap; }
+  table.data .cen  { text-align: center; white-space: nowrap; }
+  table.data .bar  { font-family: monospace; font-size: 7pt;
+                     color: #94a3b8; white-space: nowrap; }
+  table.data .ok   { text-align: center; color: #059669; font-weight: 700;
+                     padding: 10pt; }
+  table.data .memo { font-size: 8pt; color: #64748b; margin-top: 3pt;
+                     border-left: 2px solid #cbd5e1; padding-left: 6pt; }
+
+  /* 要対応 / 改善のヘッダー色 */
+  table.crit th { background: #dc2626; }
+  table.warn th { background: #d97706; }
+
+  /* 改ページ */
+  .pagebreak { page-break-before: always; }
+
+  /* フッター */
+  .footer { text-align: center; font-size: 8pt; color: #94a3b8;
+            margin-top: 20pt; padding-top: 8pt;
+            border-top: 1px solid #e2e8f0; }
+
+  /* 印刷設定 */
+  @media print {
+    @page { size: A4; margin: 14mm 14mm 16mm; }
+    body  { font-size: 9.5pt; }
+    .no-print { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======== 表紙 ======== -->
+<div class="cover-header">
+  <h1>Security Assessment</h1>
+  <h2>企業セキュリティ リスクアセスメント報告書</h2>
+  <div class="fw">${fwLabel}</div>
+</div>
+
+<div style="padding:0 14pt;">
+
+  <div class="section-title">アセスメント情報</div>
+  <table class="info-table">
+    <tr><td>企業名</td><td>${orgInfo.company || '—'}</td></tr>
+    <tr><td>組織名 / 部署名</td><td>${orgInfo.dept || '—'}</td></tr>
+    <tr><td>入力管理者</td><td>${orgInfo.admin || '—'}</td></tr>
+    <tr><td>評価実施日</td><td>${today}</td></tr>
+    <tr><td>対象フレームワーク</td><td>${fwLabel}</td></tr>
+  </table>
+
+  <div class="section-title">評価サマリー</div>
+  <div class="cards">
+    <div class="card card-blue">
+      <div class="lbl">総合スコア</div>
+      <div class="val">${overallScore}%</div>
+    </div>
+    <div class="card" style="background:${maturity.color};">
+      <div class="lbl">成熟度レベル</div>
+      <div class="val">Lv.${maturity.level}</div>
+      <div class="sub">${maturity.label}</div>
+    </div>
+    <div class="card card-gray">
+      <div class="lbl">回答率</div>
+      <div class="val">${ansRate}%</div>
+      <div class="sub">${answered.length} / ${allQ.length} 問</div>
+    </div>
+  </div>
+
+  ${chartImg ? `
+  <div class="section-title">レーダーチャート</div>
+  <div class="chart-wrap"><img src="${chartImg}" alt="レーダーチャート"></div>
+  ` : ''}
+
+  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+</div>
+
+<!-- ======== セクション別スコア ======== -->
+<div class="pagebreak"></div>
+<div class="page-header">
+  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${fwLabel}</span>
+</div>
+<div style="padding:0 14pt;">
+  <div class="section-title">セクション別スコア</div>
+  <table class="data">
+    <thead><tr>
+      <th>セクション</th>
+      <th class="num">スコア</th>
+      <th class="cen">成熟度</th>
+      <th class="bar">スコアバー（各5%）</th>
+    </tr></thead>
+    <tbody>${secRows}</tbody>
+  </table>
+  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+</div>
+
+<!-- ======== 要対応事項 ======== -->
+<div class="pagebreak"></div>
+<div class="page-header">
+  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${fwLabel}</span>
+</div>
+<div style="padding:0 14pt;">
+  <div class="section-title" style="color:#dc2626;border-color:#dc2626;">
+    要対応事項（${critical.length}件）
+  </div>
+  <div class="section-sub">回答が「いいえ」の項目です。優先的な対応が必要です。</div>
+  <table class="data crit">
+    <thead><tr>
+      <th style="width:90pt;">セクション</th>
+      <th class="cen" style="width:40pt;">No.</th>
+      <th>質問内容</th>
+    </tr></thead>
+    <tbody>${critRows}</tbody>
+  </table>
+  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+</div>
+
+<!-- ======== 改善推奨事項 ======== -->
+<div class="pagebreak"></div>
+<div class="page-header">
+  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${fwLabel}</span>
+</div>
+<div style="padding:0 14pt;">
+  <div class="section-title" style="color:#d97706;border-color:#d97706;">
+    改善推奨事項（${warns.length}件）
+  </div>
+  <div class="section-sub">「一部対応」または「ほとんど対応」の項目です。さらなる強化を推奨します。</div>
+  <table class="data warn">
+    <thead><tr>
+      <th style="width:90pt;">セクション</th>
+      <th class="cen" style="width:40pt;">No.</th>
+      <th class="cen" style="width:46pt;">回答</th>
+      <th>質問内容</th>
+    </tr></thead>
+    <tbody>${warnRows}</tbody>
+  </table>
+  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+</div>
+
+<div class="no-print" style="text-align:center;padding:20pt;font-family:sans-serif;">
+  <p style="font-size:11pt;color:#64748b;margin-bottom:12pt;">
+    ブラウザの印刷ダイアログが開きます。<br>
+    「送信先」で <strong>「PDFに保存」</strong> を選択してください。
+  </p>
+  <button onclick="window.print()"
+    style="padding:10pt 28pt;font-size:12pt;background:#2563eb;color:#fff;
+           border:none;border-radius:6pt;cursor:pointer;">
+    📄 PDFとして保存
+  </button>
+</div>
+
+</body>
+</html>`;
+
+    // ── 印刷ウィンドウを開く ──────────────────────────────
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) {
+      showToast('ポップアップがブロックされました。ブラウザの設定でポップアップを許可してください。', 'error');
+      return;
+    }
+    win.document.write(html);
+    win.document.close();
+
+    // フォント読み込み完了後に印刷ダイアログを自動表示
+    win.addEventListener('load', () => {
+      setTimeout(() => win.print(), 600);
+    });
+
+    showToast('📄 印刷ダイアログを開きました。「PDFに保存」を選択してください。', 'success');
+
+  } catch(e) {
+    console.error('[exportPDF]', e);
+    showToast('レポート生成に失敗しました: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📄 PDFレポート出力';
+  }
+}
+
+
+let _toastTimer = null;
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+}
+
+function restart() {
+  // 回答がひとつもない場合は確認なしで即リセット
+  if (Object.keys(answers).length === 0) {
+    confirmRestart();
+  } else {
+    openModal('restartConfirmModal');
+  }
+}
+
+function confirmRestart() {
+  closeModal('restartConfirmModal');
+  currentEnv = null;
+  currentFrameworkId = null;
+  currentFrameworkMeta = null;
+  sections = [];
+  currentSectionIdx = 0;
+  answers = {};
+  memos   = {};
+  activeSectionDetail = null;
+  orgInfo = { company: '', dept: '', admin: '', date: '' };
+  REF_DEFINITIONS = {};
+  Object.keys(_defCache).forEach(k => delete _defCache[k]);
+  document.getElementById('orgCompany').value = '';
+  document.getElementById('orgDept').value = '';
+  document.getElementById('orgAdmin').value = '';
+  document.getElementById('orgDate').value = '';
+  document.querySelectorAll('.fw-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btnStartAssessment').disabled = true;
+  document.getElementById('btnStartAssessment').textContent = 'アセスメントを開始する →';
+  document.getElementById('navBar').style.display = 'none';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressText').textContent = '0 / 0';
+  closePopover();
+  showStep(0);
+}
+
+// Init on load
+document.addEventListener("DOMContentLoaded", loadManifest);
+</script>
+</body>
+</html>

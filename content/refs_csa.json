@@ -1,0 +1,88 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "framework": "CSA CCM v4",
+    "description": "CSA Cloud Controls Matrix v4 識別番号の概要(summary)と詳細定義(detail)。16件収録。",
+    "count": 16
+  },
+
+  "CSA CCM CEK-01": {
+    "summary": "CSA CCM CEK-01 — 暗号化・鍵管理ポリシーの策定",
+    "detail": "【正式名称】Encryption and Key Management Policy and Procedures\n【目的・概要】\nクラウド環境における暗号化と鍵管理のポリシー・手続きを確立する。データの機密性を技術的に保証するための基盤となる要件。\n【主な要件】\n・暗号化要件と使用アルゴリズムの定義（AES-256、TLS 1.2以上等）\n・鍵の生成・保管・ローテーション・廃棄のライフサイクル手順の整備\n・鍵管理の責任者と承認プロセスの定義\n・暗号化ポリシーの定期レビュー（年1回以上）\n【実装例】\nAWS KMS利用ポリシーを策定し、CMKの年次自動ローテーション・最小権限IAMポリシー・CloudTrailによる全鍵使用操作の監査ログ取得を標準として定める。"
+  },
+
+  "CSA CCM CEK-03": {
+    "summary": "CSA CCM CEK-03 — 暗号化・鍵管理の実装",
+    "detail": "【正式名称】Encryption and Key Management Implementation\n【目的・概要】\nクラウドサービス全体で一貫した暗号化と鍵管理を実装する。ポリシーで定めた要件を実際のシステムに反映させる。\n【主な要件】\n・転送中データの暗号化（TLS 1.2以上）の全通信への適用\n・保存中データの暗号化（AES-256等）の全ストレージへの適用\n・顧客管理鍵（CMK/BYOK）の提供と管理オプションの整備\n・暗号化状態の継続的な監視と未暗号化リソースの検出\n【実装例】\nAWS KMSのCMKで全RDS・S3・EBSのデータを暗号化し、AWS ConfigルールでEncryptionEnabled状態を常時検証する。未暗号化リソース検出時はSecurity HubアラートをSlackに自動通知する。"
+  },
+
+  "CSA CCM CCC-04": {
+    "summary": "CSA CCM CCC-04 — 変更管理の実装（本番変更制御）",
+    "detail": "【正式名称】Change Management Technology\n【目的・概要】\nクラウド環境での変更管理プロセスを技術的に実装する。IaC（Infrastructure as Code）とCI/CDを活用した自動化・標準化が重要。\n【主な要件】\n・全インフラ変更のIaC（Terraform・CloudFormation等）化\n・変更前の自動セキュリティ検証（tfsec・Checkov等）\n・本番環境へのデプロイは承認済みパイプライン経由のみ許可\n・構成ドリフトの検出と自動修正（AWS Config等）\n【実装例】\nTerraform CloudとGitHub ActionsでIaCのCI/CDパイプラインを構築し、tfsec・CheckovによるIaCセキュリティスキャンをMandatoryゲートとして設置。手動での本番環境変更は技術的に禁止する。"
+  },
+
+  "CSA CCM DSP-01": {
+    "summary": "CSA CCM DSP-01 — データセキュリティ・プライバシーポリシー",
+    "detail": "【正式名称】Data Security and Privacy Policy\n【目的・概要】\nクラウド環境でのデータセキュリティとプライバシーに関するポリシーを確立する。クラウド特有のデータ移動・共有・マルチテナントリスクに対応する。\n【主な要件】\n・クラウド上のデータ分類基準（公開・社内・機密・極秘）の策定\n・プライバシー要件（GDPR・個人情報保護法等）への対応方針の明文化\n・データオーナー・データカストディアン・データ処理者の役割定義\n・クラウドサービスプロバイダーとの責任共有モデルの文書化\n【実装例】\nMicrosoft Purviewでデータ分類ラベルを定義し、クラウド上の全データに自動ラベリングを適用。機密ラベル付きデータの外部共有を自動ブロックし、アクセスログを90日間保管する。"
+  },
+
+  "CSA CCM DSP-05": {
+    "summary": "CSA CCM DSP-05 — データフロー文書化とデータ保護評価",
+    "detail": "【正式名称】Data Flow Documentation\n【目的・概要】\nクラウド環境でのデータフローを文書化し、機密データの保護状態を評価する。データがどこに存在し、どのように移動しているかを可視化する。\n【主な要件】\n・クラウド間・オンプレミス間のデータフロー図の整備と維持\n・機密データの所在（リージョン・サービス・アカウント）の把握\n・定期的なデータ保護影響評価（DPIA）の実施\n・クロスボーダーデータ転送の把握と法的要件への対応\n【実装例】\nAWS Macieで S3上の個人情報・クレジットカード番号等を自動検出・分類し、Lucidchartのデータフロー図と定期的に突合してデータの所在を最新化する。"
+  },
+
+  "CSA CCM DSP-07": {
+    "summary": "CSA CCM DSP-07 — クラウド環境でのDLP実装",
+    "detail": "【正式名称】Data Loss Prevention\n【目的・概要】\nクラウド環境における機密データの外部漏洩を防止するDLP（Data Loss Prevention）ツールを実装する。クラウドネイティブなデータ漏洩経路（SaaS・クラウドストレージ等）に対応する。\n【主な要件】\n・CASBまたはクラウドDLPツールの導入\n・クラウドストレージ・SaaSへの機密データアップロードの制御\n・メール・メッセージングツール経由の機密データ送信の監視\n・DLPポリシーの継続的なチューニングと誤検知の低減\n【実装例】\nNetskope CASBで全SaaS・クラウドストレージへのデータアップロードを監視し、Microsoft Purview DLPと連携して機密ラベル付きファイルの外部共有・メール送信を自動ブロックする。"
+  },
+
+  "CSA CCM GRC-01": {
+    "summary": "CSA CCM GRC-01 — クラウドガバナンス・リスク・コンプライアンス管理",
+    "detail": "【正式名称】Governance Risk and Compliance Policy\n【目的・概要】\nクラウド環境のガバナンス・リスク管理・コンプライアンス（GRC）フレームワークを確立する。クラウド利用に伴う新たなリスクを組織のGRC体制に統合する。\n【主な要件】\n・クラウドGRCポリシーの策定と経営層承認\n・クラウド固有リスク（設定ミス・シャドーIT・マルチテナント等）の定期評価\n・適用コンプライアンス要件（ISMAP・SOC2・FedRAMP等）の特定と対応\n・クラウドセキュリティ態勢のリアルタイム可視化\n【実装例】\nAWS Security Hub・Microsoft Defender for Cloud等のCSPMツールを導入し、CISベンチマーク・NIST CSFに基づくコンプライアンススコアを月次で経営層に報告する。"
+  },
+
+  "CSA CCM IAM-02": {
+    "summary": "CSA CCM IAM-02 — IDフェデレーションとシングルサインオン",
+    "detail": "【正式名称】Identity and Access Management Policy\n【目的・概要】\nクラウドサービスのIDとアクセス管理のポリシーを確立し、IDフェデレーション・SSOを実装する。クラウド環境で乱立するIDを一元管理する。\n【主な要件】\n・クラウドIAMポリシーの策定（最小権限・職務分離等）\n・IDフェデレーション（SAML 2.0・OIDC）によるSSO実装\n・クラウドネイティブIAMロール・ポリシーの設計標準\n・ユーザーライフサイクル管理の自動化（SCIMプロビジョニング等）\n【実装例】\nAzure AD（Entra ID）をIdPとしてAWS・GCP・O365・Salesforceを含む全クラウドサービスにSAML SSOを設定。SCIMで入退職時のアカウントを自動プロビジョニング/デプロビジョニングする。"
+  },
+
+  "CSA CCM IAM-06": {
+    "summary": "CSA CCM IAM-06 — ユーザーアクセスのプロビジョニングと最小権限",
+    "detail": "【正式名称】User Access Provisioning\n【目的・概要】\nクラウドサービスへのユーザーアクセスのプロビジョニングを管理し、最小権限の原則を徹底する。クラウド環境での過剰な権限付与（権限のクリープ）を防ぐ。\n【主な要件】\n・アクセス付与の申請・承認ワークフローの整備\n・ロールベースアクセス制御（RBAC）またはABAC の実装\n・クラウドIAMポリシーの最小権限設計（AWS IAM Access Analyzer等で検証）\n・アクセス権限の定期レビュー（最低半年ごと）\n【実装例】\nAWS IAM Identity Centerで全AWSアカウントを一元管理。Permission Setを職務ロールに対応させ、AWS IAM Access Analyzerで未使用権限を自動検出して定期的に削除する。"
+  },
+
+  "CSA CCM IAM-09": {
+    "summary": "CSA CCM IAM-09 — ユーザーアクセスレビュー",
+    "detail": "【正式名称】User Access Review\n【目的・概要】\nクラウドサービスへのユーザーアクセス権限を定期的にレビューし、不要な権限を削除する。特にクラウド環境では権限の蓄積が起きやすいため定期レビューが重要。\n【主な要件】\n・定期的（最低四半期ごと）なアクセスレビューの実施\n・アクセスレビューの自動化ツール（Azure AD Access Reviews等）の活用\n・レビュー結果の文書化と対応記録の保管\n・レビュー未完了アカウントの自動無効化\n【実装例】\nAzure AD Access Reviewsで全クラウドサービスへのアクセス権限を四半期ごとに自動レビュー。管理者が期限内に確認・承認しなかったアクセスを自動削除し、レビュー証跡をAudit Logに保管する。"
+  },
+
+  "CSA CCM IVS-01": {
+    "summary": "CSA CCM IVS-01 — ネットワークアーキテクチャとセグメンテーション",
+    "detail": "【正式名称】Infrastructure and Virtualization Security Policy\n【目的・概要】\nクラウドインフラと仮想化環境のセキュリティポリシーを確立する。クラウドネイティブなネットワーク分離・セキュリティ設計の基準を定める。\n【主な要件】\n・クラウドインフラのセキュリティ設計基準（VPC設計・セキュリティグループ等）の策定\n・ネットワークセグメンテーション（パブリック・プライベート・データ層）の実装\n・仮想化環境のハイパーバイザーセキュリティ要件の定義\n・クラウドセキュリティ基準のIaC化と自動適用\n【実装例】\nAWSのWell-Architected Security PillarとCIS AWS Foundationsベンチマークを参照したクラウドセキュリティ基準書を策定。Terraform ModuleでVPC・セキュリティグループの標準設計を定義し、全AWSアカウントのガードレールとして適用する。"
+  },
+
+  "CSA CCM IVS-03": {
+    "summary": "CSA CCM IVS-03 — クラウドインフラのキャパシティ管理",
+    "detail": "【正式名称】Capacity and Resource Planning\n【目的・概要】\nクラウドリソースの容量計画と可用性管理を実施し、リソース不足によるサービス停止リスクを低減する。クラウドの弾力性を活かした適切な設計を行う。\n【主な要件】\n・リソース使用量の継続的な監視と使用傾向の予測\n・自動スケーリング（Auto Scaling・HPA等）の設定\n・リソース上限（クォータ）の監視とアラート設定\n・コスト最適化と可用性のバランス設計\n【実装例】\nAWS Auto ScalingとCloudWatchでCPU・メモリ・リクエスト数を監視し、閾値超過時に自動スケールアウトして可用性を確保する。月次のCapacity Reviewで翌四半期のリソース計画を策定する。"
+  },
+
+  "CSA CCM IVS-06": {
+    "summary": "CSA CCM IVS-06 — クラウドとオンプレミス間の安全な接続",
+    "detail": "【正式名称】Network Security\n【目的・概要】\nクラウドと外部ネットワーク（オンプレミス・他クラウド・インターネット）間の通信を安全に保護する。クラウド環境特有の接続経路（Direct Connect・VPN・Peering等）のセキュリティを確保する。\n【主な要件】\n・VPN または専用線（Direct Connect・ExpressRoute等）による暗号化接続\n・クラウド間接続（VPC Peering・Transit Gateway等）のアクセス制御\n・インターネット公開エンドポイントの最小化\n・接続経路の冗長化と障害時フェールオーバー\n【実装例】\nAWS Direct ConnectとVPN冗長構成（Active/Standby）でオンプレミスとAWSを接続し、すべての通信をIPSec暗号化する。Transit Gatewayで複数VPC間の通信を集中制御し、不要なVPC間通信を遮断する。"
+  },
+
+  "CSA CCM IVS-08": {
+    "summary": "CSA CCM IVS-08 — ネットワーク冗長性・可用性",
+    "detail": "【正式名称】High Availability\n【目的・概要】\nクラウドサービスの高可用性を実現するためのインフラ設計を確立する。単一障害点（SPOF）を排除し、障害発生時の影響を最小化する。\n【主な要件】\n・マルチAZ構成による障害耐性の確保（最低2AZ推奨）\n・ロードバランサーによる負荷分散とヘルスチェックの実装\n・RTO/RPO に基づいた可用性設計の実施\n・定期的なフェールオーバーテストの実施\n【実装例】\n重要システムをAWS東京リージョン内の3AZにデプロイし、Application Load BalancerとAuto Scalingで高可用性を確保する。マルチリージョン対応が必要なシステムはAWS Global AcceleratorとRoute 53フェールオーバーを組み合わせる。"
+  },
+
+  "CSA CCM IVS-09": {
+    "summary": "CSA CCM IVS-09 — ネットワークセキュリティ（ファイアウォール・IDS）",
+    "detail": "【正式名称】Network Defense\n【目的・概要】\nクラウド環境のネットワーク防御（セキュリティグループ・WAF・IDS/IPS等）を多層的に実装する。クラウドネイティブなセキュリティサービスを活用した防御体制を構築する。\n【主な要件】\n・セキュリティグループ・NACLによるネットワークレベルのアクセス制御\n・WAF（Web Application Firewall）によるWebアプリケーション保護\n・クラウドネイティブな脅威検知（AWS GuardDuty・Azure Defender等）の有効化\n・ネットワークフローログの収集と異常通信の監視\n【実装例】\nAWS WAF・Shield Advanced・GuardDuty・Security Groupを組み合わせた多層防御を構成する。GuardDutyの脅威検知をLambdaと連携させ、C2通信・異常なAPI呼び出しを自動でIPブロックするSOARを実装する。"
+  },
+
+  "CSA CCM STA-01": {
+    "summary": "CSA CCM STA-01 — サービス利用とビジネス評価",
+    "detail": "【正式名称】Supply Chain Management Policy\n【目的・概要】\nクラウドサービスのサプライチェーン（CSP・SaaS等）を管理するポリシーを策定する。CSP選定から利用停止まで、クラウドサービスの全ライフサイクルを管理する。\n【主な要件】\n・クラウドサプライヤーの評価基準（セキュリティ認証・コンプライアンス等）の定義\n・CSPとのSLA（可用性・セキュリティ・インシデント通知等）の管理\n・CSPのセキュリティ認証（SOC2 Type2・ISO27001・ISMAP等）の定期確認\n・クラウドサービス終了時のデータ移行・削除確認手順の整備\n【実装例】\n全クラウドサービスプロバイダーの年次評価フレームワークを策定。機密データを扱うサービスはISMAP登録またはSOC2 Type2取得を採用条件とし、年次レポートの提出を契約に明記する。"
+  }
+}

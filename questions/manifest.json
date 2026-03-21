@@ -1,0 +1,98 @@
+{
+  "version": "1.0",
+  "frameworks": [
+    {
+      "id": "nist_onprem",
+      "label": "NIST SP 800-53 / CIS Controls",
+      "sublabel": "オンプレミス型",
+      "icon": "🖥️",
+      "color": "#3b82f6",
+      "description": "社内データセンター・サーバールーム等のオンプレミス環境向け。NIST SP 800-53 Rev.5 および CIS Controls v8 準拠。",
+      "file": "questions/nist_onprem.json",
+      "env": "onprem",
+      "tags": [
+        "NIST SP 800-53",
+        "CIS Controls v8"
+      ],
+      "refsFiles": [
+        "content/refs_nist.json",
+        "content/refs_csa.json",
+        "content/refs_cis.json"
+      ]
+    },
+    {
+      "id": "nist_cloud",
+      "label": "NIST SP 800-53 / CIS Controls",
+      "sublabel": "クラウド型",
+      "icon": "☁️",
+      "color": "#8b5cf6",
+      "description": "AWS / Azure / GCP 等のクラウドネイティブ環境向け。CSA CCM v4 も含む。",
+      "file": "questions/nist_cloud.json",
+      "env": "cloud",
+      "tags": [
+        "NIST SP 800-53",
+        "CIS Controls v8",
+        "CSA CCM v4"
+      ],
+      "refsFiles": [
+        "content/refs_nist.json",
+        "content/refs_csa.json",
+        "content/refs_cis.json"
+      ]
+    },
+    {
+      "id": "nist_hybrid",
+      "label": "NIST SP 800-53 / CIS Controls",
+      "sublabel": "ハイブリッド型",
+      "icon": "⚡",
+      "color": "#f59e0b",
+      "description": "クラウドとオンプレミスを組み合わせた複合環境向け。ゼロトラスト（NIST SP 800-207）対応。",
+      "file": "questions/nist_hybrid.json",
+      "env": "hybrid",
+      "tags": [
+        "NIST SP 800-53",
+        "CIS Controls v8",
+        "CSA CCM v4",
+        "NIST SP 800-207"
+      ],
+      "refsFiles": [
+        "content/refs_nist.json",
+        "content/refs_csa.json",
+        "content/refs_cis.json"
+      ]
+    },
+    {
+      "id": "cis_v8",
+      "label": "CIS Controls v8.1",
+      "sublabel": "全18カテゴリ",
+      "icon": "🛡️",
+      "color": "#10b981",
+      "description": "CIS（Center for Internet Security）が定義する18のセキュリティコントロール。Implementation Group 1〜3 に対応。",
+      "file": "questions/cis_v8.json",
+      "env": null,
+      "tags": [
+        "CIS Controls v8.1"
+      ],
+      "refsFiles": [
+        "content/refs_cis.json"
+      ]
+    },
+    {
+      "id": "iso27001",
+      "label": "ISO/IEC 27001:2022",
+      "sublabel": "全10ドメイン",
+      "icon": "📋",
+      "color": "#06b6d4",
+      "description": "情報セキュリティ管理システム（ISMS）の国際規格。2022年版の附属書Aコントロール（93項目）に基づく。",
+      "file": "questions/iso27001.json",
+      "env": null,
+      "tags": [
+        "ISO/IEC 27001:2022",
+        "ISMS"
+      ],
+      "refsFiles": [
+        "content/refs_iso27001.json"
+      ]
+    }
+  ]
+}
