@@ -1,2 +1,11 @@
 # SecurityAssessment
-Security Assessment support tool compliant with NIST SP 800-53, CIS Controls, ISO 20071
+- Security Assessment は NIST SP 800-53, CIS Controls, ISO 20071, NIST CST などのセキュリティ成熟度評価のためのフレームワークに準じたアセスメントを行うアプリケーションである
+- /docs フォルダに、要件定義書、設計書、テスト仕様書が含まれている
+- 主な機能
+  - フレームワークの選択
+  - 要求事項に対応した質問への回答、メモ記入
+  - 評価結果に基づく総合スコア、成熟度レベル、回答率、レーダーチャート、セクション別スコアなどのダッシュボード表示
+  - ダッシュボード上の要対応事項、改善推奨事項の自動表示
+  - 評価結果のレポート出力
+  - 回答内容のファイル保存と読み込み(.json形式)
+  - 解説書の表示
