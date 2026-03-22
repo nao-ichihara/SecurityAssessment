@@ -1394,25 +1394,7 @@
 <div id="toast"></div>
 
 <!-- Save Modal -->
-<div id="saveModal" style="display:none; position:fixed; inset:0; z-index:700; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
-  <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; width:560px; max-width:calc(100vw - 32px); max-height:80vh; display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,0.7);">
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border);">
-      <div>
-        <div style="font-size:14px; font-weight:700;">💾 回答データの保存</div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">以下のJSONをコピーして、テキストファイル（.json）として保存してください</div>
-      </div>
-      <button onclick="closeSaveModal()" style="background:none; border:1px solid var(--border); border-radius:4px; color:var(--text-muted); cursor:pointer; padding:4px 10px; font-size:13px;">✕</button>
-    </div>
-    <div style="padding:12px 20px; border-bottom:1px solid var(--border); display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-      <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--text-muted);" id="saveFilename"></span>
-      <button id="saveModalCopyBtn" onclick="copyModalJson()" style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 14px; border:1px solid var(--accent); border-radius:4px; cursor:pointer; background:rgba(59,130,246,0.1); color:var(--accent); transition:all 0.15s;">📋 全てコピー</button>
-    </div>
-    <textarea id="saveModalTextarea" readonly style="flex:1; min-height:300px; background:var(--bg); border:none; color:var(--text-dim); font-family:'Space Mono',monospace; font-size:11px; line-height:1.6; padding:16px 20px; resize:none; outline:none; overflow-y:auto;"></textarea>
-    <div style="padding:12px 20px; border-top:1px solid var(--border); font-size:11px; color:var(--text-muted);">
-      ① 「全てコピー」→ ② テキストエディタに貼り付け → ③ ファイル名を <code style="background:rgba(255,255,255,0.06); padding:1px 5px; border-radius:3px;">.json</code> で保存
-    </div>
-  </div>
-</div>
+<!-- ※ saveModal は v2.3 でダウンロード方式に変更したため廃止 -->
 
 <!-- Ref hover tooltip -->
 <div id="refTooltip">
@@ -2497,13 +2479,13 @@ function backToQuestions() {
 
 // ===================== SAVE / LOAD =====================
 function saveToFile() {
-  if (!currentEnv) { showToast('環境タイプを選択してください', 'error'); return; }
+  if (!currentFrameworkId) { showToast('フレームワークを選択してください', 'error'); return; }
 
   const totalQ = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
   const answered = Object.keys(answers).length;
 
   const data = {
-    version: '2.2',
+    version: '2.4',
     savedAt: new Date().toISOString(),
     orgInfo,
     env: currentEnv,
@@ -2520,48 +2502,18 @@ function saveToFile() {
   const date = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
   const filename = `security_assessment_${company}_${date}.json`;
 
-  // Show modal with JSON content
-  document.getElementById('saveFilename').textContent = filename;
-  document.getElementById('saveModalTextarea').value = json;
-  document.getElementById('saveModalCopyBtn').textContent = '📋 全てコピー';
-  document.getElementById('saveModalCopyBtn').style.borderColor = 'var(--accent)';
-  document.getElementById('saveModalCopyBtn').style.color = 'var(--accent)';
-  const modal = document.getElementById('saveModal');
-  modal.style.display = 'flex';
+  // ダウンロード実行
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 
-  // Auto-copy to clipboard
-  navigator.clipboard.writeText(json).then(() => {
-    document.getElementById('saveModalCopyBtn').textContent = '✓ コピー済み';
-    document.getElementById('saveModalCopyBtn').style.borderColor = 'var(--success)';
-    document.getElementById('saveModalCopyBtn').style.color = 'var(--success)';
-    showToast(`📋 クリップボードにコピーしました（${answered} / ${totalQ} 項目）`, 'success');
-  }).catch(() => {
-    // Clipboard not available — user can manually select and copy from textarea
-  });
-}
-
-function copyModalJson() {
-  const ta = document.getElementById('saveModalTextarea');
-  const btn = document.getElementById('saveModalCopyBtn');
-  navigator.clipboard.writeText(ta.value).then(() => {
-    btn.textContent = '✓ コピー済み';
-    btn.style.borderColor = 'var(--success)';
-    btn.style.color = 'var(--success)';
-    setTimeout(() => {
-      btn.textContent = '📋 全てコピー';
-      btn.style.borderColor = 'var(--accent)';
-      btn.style.color = 'var(--accent)';
-    }, 2000);
-  }).catch(() => {
-    // Fallback: select all text in textarea
-    ta.focus();
-    ta.select();
-    showToast('テキストを選択しました。Ctrl+C でコピーしてください。', 'success');
-  });
-}
-
-function closeSaveModal() {
-  document.getElementById('saveModal').style.display = 'none';
+  showToast(`💾 保存しました：${filename}（${answered} / ${totalQ} 項目）`, 'success');
 }
 
 function _finishLoadFromData(data) {
@@ -2748,11 +2700,13 @@ function readFile(file) {
 
 function loadFromData(data) {
   // Validate structure
-  if (!data.version || !data.env || !data.answers) {
+  if (!data.version || !data.answers) {
     showToast('対応していないファイル形式です', 'error'); return;
   }
-  if (!['onprem', 'cloud', 'hybrid'].includes(data.env)) {
-    showToast('環境タイプが不正なファイルです', 'error'); return;
+  // frameworkId が必須（旧形式は env から復元）
+  const fwId = data.frameworkId || data.env;
+  if (!fwId) {
+    showToast('フレームワーク情報が見つかりません', 'error'); return;
   }
 
   // Restore org info
@@ -2764,45 +2718,31 @@ function loadFromData(data) {
     document.getElementById('orgDate').value    = orgInfo.date    || '';
   }
 
-  // Restore env + answers — load question data from file
-  currentEnv = data.env;
-  currentFrameworkId = data.frameworkId || data.env;
-  currentFrameworkMeta = frameworkCatalog.find(f => f.id === currentFrameworkId) || null;
-  // sections will be set asynchronously
-  if (data.sections) {
+  currentEnv         = data.env || fwId;
+  currentFrameworkId = fwId;
+  currentFrameworkMeta = frameworkCatalog.find(f => f.id === fwId) || null;
+
+  // sections 埋め込み済み or 質問ファイルを fetch
+  if (data.sections && data.sections.length > 0) {
     sections = data.sections;
     _finishLoadFromData(data);
     return;
   }
-  // Load question file
-  const fwMeta = frameworkCatalog.find(f => f.id === currentFrameworkId);
-  if (!fwMeta) { showToast('対応フレームワークが見つかりません: ' + currentFrameworkId, 'error'); return; }
-  fetch(fwMeta.file).then(r => r.json()).then(qdata => {
+  const fwMeta = frameworkCatalog.find(f => f.id === fwId);
+  if (!fwMeta) {
+    showToast('対応フレームワークが見つかりません: ' + fwId, 'error'); return;
+  }
+  // 識別番号定義もあわせて読み込む
+  Promise.all([
+    fetch(fwMeta.file).then(r => {
+      if (!r.ok) throw new Error(fwMeta.file + ' の読み込みに失敗');
+      return r.json();
+    }),
+    loadRefDefinitions(fwMeta.refsFiles || [])
+  ]).then(([qdata]) => {
     sections = qdata.sections;
     _finishLoadFromData(data);
-  }).catch(() => showToast('質問データの読み込みに失敗しました', 'error'));
-  return; // async
-  answers = data.answers || {};
-  memos   = data.memos   || {};
-  currentSectionIdx = 0;
-  activeSectionDetail = null;
-
-  // Mark env card as selected
-  document.querySelectorAll('.env-card').forEach(c => c.classList.remove('selected'));
-  document.querySelector('.env-card.' + currentEnv).classList.add('selected');
-
-  // Move to question page
-  showStep(1);
-  buildTabs();
-  renderSection(0);
-  updateProgress();
-  renderOrgInfoStrip('orgInfoStripQ');
-  document.getElementById('navBar').style.display = 'block';
-  updateNav();
-
-  const answered = Object.keys(answers).length;
-  const total = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
-  showToast(`📂 読み込み完了（${answered} / ${total} 項目）`, 'success');
+  }).catch(e => showToast('質問データの読み込みに失敗しました: ' + e.message, 'error'));
 }
 
 // ===================== PDF EXPORT =====================
