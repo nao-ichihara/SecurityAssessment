@@ -1,12 +1,12 @@
 {
   "appName": "Security/Assessment",
   "appNameJa": "企業セキュリティ リスクアセスメントシステム",
-  "version": "2.2",
+  "version": "2.4",
   "releaseDate": "2026-03-21",
   "rows": [
     {
       "label": "バージョン",
-      "value": "2.2"
+      "value": "2.4"
     },
     {
       "label": "アーキテクチャ",
@@ -33,16 +33,20 @@
       "value": "NIST SP 800-207（ゼロトラスト）"
     },
     {
+      "label": "",
+      "value": "NIST Cybersecurity Framework v2.0（NEW）"
+    },
+    {
       "label": "対応環境",
       "value": "オンプレミス / クラウド / ハイブリッド"
     },
     {
       "label": "質問数",
-      "value": "NIST系 最大90問 / CIS v8.1 98問 / ISO 27001 93問"
+      "value": "NIST系 最大90問 / CIS v8.1 98問 / ISO 27001 93問 / NIST CSF v2.0 63問"
     },
     {
       "label": "識別番号辞書",
-      "value": "フレームワーク別外部ファイル管理：321件（NIST 99件 / CIS 113件 / CSA CCM 16件 / ISO 27001 93件）"
+      "value": "フレームワーク別外部ファイル管理：384件（NIST 99 / CIS 113 / CSA 16 / ISO27001 93 / CSF 63）"
     },
     {
       "label": "AI機能",
@@ -50,7 +54,7 @@
     },
     {
       "label": "データ形式",
-      "value": "JSON（保存・復元・質問データ埋込対応）"
+      "value": "JSON（直接ダウンロード保存・復元・質問データ埋込対応）"
     },
     {
       "label": "PDF出力",
