@@ -1,0 +1,424 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "framework": "PCI DSS v4.0",
+    "description": "PCI DSS v4.0 識別番号の概要(summary)と詳細定義(detail)。104件収録。",
+    "count": 104
+  },
+  "PCI 1.1.1": {
+    "summary": "PCI 1.1.1 — ネットワークセキュリティ管理策のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for installing and maintaining network security controls are defined and understood\n【目的・概要】\nネットワークセキュリティ管理策に関する全プロセスと手順を文書化し、関係者が理解・遵守できる状態を維持する。文書化されていない管理策は一貫性のない実施につながる。\n【主な要件】\n・ポリシーと手順の文書化と経営層承認\n・少なくとも年1回のレビューと更新\n・関係者への周知と理解確認\n【実装例】\n「ネットワークセキュリティポリシー」を策定し、ファイアウォールルールの設定・変更・レビュー手順を明文化する。年次で内容を見直し、担当者へのトレーニングを実施する。"
+  },
+  "PCI 1.1.2": {
+    "summary": "PCI 1.1.2 — CDE接続を含むネットワーク図の整備と最新化",
+    "detail": "【正式名称】Roles and responsibilities for performing activities in Requirement 1 are documented\n【目的・概要】\nカード会員データ環境（CDE）と他のネットワーク間の全接続を示すネットワーク図を維持・最新化する。ネットワーク図なしではスコープの正確な把握が困難になる。\n【主な要件】\n・全ネットワーク接続を示す最新のネットワーク図の維持\n・CDEと他のネットワーク間の全接続の明示\n・変更時の図の更新（最低年1回の確認）\n【実装例】\nLucidchartで論理ネットワーク図を管理し、変更管理プロセスと連携して図を常時最新化する。四半期ごとに図の正確性を確認する。"
+  },
+  "PCI 1.2.1": {
+    "summary": "PCI 1.2.1 — ネットワークセキュリティ管理策の設定標準と変更管理の実装",
+    "detail": "【正式名称】Configuration standards for NSC rulesets are defined, implemented, and maintained\n【目的・概要】\nネットワークセキュリティ管理策（NSC）のルールセット設定標準を定義・実装・維持する。設定標準がないと不必要な通信が許可されるリスクがある。\n【主な要件】\n・NSC設定標準（デフォルト拒否・最小権限等）の文書化\n・ルールセットの変更管理プロセスの実装\n・設定の定期的なレビューと不要ルールの削除\n【実装例】\nファイアウォールのデフォルト拒否ポリシーを設定し、全許可ルールを業務正当性とともに文書化する。半年ごとにルールセットをレビューし未使用ルールを削除する。"
+  },
+  "PCI 1.3.1": {
+    "summary": "PCI 1.3.1 — CDEへのインバウンドトラフィックの制限",
+    "detail": "【正式名称】Inbound traffic to the CDE is restricted\n【目的・概要】\nCDEへのインバウンドトラフィックを業務上必要なものに限定し、不正なアクセスを防止する。\n【主な要件】\n・CDEへの全インバウンドトラフィックのデフォルト拒否\n・業務上必要なトラフィックのみの明示的な許可\n・許可ルールの文書化と定期的なレビュー\n【実装例】\nファイアウォールでCDEへのインバウンドをデフォルト拒否に設定し、必要なポート（HTTPS:443等）のみを許可。許可ルールはすべて業務正当性を文書化する。"
+  },
+  "PCI 1.3.2": {
+    "summary": "PCI 1.3.2 — CDEからのアウトバウンドトラフィックの制限",
+    "detail": "【正式名称】Outbound traffic from the CDE is restricted\n【目的・概要】\nCDEからのアウトバウンドトラフィックを制限し、データ漏洩やC2通信を防止する。\n【主な要件】\n・CDEからの全アウトバウンドトラフィックのデフォルト拒否\n・業務上必要な通信のみの許可\n・許可された宛先・ポートの文書化\n【実装例】\nファイアウォールでCDEからのアウトバウンドをデフォルト拒否に設定。決済処理に必要な外部接続（決済ゲートウェイ等）のみを明示的に許可する。"
+  },
+  "PCI 1.4.1": {
+    "summary": "PCI 1.4.1 — 信頼できるネットワークと信頼できないネットワーク間のNSCの実装",
+    "detail": "【正式名称】NSCs are implemented between trusted and untrusted networks\n【目的・概要】\n信頼できるネットワーク（CDE含む）と信頼できないネットワーク（インターネット・パートナー接続等）間にネットワークセキュリティ管理策を実装する。\n【主な要件】\n・境界NSCの導入（NGFW等）\n・DMZの適切な設計と実装\n・インターネット向けサービスのDMZ配置\n【実装例】\n次世代ファイアウォール（Palo Alto・Cisco FTD等）を境界に配置し、インターネット公開サービスはDMZに配置してCDEから分離する。"
+  },
+  "PCI 1.5.1": {
+    "summary": "PCI 1.5.1 — CDEに接続するモバイル・リモート端末のセキュリティ管理策",
+    "detail": "【正式名称】Security controls are implemented on any computing devices that connect to both untrusted networks and the CDE\n【目的・概要】\n信頼できないネットワーク（インターネット等）とCDEの両方に接続するデバイスにセキュリティ管理策を実装する。テレワーク端末等が主な対象。\n【主な要件】\n・MDM等によるデバイス管理\n・ホストベースファイアウォールの有効化\n・VPN・ZTNAによる安全な接続\n【実装例】\nIntuneで全モバイル・ノートPCを管理し、CDE接続時はVPN必須・ローカルファイアウォール有効・EDR導入済みのデバイスのみを許可する。"
+  },
+  "PCI 2.1.1": {
+    "summary": "PCI 2.1.1 — ベンダーデフォルトのパスワード・設定の変更",
+    "detail": "【正式名称】All vendor defaults are changed before a system component is added to the production environment\n【目的・概要】\nシステムコンポーネントを本番環境に追加する前に、ベンダーが提供するデフォルトのパスワード・設定を変更する。デフォルト値は攻撃者に広く知られている。\n【主な要件】\n・デフォルトパスワードの変更（全機器・ソフトウェア）\n・不要なデフォルトアカウントの削除・無効化\n・本番導入前のセキュリティ設定確認\n【実装例】\n新規機器・ソフトウェアの導入チェックリストにデフォルトパスワード変更を必須項目として含め、導入前にセキュリティ設定確認を実施する。"
+  },
+  "PCI 2.2.1": {
+    "summary": "PCI 2.2.1 — 全システムコンポーネントの構成標準（ハードニング）の策定と適用",
+    "detail": "【正式名称】Configuration standards are developed, implemented, and maintained for all system components\n【目的・概要】\n業界ベストプラクティス（CIS Benchmarks・DISA STIG等）に基づく構成標準を全システムコンポーネントに策定・適用・維持する。\n【主な要件】\n・業界標準参照の構成標準の策定\n・全システムコンポーネントへの適用\n・新規システム導入時の適用確認\n・定期的なレビューと更新\n【実装例】\nCIS Benchmarks Level 1を参照したハードニング標準を策定し、Ansibleで全サーバーに自動適用する。OpenSCAPで週次コンプライアンスチェックを実施する。"
+  },
+  "PCI 2.3.1": {
+    "summary": "PCI 2.3.1 — ワイヤレス環境のデフォルト値の変更",
+    "detail": "【正式名称】For wireless environments connected to the CDE or transmitting account data, all wireless vendor defaults are changed at installation\n【目的・概要】\nCDEに接続または決済データを送信するワイヤレス環境のベンダーデフォルト値（SSID・パスワード・暗号化設定等）を変更する。\n【主な要件】\n・デフォルトSSIDの変更\n・WPA3またはWPA2-Enterpriseの使用\n・デフォルト管理パスワードの変更\n【実装例】\n無線LANコントローラーでWPA3を設定し、デフォルトSSIDを変更する。CDEに接続するワイヤレスネットワークは独立したセグメントに分離する。"
+  },
+  "PCI 2.4.1": {
+    "summary": "PCI 2.4.1 — CDEスコープ内システムコンポーネントのインベントリ維持",
+    "detail": "【正式名称】An inventory of system components that are in scope for PCI DSS is maintained\n【目的・概要】\nPCI DSSスコープ内の全システムコンポーネントのインベントリを作成・維持する。把握されていないコンポーネントはセキュリティの盲点となる。\n【主な要件】\n・スコープ内全コンポーネントの台帳作成\n・ハードウェア・ソフトウェア・クラウドリソースの網羅\n・定期的な更新と棚卸し\n【実装例】\nSCCMおよびクラウド管理コンソールでスコープ内全コンポーネントを管理し、四半期ごとに棚卸しを実施する。変更管理プロセスと連携して台帳を常時最新化する。"
+  },
+  "PCI 3.1.1": {
+    "summary": "PCI 3.1.1 — アカウントデータ保護のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for protecting stored account data are defined and understood\n【目的・概要】\n保存されたアカウントデータの保護に関する全プロセスと手順を文書化し、関係者が理解できる状態を維持する。\n【主な要件】\n・データ保護ポリシーの文書化と経営層承認\n・少なくとも年1回のレビューと更新\n・役割と責任の定義\n【実装例】\n「カード会員データ保護ポリシー」を策定し、データの収集・保存・暗号化・廃棄に関する手順を明文化する。"
+  },
+  "PCI 3.2.1": {
+    "summary": "PCI 3.2.1 — アカウントデータ保存量と期間の最小化",
+    "detail": "【正式名称】Account data storage is kept to a minimum through implementation of data retention and disposal policies\n【目的・概要】\nアカウントデータの保存量と保存期間を業務上必要な最小限に制限し、データ保存・廃棄ポリシーを実装する。\n【主な要件】\n・データ保存ポリシーの策定（法的要件・業務要件を考慮）\n・保存期間超過データの定期的な自動削除\n・保存データの範囲の定期的な確認\n【実装例】\nデータ保存ポリシーに保存期間（例：決済完了後90日）を定め、期限超過データの自動削除スクリプトを実装する。四半期ごとに保存データを監査する。"
+  },
+  "PCI 3.3.1": {
+    "summary": "PCI 3.3.1 — 機密認証データ（CVV2等）の認可後非保存",
+    "detail": "【正式名称】SAD is not retained after authorization\n【目的・概要】\n承認処理後に機密認証データ（SAD：CVV2/CVC2・PINブロック・磁気ストライプの全データ等）を保存しない。SADは認可後に不要となるため保存は禁止。\n【主な要件】\n・承認後のSAD削除の確認\n・コードレビューによる意図しないSAD保存の検出\n・データフロー分析によるSADの流れの把握\n【実装例】\nペイメントアプリケーションのコードレビューとデータベーススキャンで、CVV2・PINブロック等のSADが保存されていないことを確認する。"
+  },
+  "PCI 3.3.2": {
+    "summary": "PCI 3.3.2 — 機密認証データの暗号化による保護（認可前に保存する場合）",
+    "detail": "【正式名称】SAD that is stored electronically prior to completion of authorization is encrypted using strong cryptography\n【目的・概要】\n認可完了前にSADを電子的に保存する必要がある場合、強力な暗号化を使用して保護する。\n【主な要件】\n・SADの強力な暗号化による保護\n・暗号化鍵の安全な管理\n・保存期間の最小化\n【実装例】\n認可前にSADを一時保存する場合はAES-256で暗号化し、認可完了後は直ちに削除する。暗号化鍵はHSMで管理する。"
+  },
+  "PCI 3.4.1": {
+    "summary": "PCI 3.4.1 — 保存されたPANの読み取り不能化（暗号化・トークン化等）",
+    "detail": "【正式名称】PAN is secured with strong cryptography wherever it is stored\n【目的・概要】\n保存されるPAN（カード番号）を暗号化・トークン化・マスキング等により読み取り不能にする。PANが平文で保存されている場合、侵害時の被害が最大化する。\n【主な要件】\n・強力な暗号化（AES-256等）またはトークン化の実装\n・暗号化鍵とPANの分離保管\n・全保存場所（DB・ログ・バックアップ等）での保護\n【実装例】\nトークン化サービス（VaultまたはFormat-Preserving Encryption）を導入し、保存されるPANをすべてトークンに置き換える。データベース・ログ・バックアップ全てで平文PANがないことを確認する。"
+  },
+  "PCI 3.5.1": {
+    "summary": "PCI 3.5.1 — PANを読み取り不能にするために使用する主要な暗号化鍵の保護",
+    "detail": "【正式名称】Primary account numbers are secured with strong cryptography\n【目的・概要】\nPANを保護するために使用する暗号化鍵を安全に管理し、鍵へのアクセスを最小限に制限する。鍵が侵害されると暗号化の効果が無効化される。\n【主な要件】\n・鍵へのアクセスを職務上必要な担当者に限定\n・鍵の安全な保管（HSMまたは鍵管理システム）\n・鍵の文書化と管理台帳の維持\n【実装例】\nAWS KMSまたはHSMを使用して暗号化鍵を管理し、鍵へのアクセスをIAMポリシーで最小限に制限する。全鍵操作をCloudTrailで監査する。"
+  },
+  "PCI 3.7.1": {
+    "summary": "PCI 3.7.1 — 暗号化鍵管理ポリシーと手順の策定",
+    "detail": "【正式名称】Key-management policies and procedures for cryptographic keys used for protection of stored account data are implemented\n【目的・概要】\nアカウントデータの保護に使用する暗号化鍵のライフサイクル全体を管理するポリシーと手順を策定・実装する。\n【主な要件】\n・鍵生成・配布・保管・廃棄・鍵交換の手順の文書化\n・鍵管理責任者の任命\n・鍵管理手順の年次レビュー\n【実装例】\n「暗号化鍵管理規程」を策定し、鍵の生成方法（FIPS 140-2以上のRNG）・鍵交換タイミング（年次）・廃棄方法（安全消去）を明文化する。"
+  },
+  "PCI 3.7.2": {
+    "summary": "PCI 3.7.2 — 暗号化鍵の安全な配布と鍵の分割管理",
+    "detail": "【正式名称】Key-management policies and procedures include: key distribution\n【目的・概要】\n暗号化鍵の配布を安全に実施し、鍵の分割管理（Dual Control・Split Knowledge）を実装することで単独での鍵悪用を防止する。\n【主な要件】\n・鍵の暗号化による配布\n・重要な鍵への分割管理（2人以上の管理者）の適用\n・鍵配布の記録と監査証跡\n【実装例】\nKEKとDEKを分離し、鍵暗号化鍵（KEK）の管理にはDual Control（2名の管理者が個別に保管する鍵コンポーネントを組み合わせる）を適用する。"
+  },
+  "PCI 3.7.3": {
+    "summary": "PCI 3.7.3 — 暗号化鍵の安全な保管",
+    "detail": "【正式名称】Key-management policies and procedures include: key storage\n【目的・概要】\n暗号化鍵を安全に保管し、不正アクセスや意図しない開示から保護する。鍵とデータを同じ場所に保管しない。\n【主な要件】\n・HSMまたは鍵管理システムでの安全な保管\n・鍵とデータの分離保管\n・鍵へのアクセス制御と監査ログ\n【実装例】\nAWS CloudHSMまたはAzure Key Vaultに鍵を保管し、暗号化データとは別のストレージに分離する。鍵へのアクセスはIAMで最小権限に制限し全操作をログに記録する。"
+  },
+  "PCI 4.1.1": {
+    "summary": "PCI 4.1.1 — 転送中PANの保護に関するポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for protecting cardholder data during transmission over open public networks are defined and understood\n【目的・概要】\nオープンな公共ネットワーク経由でのPAN送信時の保護に関するポリシーと手順を文書化する。\n【主な要件】\n・転送時暗号化ポリシーの文書化\n・承認された暗号化プロトコルのリスト管理\n・役割と責任の定義\n【実装例】\n「データ転送時暗号化ポリシー」を策定し、TLS 1.2以上を必須とする旨と、弱い暗号スイートの使用禁止を明文化する。"
+  },
+  "PCI 4.2.1": {
+    "summary": "PCI 4.2.1 — オープンな公共ネットワーク経由のPAN送信時の強力な暗号化（TLS 1.2以上）",
+    "detail": "【正式名称】Strong cryptography is used to safeguard PAN during transmission over open public networks\n【目的・概要】\nインターネット等のオープンな公共ネットワーク経由でPANを送信する際、TLS 1.2以上等の強力な暗号化で保護し、傍受からデータを守る。\n【主な要件】\n・TLS 1.2以上の使用（TLS 1.0/1.1・SSL の禁止）\n・有効な証明書による認証\n・弱い暗号スイートの無効化\n・全送信経路での暗号化適用の確認\n【実装例】\nWebサーバーにTLS 1.3のみを設定し、SSL Labs「A+」評価を維持する。HSTS（HTTP Strict Transport Security）を設定し、全通信をHTTPSに強制する。"
+  },
+  "PCI 5.1.1": {
+    "summary": "PCI 5.1.1 — マルウェア対策のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for protecting all systems against malware are defined and understood\n【目的・概要】\n全システムのマルウェアからの保護に関するポリシーと手順を文書化し、関係者が理解できる状態を維持する。\n【主な要件】\n・マルウェア対策ポリシーの文書化\n・対象システムの定義と対策の範囲\n・役割と責任の定義\n【実装例】\n「マルウェア対策ポリシー」を策定し、対象システム・対策ツール・定義ファイル更新頻度・定期スキャン要件を明文化する。"
+  },
+  "PCI 5.2.1": {
+    "summary": "PCI 5.2.1 — マルウェア対策ソリューションの全システムコンポーネントへの展開",
+    "detail": "【正式名称】An anti-malware solution is deployed on all system components\n【目的・概要】\nマルウェア攻撃を受けやすい全システムコンポーネントにマルウェア対策ソリューションを展開する。\n【主な要件】\n・全サーバー・エンドポイントへのAV/EDRの展開\n・展開状況の集中管理と監視\n・未展開コンポーネントの検出と対処\n【実装例】\nMicrosoft Defender for EndpointまたはCrowdStrikeをMDM経由で全コンポーネントに展開し、展開状況をダッシュボードでリアルタイム監視する。"
+  },
+  "PCI 5.2.2": {
+    "summary": "PCI 5.2.2 — 全種類のマルウェアからの保護",
+    "detail": "【正式名称】The deployed anti-malware solution detects all known types of malware\n【目的・概要】\n導入するマルウェア対策ソリューションが、ウイルス・ワーム・トロイの木馬・ランサムウェア・スパイウェア・ルートキット等の全種類のマルウェアを検出・対処できる。\n【主な要件】\n・全種類のマルウェアへの対応確認\n・振る舞い検知・機械学習による未知脅威への対応\n・検出時の自動隔離・通知の設定\n【実装例】\nNGAV（次世代アンチウイルス）とEDRを組み合わせ、シグネチャベースと振る舞いベースの二層防御を実装する。ランサムウェア対策として制御フォルダーアクセスも有効化する。"
+  },
+  "PCI 5.3.1": {
+    "summary": "PCI 5.3.1 — マルウェア対策ソリューションの定義ファイルとエンジンの最新化",
+    "detail": "【正式名称】The anti-malware solution(s) is kept current via automatic updates\n【目的・概要】\nマルウェア対策ソリューションの定義ファイルとエンジンを最新状態に自動更新し、新種マルウェアへの対応力を維持する。\n【主な要件】\n・自動更新の設定と有効化\n・更新状況の集中監視\n・更新失敗端末の検出と対処\n【実装例】\nEDRのクラウドベース自動更新を有効化し、24時間以上更新されていないコンポーネントをダッシュボードでアラート表示する。"
+  },
+  "PCI 5.3.2": {
+    "summary": "PCI 5.3.2 — マルウェア対策ソリューションによる定期的なスキャンの実施",
+    "detail": "【正式名称】The anti-malware solution performs periodic scans and active or real-time scans\n【目的・概要】\nマルウェア対策ソリューションによる定期スキャンまたはリアルタイムスキャンを実装し、マルウェアを継続的に検出する。\n【主な要件】\n・リアルタイムスキャンまたは定期スキャン（少なくとも週次）の実施\n・スキャン結果のログ記録と保管\n・スキャン失敗・検出時のアラート設定\n【実装例】\nEDRのリアルタイム保護を有効化し、週次フルスキャンを夜間に実施する。スキャンログをSIEMに転送して監視する。"
+  },
+  "PCI 5.4.1": {
+    "summary": "PCI 5.4.1 — フィッシング攻撃の検知・防護メカニズムの実装",
+    "detail": "【正式名称】Processes and automated mechanisms are in place to detect and protect personnel against phishing attacks\n【目的・概要】\nフィッシング攻撃を検知・防護するための技術的メカニズムを実装し、担当者をソーシャルエンジニアリングから保護する。\n【主な要件】\n・メールセキュリティゲートウェイ（DMARC/DKIM/SPF等）の設定\n・フィッシングリンクの自動ブロック\n・フィッシング訓練の定期実施\n【実装例】\nMicrosoft Defender for Office 365でDMARC・DKIM・SPFを設定し、AIによるフィッシング検知を有効化する。月次フィッシング訓練を実施し、クリック率を監視する。"
+  },
+  "PCI 6.1.1": {
+    "summary": "PCI 6.1.1 — 安全なシステム・ソフトウェア開発のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for developing and maintaining secure systems and software are defined and understood\n【目的・概要】\n安全なシステムとソフトウェアの開発・維持に関するポリシーと手順を文書化する。\n【主な要件】\n・セキュアな開発ライフサイクル（SDLC）の文書化\n・開発・テスト・本番環境の分離要件\n・役割と責任の定義\n【実装例】\nMicrosoft SDL（Secure Development Lifecycle）に基づく開発プロセスを定義し、セキュリティ要件・脅威モデリング・コードレビュー・セキュリティテストを各フェーズに組み込む。"
+  },
+  "PCI 6.2.4": {
+    "summary": "PCI 6.2.4 — ソフトウェア開発におけるセキュリティコーディング手法の適用",
+    "detail": "【正式名称】Software development practices prevent or mitigate common software attacks and vulnerabilities\n【目的・概要】\nインジェクション・バッファオーバーフロー・XSS等の一般的な攻撃手法を防止・緩和するセキュアコーディング手法を適用する。\n【主な要件】\n・OWASP Top 10等を参照したセキュアコーディング標準の策定\n・開発者向けセキュアコーディング教育の実施\n・コードレビューへのセキュリティ観点の組み込み\n【実装例】\nOWASP Secure Coding Practicesに基づくコーディング標準を定め、SASTツール（SonarQube・Checkmarx等）をCI/CDに統合する。開発者に年次セキュアコーディング研修を実施する。"
+  },
+  "PCI 6.3.1": {
+    "summary": "PCI 6.3.1 — セキュリティ脆弱性の継続的な識別とランク付け",
+    "detail": "【正式名称】Security vulnerabilities are identified and managed\n【目的・概要】\n信頼できる情報源からセキュリティ脆弱性情報を継続的に収集・評価し、リスクレベルに基づいてランク付けする。\n【主な要件】\n・CVSSスコアに基づくリスクランク付け\n・重大（Critical）・高（High）脆弱性の優先的対処\n・脆弱性情報の継続的な収集（NVD・ベンダーアドバイザリ等）\n【実装例】\nQualysまたはNessusで週次脆弱性スキャンを実施し、CVSSスコア9.0以上は14日以内・7.0以上は30日以内に修正するSLAを設定する。"
+  },
+  "PCI 6.3.3": {
+    "summary": "PCI 6.3.3 — 適用可能な全セキュリティパッチのインストール",
+    "detail": "【正式名称】All system components are protected from known vulnerabilities by installing applicable security patches/updates\n【目的・概要】\n全システムコンポーネントに適用可能なセキュリティパッチを適時にインストールし、既知の脆弱性を修正する。\n【主な要件】\n・重要なパッチは1ヶ月以内にインストール\n・その他のパッチは3ヶ月以内にインストール\n・パッチ適用状況の追跡管理\n【実装例】\nWSUS・IntuneでOSパッチを集中管理し、Critical/Highパッチを月次パッチタスデーの2週間以内に適用する。適用状況をSecurity Hubで監視する。"
+  },
+  "PCI 6.4.1": {
+    "summary": "PCI 6.4.1 — 公開向けWebアプリケーションに対するセキュリティレビューの実施",
+    "detail": "【正式名称】For public-facing web applications, new threats and vulnerabilities are addressed on an ongoing basis\n【目的・概要】\nインターネット向けWebアプリケーションに対し、継続的なセキュリティレビューまたはWAFによる保護を実施する。\n【主な要件】\n・新しい脅威・脆弱性の継続的なレビュー\n・自動化された脆弱性セキュリティ評価の実施\n・発見された脆弱性の適時対処\n【実装例】\nOWASP ZAPを使用した週次自動スキャンと、年次の外部Webアプリケーションペネトレーションテストを実施する。"
+  },
+  "PCI 6.4.2": {
+    "summary": "PCI 6.4.2 — 公開向けWebアプリケーションへのWAF（Webアプリケーションファイアウォール）の実装",
+    "detail": "【正式名称】For public-facing web applications, an automated technical solution that continually detects and prevents web-based attacks is in place\n【目的・概要】\nインターネット向けWebアプリケーションの前にWAFを配置し、SQLインジェクション・XSS等のWebアプリケーション攻撃を継続的に検知・防止する。\n【主な要件】\n・WAFの本番環境への実装（ブロックモード推奨）\n・WAFルールの定期的な更新\n・WAFログの監視とチューニング\n【実装例】\nAWS WAFまたはCloudflare WAFを公開Webアプリの前に配置し、OWASP Core Rule Set（CRS）を適用してSQLi・XSS・Pathトラバーサル等をブロックする。"
+  },
+  "PCI 6.5.1": {
+    "summary": "PCI 6.5.1 — 変更管理プロセスの実装（本番環境への変更制御）",
+    "detail": "【正式名称】Changes to all system components are managed securely\n【目的・概要】\n全システムコンポーネントへの変更を安全に管理するプロセスを実装する。未管理の変更はセキュリティ上の問題を引き起こす主要な原因。\n【主な要件】\n・変更の文書化・テスト・承認のプロセス実装\n・変更のリスク評価実施\n・緊急変更の特別プロセスの定義\n・変更記録の保管\n【実装例】\nJira Service ManagementのChange Managementで変更申請→リスク評価→承認→実施→事後レビューのワークフローを実装する。"
+  },
+  "PCI 6.5.2": {
+    "summary": "PCI 6.5.2 — 変更後のPCI DSS要件のレビュー",
+    "detail": "【正式名称】Upon completion of a significant change, all applicable PCI DSS requirements are confirmed to be in place\n【目的・概要】\n重大な変更完了後に、変更の影響範囲におけるPCI DSS要件の継続的な遵守を確認する。\n【主な要件】\n・変更後のPCI DSS要件適用確認チェックリストの実施\n・スコープへの影響評価\n・必要に応じたQSAへの確認\n【実装例】\n重大な変更完了後にPCI DSSコンプライアンスチェックリストを実施し、変更によって影響を受けたコントロールが引き続き機能していることを確認する。"
+  },
+  "PCI 7.1.1": {
+    "summary": "PCI 7.1.1 — アクセス制御のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for restricting access to system components and cardholder data are defined and understood\n【目的・概要】\nシステムコンポーネントとカード会員データへのアクセス制限に関するポリシーと手順を文書化する。\n【主な要件】\n・アクセス制御ポリシーの文書化と経営層承認\n・Need-to-Know原則の明文化\n・役割と責任の定義\n【実装例】\n「アクセス制御ポリシー」を策定し、最小権限・職務分離・定期的なアクセスレビューの要件を明文化する。"
+  },
+  "PCI 7.2.1": {
+    "summary": "PCI 7.2.1 — アクセス制御システムの実装",
+    "detail": "【正式名称】An access control model is defined and includes granting access based on need to know\n【目的・概要】\nNeed-to-Know原則に基づくアクセス制御モデルを定義・実装し、全ユーザーのアクセスが業務上の必要性に基づいて付与されることを確保する。\n【主な要件】\n・RBACまたはABACの実装\n・デフォルト「全拒否」のアクセス制御\n・アクセス付与の承認プロセスの実装\n【実装例】\nActive Directory/Azure ADでRBACを実装し、全アクセス付与には業務正当性の証明と上長承認を必須とする。ServiceNowでアクセス申請ワークフローを管理する。"
+  },
+  "PCI 7.2.2": {
+    "summary": "PCI 7.2.2 — ユーザーIDへの特権の割り当て（最小権限原則）",
+    "detail": "【正式名称】Access is assigned to users, including privileged users, based on job classification and function\n【目的・概要】\n職務分類と機能に基づいて、特権ユーザーを含む全ユーザーに必要最小限の権限のみを割り当てる。\n【主な要件】\n・職務役割に基づく権限定義\n・特権の最小化（管理者権限の限定）\n・JIT（Just-In-Time）アクセスの実装推奨\n【実装例】\nAzure AD PIMでJITアクセスを実装し、特権は申請→承認→期限付き付与のサイクルで管理する。通常業務は非特権アカウントで実施する。"
+  },
+  "PCI 7.2.4": {
+    "summary": "PCI 7.2.4 — 全ユーザーアカウントのアクセス権限の定期的なレビュー",
+    "detail": "【正式名称】All user accounts and related access privileges are reviewed at least once every six months\n【目的・概要】\n全ユーザーアカウントと関連するアクセス権限を最低6ヶ月ごとにレビューし、不要な権限を削除する。\n【主な要件】\n・半年ごとのアクセスレビューの実施\n・アカウントオーナーによる確認\n・不要・過剰権限の削除\n【実装例】\nAzure AD Access Reviewsで半年ごとのアクセスレビューを自動起動し、承認されなかった権限を自動削除する。"
+  },
+  "PCI 7.2.5": {
+    "summary": "PCI 7.2.5 — アプリケーション・システムアカウントのアクセス権限の管理",
+    "detail": "【正式名称】All application and system accounts and related access privileges are reviewed at least once every six months\n【目的・概要】\nアプリケーション・システムアカウントのアクセス権限も定期的にレビューし、最小権限を維持する。\n【主な要件】\n・サービスアカウントの台帳化\n・半年ごとのレビューの実施\n・不要なサービスアカウントの削除\n【実装例】\nActive DirectoryのgMSA（グループ管理サービスアカウント）を活用し、パスワードを自動ローテーション。半年ごとに全サービスアカウントを棚卸しする。"
+  },
+  "PCI 7.3.1": {
+    "summary": "PCI 7.3.1 — アクセス制御システムによる全システムコンポーネントへのアクセス管理",
+    "detail": "【正式名称】An access control system(s) is in place that restricts access based on a user's need to know\n【目的・概要】\n技術的なアクセス制御システムを実装し、全システムコンポーネントへのアクセスをNeed-to-Know原則に基づいて管理する。\n【主な要件】\n・技術的なアクセス制御の実装（AD・LDAP等）\n・デフォルト「全拒否」の設定\n・アクセス制御設定の定期的な検証\n【実装例】\nAzure AD条件付きアクセスポリシーで全クラウドリソースのアクセスを制御し、コンプライアンス未準拠デバイスからのアクセスをブロックする。"
+  },
+  "PCI 8.1.1": {
+    "summary": "PCI 8.1.1 — ユーザー識別と認証のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for identifying users and authenticating access to system components are defined and understood\n【目的・概要】\nユーザーの識別と認証に関するポリシーと手順を文書化し、関係者が理解できる状態を維持する。\n【主な要件】\n・ID・認証管理ポリシーの文書化\n・パスワードポリシーの明文化\n・MFA要件の定義\n【実装例】\n「ID・認証管理ポリシー」を策定し、一意のID要件・パスワード複雑性・MFA適用範囲・アカウントロックアウトポリシーを明文化する。"
+  },
+  "PCI 8.2.1": {
+    "summary": "PCI 8.2.1 — 全ユーザーへの一意のIDの割り当て",
+    "detail": "【正式名称】All users are assigned a unique ID before allowing them to access system components or cardholder data\n【目的・概要】\n全ユーザーに一意のIDを割り当て、誰がいつ何にアクセスしたかを追跡・監査できる状態を維持する。\n【主な要件】\n・全ユーザーへの一意のID付与\n・共有ID・汎用IDの廃止\n・IDの管理プロセスの実装\n【実装例】\nActive DirectoryでユーザーIDの一元管理を実施し、共有アカウント（admin・operator等）を廃止する。退職者のIDは当日中に無効化する。"
+  },
+  "PCI 8.2.2": {
+    "summary": "PCI 8.2.2 — グループID・共有ID・汎用IDの管理",
+    "detail": "【正式名称】Group, shared, or generic IDs or passwords are prohibited\n【目的・概要】\nグループID・共有ID・汎用ID（admin・root等）を原則禁止し、使用する場合は例外管理手続きを実装する。\n【主な要件】\n・グループ・共有・汎用IDの原則禁止\n・例外的に使用する場合の承認手続きと追加管理策\n・特権共有IDの廃止\n【実装例】\nLinuxサーバーのrootログインを禁止し、個人アカウントでのsudo使用のみ許可する。Windows環境では管理者権限を個人アカウントに分離する。"
+  },
+  "PCI 8.3.4": {
+    "summary": "PCI 8.3.4 — 認証試行失敗回数の制限（ロックアウト）",
+    "detail": "【正式名称】Invalid authentication attempts are limited by locking out the user ID after not more than 10 attempts\n【目的・概要】\n連続した無効な認証試行を制限し、ブルートフォース攻撃からアカウントを保護する。ロックアウトは10回以下で発動する必要がある。\n【主な要件】\n・最大10回以下の試行失敗でロックアウト\n・ロックアウト期間（最低30分）の設定\n・ロックアウトの記録と監視\n【実装例】\nActive DirectoryのFinegrained Password Policyで、5回失敗で30分ロックアウトを設定する。ロックアウトイベントをSIEMで監視しブルートフォース攻撃を検知する。"
+  },
+  "PCI 8.3.6": {
+    "summary": "PCI 8.3.6 — パスワードの最小複雑性要件（12文字以上）",
+    "detail": "【正式名称】If passwords/passphrases are used as authentication factors to meet Requirement 8.3.1, they meet a minimum length of at least 12 characters\n【目的・概要】\n認証要素としてパスワードを使用する場合、12文字以上の長さと複雑性要件を満たすことを確保する。\n【主な要件】\n・最小12文字以上のパスワード要件\n・英大文字・小文字・数字・記号の組み合わせ\n・過去4回以上のパスワード再利用禁止\n【実装例】\nAzure AD Password Policyで12文字以上・複雑性要件を設定する。パスワードマネージャー（1Password・Bitwarden等）を全社展開してより長いパスワードの使用を支援する。"
+  },
+  "PCI 8.3.9": {
+    "summary": "PCI 8.3.9 — パスワードの定期的な変更（最低90日ごと）",
+    "detail": "【正式名称】If passwords/passphrases are not used with another authentication factor, passwords/passphrases are changed at least once every 90 days\n【目的・概要】\nMFA以外の認証要素のみを使用する場合、パスワードを最低90日ごとに変更する。MFA使用時はこの要件は適用されない。\n【主な要件】\n・MFA未使用の場合の90日以内のパスワード変更\n・変更期限到来時のユーザー通知\n・期限超過の場合のアカウントロック\n【実装例】\n全システムにMFAを適用することでこの要件への対応を簡素化する。MFA未対応のレガシーシステムのみパスワード有効期限ポリシー（90日）を適用する。"
+  },
+  "PCI 8.4.1": {
+    "summary": "PCI 8.4.1 — CDEへのアクセス全員へのMFAの実装",
+    "detail": "【正式名称】MFA is implemented for all non-console access into the CDE for personnel with administrative access\n【目的・概要】\nCDE内のシステムに管理アクセスする全員に対してMFAを実装し、アカウント侵害のリスクを低減する。\n【主な要件】\n・管理者の全非コンソールCDEアクセスへのMFA適用\n・フィッシング耐性のある強力なMFAの推奨（FIDO2等）\n・MFAバイパスの禁止\n【実装例】\nCDE内サーバーへの管理アクセスをPAMツール（CyberArk）経由に限定し、接続時にYubiKey（FIDO2）によるMFA認証を必須とする。"
+  },
+  "PCI 8.4.2": {
+    "summary": "PCI 8.4.2 — CDE外部からCDE内へのアクセス全員へのMFAの実装",
+    "detail": "【正式名称】MFA is implemented for all access into the CDE\n【目的・概要】\nCDEの外部からCDE内システムへアクセスする全ユーザーに対してMFAを実装する。\n【主な要件】\n・CDE外部からの全アクセスへのMFA適用\n・VPN・ジャンプサーバー等のリモートアクセス経路へのMFA\n・認証フローの文書化\n【実装例】\nSSL-VPNとMFAを統合し、CDE外部からの全アクセスにDuoまたはAzure MFAを必須とする。"
+  },
+  "PCI 8.4.3": {
+    "summary": "PCI 8.4.3 — リモートアクセスへのMFAの実装",
+    "detail": "【正式名称】MFA is implemented for all remote network access originating from outside the entity's network\n【目的・概要】\n組織ネットワーク外部からのリモートネットワークアクセスに対してMFAを実装する。\n【主な要件】\n・VPN等のリモートアクセスへのMFA必須化\n・テレワーク・外出先からのアクセスへの適用\n・例外的なリモートアクセスの管理\n【実装例】\nFortiGate SSL-VPNにFortiTokenを統合し、リモートアクセス時に必ずMFA認証を要求する。クライアント証明書とTOTPを組み合わせた二重認証を実装する。"
+  },
+  "PCI 8.6.1": {
+    "summary": "PCI 8.6.1 — アプリケーション・システムアカウントのインタラクティブログインの管理",
+    "detail": "【正式名称】If accounts used by systems or applications can be used for interactive login, they are managed as follows\n【目的・概要】\nアプリケーション・システムアカウントがインタラクティブログインに使用できる場合、適切な管理策を実装して悪用を防止する。\n【主な要件】\n・サービスアカウントの対話型ログイン制限\n・使用時の追加承認プロセス\n・使用ログの記録と監視\n【実装例】\nWindowsサービスアカウントに「対話型ログオンを拒否する」グループポリシーを適用する。必要な場合のみ一時的に有効化し、全操作を記録する。"
+  },
+  "PCI 8.6.2": {
+    "summary": "PCI 8.6.2 — アプリケーション・システムアカウントのパスワードのハードコード禁止",
+    "detail": "【正式名称】Passwords/passphrases for application and system accounts that can be used for interactive login are not hard-coded in scripts, configuration files, or bespoke and custom source code\n【目的・概要】\nアプリケーション・システムアカウントのパスワードをスクリプト・設定ファイル・ソースコードにハードコードしない。\n【主な要件】\n・ハードコードされたパスワードの禁止\n・シークレット管理ツール（HashiCorp Vault・AWS Secrets Manager等）の使用\n・コードスキャンによるハードコードパスワードの検出\n【実装例】\nGitHub Secret ScanningとTruffleHogでリポジトリ内のハードコードシークレットを検出する。HashiCorp VaultまたはAWS Secrets Managerで全シークレットを管理する。"
+  },
+  "PCI 9.1.1": {
+    "summary": "PCI 9.1.1 — 物理アクセス制御のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for restricting physical access to cardholder data are defined and understood\n【目的・概要】\nカード会員データへの物理的アクセス制限に関するポリシーと手順を文書化し、関係者が理解できる状態を維持する。\n【主な要件】\n・物理アクセス制御ポリシーの文書化\n・保護が必要なエリアの定義\n・役割と責任の定義\n【実装例】\n「物理セキュリティポリシー」を策定し、CDE保護エリアの定義・入退室手順・訪問者管理・メディア管理を明文化する。"
+  },
+  "PCI 9.2.1": {
+    "summary": "PCI 9.2.1 — CDEへの物理アクセスの制限（承認された担当者のみ）",
+    "detail": "【正式名称】Physical access controls manage entry into facilities and systems containing cardholder data\n【目的・概要】\nCDEへの物理的なアクセスを承認された担当者のみに制限し、不正な立ち入りを防止する。\n【主な要件】\n・ICカード・生体認証等による入室制御\n・全入退室記録の保管（最低3ヶ月）\n・入室権限の定期的なレビュー\n【実装例】\nサーバールームにICカードリーダーと生体認証を設置し、全入退室をログに記録する。入室権限は四半期ごとに棚卸しし、不要な権限を削除する。"
+  },
+  "PCI 9.2.2": {
+    "summary": "PCI 9.2.2 — 公開エリアとCDEの物理的な区別と施錠管理",
+    "detail": "【正式名称】Physical and/or logical controls are implemented to restrict use of publicly accessible network jacks\n【目的・概要】\nCDEへのアクセスが容易にできないよう、公開エリアとCDEの物理的な区別と施錠管理を実装する。\n【主な要件】\n・CDE内のネットワークジャックへのアクセス制限\n・施錠されたキャビネット・ラックによる機器保護\n・未使用のポートの無効化\n【実装例】\nサーバーラックを施錠キャビネットに収容し、未使用のネットワークジャックをスイッチポートで無効化する。802.1xによるネットワークアクセス制御を実装する。"
+  },
+  "PCI 9.3.1": {
+    "summary": "PCI 9.3.1 — 担当者の物理アクセス管理手順の実装",
+    "detail": "【正式名称】Procedures are implemented for authorizing and managing physical access of personnel to the CDE\n【目的・概要】\n担当者のCDEへの物理的なアクセスを承認・管理する手順を実装する。\n【主な要件】\n・アクセス承認手順の実装\n・訪問者への識別バッジの発行\n・アクセスバッジの返却手順\n【実装例】\nHRシステムと連動して入室権限を管理し、採用時に適切な権限を付与・退職時に即時失効する。訪問者には時限付きビジターバッジを発行する。"
+  },
+  "PCI 9.3.2": {
+    "summary": "PCI 9.3.2 — 訪問者の管理（識別・記録・立会い）",
+    "detail": "【正式名称】Procedures are implemented for identifying and managing visitors\n【目的・概要】\n訪問者を識別・記録し、立会いのもとで行動させることで、不正なアクセスや情報収集を防止する。\n【主な要件】\n・訪問者の識別と記録（訪問目的・滞在時間等）\n・立会い担当者の設定\n・訪問者バッジの返却確認\n【実装例】\n訪問者受付システムで身分確認・目的記録を実施し、CDE内への立入りには常に担当者が立会う。訪問後はバッジを回収し記録に退出時間を記録する。"
+  },
+  "PCI 9.4.1": {
+    "summary": "PCI 9.4.1 — メディアのバックアップの物理的セキュリティ",
+    "detail": "【正式名称】All media with cardholder data is physically secured\n【目的・概要】\nカード会員データを含む全メディア（バックアップテープ・USBドライブ・紙等）を物理的に保護する。\n【主な要件】\n・施錠されたキャビネット・金庫でのメディア保管\n・メディアへのアクセス制限と記録\n・オフサイト保管時のセキュリティ確保\n【実装例】\nバックアップメディアを施錠された耐火金庫に保管し、アクセスを必要最小限の担当者に制限する。取り出し・返却の都度記録を残す。"
+  },
+  "PCI 9.4.2": {
+    "summary": "PCI 9.4.2 — メディアの分類と内容のラベリング",
+    "detail": "【正式名称】All media with cardholder data is classified in accordance with the sensitivity of the data\n【目的・概要】\nカード会員データを含むメディアを機密性レベルに応じて分類し、取り扱い要件を明確にする。\n【主な要件】\n・メディアの機密分類の実施\n・分類に応じたラベリング\n・取り扱い手順の整備\n【実装例】\nカード会員データを含むメディアに「極秘」ラベルを付与し、取り扱い手順（暗号化・施錠保管・廃棄方法）を明文化する。"
+  },
+  "PCI 9.4.3": {
+    "summary": "PCI 9.4.3 — メディアの安全な廃棄（シュレッダー・消磁・認定廃棄業者等）",
+    "detail": "【正式名称】Media with cardholder data is destroyed when it is no longer needed for business or legal reasons\n【目的・概要】\n業務・法的理由で不要になったカード会員データを含むメディアを安全に廃棄し、データの不正な回収を防止する。\n【主な要件】\n・紙媒体のクロスカットシュレッダーによる廃棄\n・電子媒体のDOD準拠の消去または物理破壊\n・廃棄証明書の取得と保管\n【実装例】\n認定廃棄業者と契約し、廃棄証明書を発行してもらう。HDDはATA Secure Eraseまたは物理破壊、紙はクロスカットシュレッダーで廃棄する。"
+  },
+  "PCI 9.5.1": {
+    "summary": "PCI 9.5.1 — POSデバイスの定期的な点検とスキミング防止",
+    "detail": "【正式名称】Point-of-interaction devices are protected from tampering and unauthorized substitution\n【目的・概要】\nPOS端末・カード読取装置をスキミングデバイスの設置や不正な交換から保護する。定期的な点検がカードデータの窃取防止に重要。\n【主な要件】\n・POSデバイスの台帳管理（シリアル番号等）\n・定期的な外観点検（改ざん・不正付加物の確認）\n・担当者へのスキミング検出トレーニング\n【実装例】\nPOSデバイスの台帳を整備し、担当者が日次で外観点検を実施する。スキミングデバイスの識別方法を記載した点検チェックリストを作成し、異常があれば即時報告するフローを確立する。"
+  },
+  "PCI 9.5.2": {
+    "summary": "PCI 9.5.2 — POSデバイスの定期的な点検の頻度と方法の文書化",
+    "detail": "【正式名称】The frequency of periodic POI device inspections and the type of inspections performed are defined in the entity's targeted risk analysis\n【目的・概要】\nPOSデバイスの定期点検の頻度と方法をターゲットリスク分析に基づいて定義し、文書化する。\n【主な要件】\n・ターゲットリスク分析に基づく点検頻度の決定\n・点検方法の文書化\n・点検記録の保管\n【実装例】\nリスク分析（設置場所・犯罪発生率・デバイスの露出度等）に基づき点検頻度（高リスク：日次、低リスク：週次）を設定し、点検チェックリストと記録保管手順を文書化する。"
+  },
+  "PCI 10.1.1": {
+    "summary": "PCI 10.1.1 — ログ取得と監視のポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for logging and monitoring all access to system components and cardholder data are defined and understood\n【目的・概要】\n全システムコンポーネントとカード会員データへのアクセスのログ取得・監視に関するポリシーと手順を文書化する。\n【主な要件】\n・ログ管理ポリシーの文書化\n・収集対象ログの定義\n・ログ保管期間と方法の定義\n【実装例】\n「ログ管理ポリシー」を策定し、収集対象ログ・保管期間（12ヶ月）・アクセス制御・定期レビュー手順を明文化する。"
+  },
+  "PCI 10.2.1": {
+    "summary": "PCI 10.2.1 — 監査ログの実装（全イベントのキャプチャ）",
+    "detail": "【正式名称】Audit logs are implemented to support the detection of anomalies and suspicious activity\n【目的・概要】\n異常・不審な活動の検知をサポートするために監査ログを実装し、CDEへのアクセス・管理操作・認証等を記録する。\n【主な要件】\n・ユーザーアクセス・管理権限の使用・ログオン失敗・認証メカニズムへのアクセスのログ記録\n・ログの一元管理（SIEM等）\n・全システムコンポーネントへのログ実装\n【実装例】\nSplunkまたはMicrosoft Sentinelで全CDEコンポーネントのログを一元収集し、異常な認証試行・特権操作・データアクセスをリアルタイム検知する。"
+  },
+  "PCI 10.2.2": {
+    "summary": "PCI 10.2.2 — 監査ログへの記録内容の定義（ユーザーID・イベント等）",
+    "detail": "【正式名称】Audit logs capture all individual user access to cardholder data\n【目的・概要】\n監査ログに必要な情報（ユーザーID・イベント種別・日時・成否・端末情報等）が含まれることを確保する。\n【主な要件】\n・ユーザーID・イベント種別・日時・成否の記録\n・影響を受けたデータ・システムコンポーネントの記録\n・ログの完全性の確保\n【実装例】\nSIEMのログ収集ルールで、ユーザーID・タイムスタンプ・イベントタイプ・ソースIPを必須フィールドとして設定する。"
+  },
+  "PCI 10.3.2": {
+    "summary": "PCI 10.3.2 — 監査ログファイルの不正な変更からの保護",
+    "detail": "【正式名称】Audit log files are protected from destruction and unauthorized modifications\n【目的・概要】\n監査ログファイルを破壊・改ざんから保護し、インシデント調査時に信頼できる証拠として使用できることを確保する。\n【主な要件】\n・ログへの書き込み専用アクセス（削除・変更不可）\n・ログの暗号化または改ざん検知\n・ログ管理システムへのアクセス制限\n【実装例】\nS3 Object Lock（WORMモード）でログを保管し、改ざん防止を技術的に保証する。SIEMへのログ転送を即時に行い、転送後は送信元でのログ変更を検知する。"
+  },
+  "PCI 10.3.3": {
+    "summary": "PCI 10.3.3 — 監査ログの直ちに障害に強い中央集約ログサーバーへのバックアップ",
+    "detail": "【正式名称】Audit log files, including those for external-facing technologies, are promptly backed up to a centralized log server\n【目的・概要】\n監査ログを直ちに集中管理されたログサーバーにバックアップし、元のシステムが侵害されてもログが保全されることを確保する。\n【主な要件】\n・リアルタイムまたは準リアルタイムでの集中ログサーバーへの転送\n・ログサーバーとシステムコンポーネントの分離\n・ログサーバーへのアクセス制限\n【実装例】\nSyslog・Fluentd・Beats等でリアルタイムにSIEMへログ転送する。SIEMへのアクセスは最小権限に制限し、ログ管理者には別の管理コンソールを使用する。"
+  },
+  "PCI 10.4.1": {
+    "summary": "PCI 10.4.1 — 定期的なログレビューの実施（異常・不審な活動の検知）",
+    "detail": "【正式名称】The following audit logs are reviewed at least once daily\n【目的・概要】\n重要なシステムコンポーネントのログを少なくとも日次でレビューし、異常・不審な活動を検知する。\n【主な要件】\n・全セキュリティイベントのログの日次レビュー\n・CDEへのアクセスログのレビュー\n・自動化ツール（SIEM等）による検知の推奨\n【実装例】\nSIEMの自動相関分析でリアルタイム検知を実施し、人手によるレビューはアラートとサマリーレポートの確認に集中させる。重要アラートはSOCが24時間対応する。"
+  },
+  "PCI 10.4.2": {
+    "summary": "PCI 10.4.2 — その他システムコンポーネントのログの定期的なレビュー",
+    "detail": "【正式名称】Logs of all other system components are reviewed periodically\n【目的・概要】\n日次レビュー対象外のシステムコンポーネントのログも定期的にレビューし、潜在的な問題を検知する。\n【主な要件】\n・ターゲットリスク分析に基づくレビュー頻度の設定\n・レビュー結果の記録と保管\n・異常発見時の対応プロセス\n【実装例】\nリスクレベルに応じてレビュー頻度を設定（高リスク：日次、中リスク：週次、低リスク：月次）し、SIEMのレポートで自動化する。"
+  },
+  "PCI 10.5.1": {
+    "summary": "PCI 10.5.1 — 監査ログの保存期間（最低12ヶ月、即時利用可能3ヶ月）",
+    "detail": "【正式名称】Retain audit log history for at least 12 months, with at least the most recent three months available for immediate analysis\n【目的・概要】\n監査ログを最低12ヶ月間保存し、直近3ヶ月分は即時分析のために利用可能な状態を維持する。フォレンジック調査に十分なログ期間を確保する。\n【主な要件】\n・12ヶ月間のログ保管\n・直近3ヶ月分のオンライン・即時アクセス可能な保管\n・アーカイブログの復元手順の整備\n【実装例】\nSIEM（Azure Sentinel等）でホットデータ（3ヶ月）をオンライン保管、コールドデータ（12ヶ月）をS3 Glacierに自動アーカイブする。復元時間はSLAで定義する。"
+  },
+  "PCI 10.6.1": {
+    "summary": "PCI 10.6.1 — 全システムコンポーネントの時刻同期（NTP等）の実装",
+    "detail": "【正式名称】System clocks and time are synchronized using time-synchronization technology\n【目的・概要】\n全システムコンポーネントの時刻を統一した時刻源（NTPサーバー等）に同期し、ログの相関分析と信頼性を確保する。時刻のずれはフォレンジック調査を困難にする。\n【主な要件】\n・信頼できるNTPサーバーへの同期\n・全システムコンポーネントへのNTP設定\n・時刻同期の監視\n【実装例】\nNICTの公開NTPサーバーを最上位として階層型NTP構成を設計し、全サーバー・ネットワーク機器・エンドポイントを同期する。ずれが±1秒を超えた場合にアラートを発生させる。"
+  },
+  "PCI 10.6.2": {
+    "summary": "PCI 10.6.2 — 時刻同期設定の保護（無許可の変更防止）",
+    "detail": "【正式名称】Systems are configured to the correct and consistent time\n【目的・概要】\n時刻同期の設定を保護し、無許可の変更を防止する。時刻の改ざんはログの証拠性を損なう。\n【主な要件】\n・NTP設定への変更制限\n・時刻変更のログ記録と監視\n・外部NTPアクセスの制限（許可されたサーバーのみ）\n【実装例】\nOSのNTP設定をグループポリシーで管理し、変更をAuditポリシーで記録する。ファイアウォールで承認されたNTPサーバーへのNTPトラフィック（UDP 123）のみを許可する。"
+  },
+  "PCI 11.1.1": {
+    "summary": "PCI 11.1.1 — セキュリティテストのポリシーと手順の文書化",
+    "detail": "【正式名称】Processes and mechanisms for regularly testing security of systems and networks are defined and understood\n【目的・概要】\nシステムとネットワークのセキュリティの定期的なテストに関するポリシーと手順を文書化する。\n【主な要件】\n・セキュリティテストポリシーの文書化\n・テストの種類・頻度・責任者の定義\n・テスト結果の管理と対処方針\n【実装例】\n「セキュリティテストポリシー」を策定し、脆弱性スキャン（四半期）・ペネトレーションテスト（年次）・WAFレビュー（年次）の実施要件を明文化する。"
+  },
+  "PCI 11.2.1": {
+    "summary": "PCI 11.2.1 — 承認された無線アクセスポイントの四半期スキャン",
+    "detail": "【正式名称】Authorized and unauthorized wireless access points are managed\n【目的・概要】\nワイヤレスアクセスポイントを定期的にスキャンし、不正な無線デバイスの設置を検知する。\n【主な要件】\n・少なくとも四半期ごとの無線スキャンの実施\n・承認済みアクセスポイントの台帳管理\n・不正デバイス検知時の対処手順\n【実装例】\nワイヤレスIDS（Cisco Meraki・Aruba等）を導入し、不正なアクセスポイントをリアルタイム検知する。四半期ごとにポータブルスキャナーで物理的なスキャンも実施する。"
+  },
+  "PCI 11.2.2": {
+    "summary": "PCI 11.2.2 — 無線スキャンの手順とインシデント対応の文書化",
+    "detail": "【正式名称】An inventory of authorized wireless access points is maintained\n【目的・概要】\n承認された無線アクセスポイントのインベントリを維持し、スキャン結果と照合して不正なデバイスを特定する。\n【主な要件】\n・承認済みAPのインベントリの維持と更新\n・スキャン結果とインベントリの照合\n・不正AP発見時の対処手順の文書化\n【実装例】\n無線管理システムで承認済みAPのMACアドレス一覧を管理し、スキャンで検出されたAPをリストと自動照合する。未登録APを検知した場合は直ちにセキュリティチームに通知する。"
+  },
+  "PCI 11.3.1": {
+    "summary": "PCI 11.3.1 — 内部脆弱性スキャンの少なくとも四半期ごとの実施",
+    "detail": "【正式名称】Internal vulnerability scans are performed\n【目的・概要】\n内部ネットワークの脆弱性スキャンを少なくとも四半期ごとに実施し、重大な脆弱性を対処する。QSAまたはASVによる実施が必要。\n【主な要件】\n・四半期ごとの内部脆弱性スキャンの実施\n・発見された脆弱性の対処とスキャン再実施\n・スキャン結果の文書化と保管\n【実装例】\nQualysまたはNessusで四半期ごとに全CDEコンポーネントの認証スキャンを実施する。High以上の脆弱性は次回スキャン前に修正し、再スキャンでクリアを確認する。"
+  },
+  "PCI 11.3.2": {
+    "summary": "PCI 11.3.2 — 外部脆弱性スキャンの少なくとも四半期ごとの実施（ASVによる）",
+    "detail": "【正式名称】External vulnerability scans are performed by a PCI SSC Approved Scanning Vendor (ASV)\n【目的・概要】\nPCI SSCが承認したスキャニングベンダー（ASV）による外部脆弱性スキャンを少なくとも四半期ごとに実施する。\n【主な要件】\n・ASVによる四半期ごとの外部スキャンの実施\n・発見された脆弱性の対処とスキャン再実施\n・「合格」スキャン結果の取得と保管\n【実装例】\nPCI SSC承認のASV（Qualys・Trustwave等）と契約し、四半期ごとに外部公開IPへのスキャンを実施する。High以上の脆弱性を全て対処した上で「合格」スキャンを取得する。"
+  },
+  "PCI 11.4.1": {
+    "summary": "PCI 11.4.1 — ペネトレーションテストの少なくとも年1回の実施",
+    "detail": "【正式名称】A penetration testing methodology is defined, documented, and implemented by the entity\n【目的・概要】\nペネトレーションテストを少なくとも年1回および重大な変更後に実施し、攻撃者の視点からの脆弱性を特定する。\n【主な要件】\n・業界標準（OWASP・PTES等）に基づくテスト手法の定義\n・内部・外部・Webアプリを含む包括的なテストの実施\n・発見事項の修正と再テストによる確認\n【実装例】\n外部セキュリティ会社と年次契約でペネトレーションテスト（内部・外部・Webアプリ）を実施する。Critical/High発見事項は90日以内に修正し再テストで確認する。"
+  },
+  "PCI 11.4.4": {
+    "summary": "PCI 11.4.4 — ペネトレーションテスト発見事項の修正と再テスト",
+    "detail": "【正式名称】Exploitable vulnerabilities and security weaknesses found during penetration testing are corrected\n【目的・概要】\nペネトレーションテストで発見された悪用可能な脆弱性・セキュリティ上の弱点を修正し、再テストにより修正を確認する。\n【主な要件】\n・発見事項の重要度分類と修正期限の設定\n・修正後の再テストによる検証\n・修正記録の文書化と保管\n【実装例】\nペネトレーションテスト報告書の発見事項をJiraチケットに登録し、Critical→30日・High→60日・Medium→90日のSLAで修正を追跡する。全件修正確認後に再テストを実施する。"
+  },
+  "PCI 11.5.1": {
+    "summary": "PCI 11.5.1 — IDS/IPSによるCDEへの不正侵入の検知と防止",
+    "detail": "【正式名称】Intrusion-detection and/or intrusion-prevention techniques are used to detect and/or prevent intrusions into the network\n【目的・概要】\n侵入検知・防止システム（IDS/IPS）をネットワーク上の重要ポイントに配置し、CDEへの不正侵入を検知・防止する。\n【主な要件】\n・IDS/IPSの戦略的な配置（CDEの境界・内部等）\n・シグネチャの定期的な更新\n・アラートの監視と対応\n【実装例】\nPalo Alto NGFWのIPS機能を有効化し、CDEへの全トラフィックを検査する。検知ルールを週次で更新し、高重大度アラートをSIEMに転送してSOCが監視する。"
+  },
+  "PCI 11.6.1": {
+    "summary": "PCI 11.6.1 — Webページ上の不正な変更の検知メカニズムの実装",
+    "detail": "【正式名称】A change- and tamper-detection mechanism is deployed to alert personnel to unauthorized modification of the payment page\n【目的・概要】\n決済ページのスクリプトやコンテンツの不正な変更（Magecartスキミング等）を検知するメカニズムを実装する。PCI DSS v4.0で追加された新要件。\n【主な要件】\n・決済ページへの変更検知メカニズムの実装\n・不正変更検知時のアラート設定\n・ページ内で実行される全スクリプトの管理\n【実装例】\nContent Security Policy（CSP）ヘッダーを設定し、承認されたスクリプトソース以外の実行をブロックする。Subresource Integrity（SRI）で外部スクリプトの整合性を検証する。"
+  },
+  "PCI 12.1.1": {
+    "summary": "PCI 12.1.1 — 情報セキュリティポリシーの策定・経営層承認・周知",
+    "detail": "【正式名称】An overall information security policy is established, published, maintained, and disseminated to all relevant personnel\n【目的・概要】\n組織の情報セキュリティポリシーを確立・公表・維持し、全関係者に周知する。ポリシーはPCI DSSコンプライアンスの基盤となる。\n【主な要件】\n・情報セキュリティポリシーの文書化と経営層承認\n・全担当者・関係業者への周知\n・少なくとも年1回のレビューと更新\n【実装例】\n「情報セキュリティ基本方針」を経営層承認のもと策定し、社内ポータルに掲示する。入社時研修と年次研修でポリシーの内容を説明し、理解確認のサインオフを取得する。"
+  },
+  "PCI 12.1.2": {
+    "summary": "PCI 12.1.2 — 情報セキュリティポリシーの少なくとも年1回のレビュー",
+    "detail": "【正式名称】The information security policy is reviewed at least once every 12 months\n【目的・概要】\n情報セキュリティポリシーを少なくとも年1回レビューし、組織の変化・脅威の変化・法規制の変化に対応した内容を維持する。\n【主な要件】\n・年次レビューの実施と文書化\n・脅威・リスクの変化を反映した更新\n・経営層による再承認\n【実装例】\n毎年4月に情報セキュリティポリシーの年次レビューを実施し、前年のインシデント・脅威動向・法規制変更を反映して更新する。更新版は経営層が承認し、全担当者に再周知する。"
+  },
+  "PCI 12.2.1": {
+    "summary": "PCI 12.2.1 — 許容可能なテクノロジー使用ポリシーの定義と周知",
+    "detail": "【正式名称】Acceptable use policies for end-user technologies are documented and implemented\n【目的・概要】\nエンドユーザーのテクノロジー（PC・スマートフォン・リムーバブルメディア等）の許容可能な使用に関するポリシーを文書化・実装する。\n【主な要件】\n・許容可能なテクノロジー使用ポリシーの策定\n・全担当者への周知と署名取得\n・違反時の対応の明文化\n【実装例】\n「情報機器利用ポリシー」を策定し、CDEへのアクセスに使用するデバイス・アプリケーション・サービスの許容範囲と禁止事項を明文化する。入社時に署名を取得する。"
+  },
+  "PCI 12.3.1": {
+    "summary": "PCI 12.3.1 — 技術的管理策のターゲットリスク分析の実施",
+    "detail": "【正式名称】Each PCI DSS requirement that provides flexibility for how frequently it is performed is implemented based on a targeted risk analysis\n【目的・概要】\n実施頻度に柔軟性のあるPCI DSS要件に対して、ターゲットリスク分析を実施し、適切な頻度を決定・文書化する。\n【主な要件】\n・対象要件の特定とリスク分析の実施\n・分析結果に基づく実施頻度の決定\n・分析結果の文書化と少なくとも年1回のレビュー\n【実装例】\nPCI DSS v4.0でターゲットリスク分析が必要な要件（ログレビュー頻度・POSデバイス点検頻度等）に対して、リスク分析ワークショップを実施し、分析結果を文書化する。"
+  },
+  "PCI 12.3.2": {
+    "summary": "PCI 12.3.2 — カスタマイズされた実装アプローチのターゲットリスク分析",
+    "detail": "【正式名称】A targeted risk analysis is performed for each PCI DSS requirement that the entity meets via the customized approach\n【目的・概要】\nカスタマイズされた実装アプローチを選択した場合、対象要件に対してターゲットリスク分析を実施し、管理策の有効性を実証する。\n【主な要件】\n・カスタマイズアプローチを選択した要件の特定\n・要件の目的を達成していることの実証\n・QSAによる検証と文書化\n【実装例】\nカスタマイズアプローチを選択した場合、管理策がPCI DSS要件の意図を満たしていることをQSAと協力して実証し、証跡を文書化する。"
+  },
+  "PCI 12.4.1": {
+    "summary": "PCI 12.4.1 — PCI DSSコンプライアンス管理の責任者の任命",
+    "detail": "【正式名称】Additional requirement for service providers only: Responsibility is established by executive management for the protection of cardholder data\n【目的・概要】\nPCI DSSコンプライアンスの維持に対する責任を経営陣レベルで明確にし、担当する役員・責任者を任命する。\n【主な要件】\n・コンプライアンス責任者（CISO・DPO等）の任命\n・責任範囲の文書化\n・経営層への定期的なコンプライアンス状況の報告\n【実装例】\nCISOをPCI DSSコンプライアンス責任者として任命し、四半期ごとに経営会議でコンプライアンス状況を報告する体制を確立する。"
+  },
+  "PCI 12.4.2": {
+    "summary": "PCI 12.4.2 — PCI DSSコンプライアンス状況の経営層への定期報告",
+    "detail": "【正式名称】Additional requirement for service providers only: Reviews are performed at least once every three months to confirm personnel are following security policies and operational procedures\n【目的・概要】\nセキュリティポリシーと運用手順への準拠状況を少なくとも四半期ごとにレビューし、経営層に報告する。\n【主な要件】\n・四半期ごとのコンプライアンスレビューの実施\n・担当者のポリシー遵守状況の確認\n・経営層への報告と課題対処\n【実装例】\n四半期ごとにPCI DSSコンプライアンスダッシュボード（ASVスキャン結果・脆弱性対処状況・ログレビュー状況等）を経営層に報告する。"
+  },
+  "PCI 12.5.1": {
+    "summary": "PCI 12.5.1 — CDEスコープの少なくとも年1回の確認と文書化",
+    "detail": "【正式名称】An inventory of system components in scope for PCI DSS, including a description of function/use, is maintained and kept current\n【目的・概要】\nPCI DSSスコープの範囲を少なくとも年1回および重大な変更後に確認・文書化し、スコープが正確に把握されていることを確保する。\n【主な要件】\n・少なくとも年1回のスコープ確認と文書化\n・重大な変更後の追加スコープ確認\n・スコープ外とするための適切な分離の確認\n【実装例】\n年次のPCI DSSスコープレビューを実施し、ネットワーク図・システムインベントリ・データフロー図をQSAと確認する。変更管理プロセスでスコープへの影響を評価する。"
+  },
+  "PCI 12.5.2": {
+    "summary": "PCI 12.5.2 — PCI DSSスコープの変更後の確認（重大な変更後）",
+    "detail": "【正式名称】PCI DSS scope is documented and confirmed by the entity at least once every 12 months and upon significant change to the in-scope environment\n【目的・概要】\nPCI DSSスコープを少なくとも年1回および重大な変更後に文書化・確認する。\n【主な要件】\n・スコープ確認の年次実施と文書化\n・変更後のスコープへの影響評価\n・QSAへのスコープ変更の報告\n【実装例】\n変更管理プロセスにPCI DSSスコープ影響評価を組み込み、スコープに影響する変更はQSAに通知する。年次でスコープ文書を更新・承認する。"
+  },
+  "PCI 12.6.1": {
+    "summary": "PCI 12.6.1 — セキュリティ意識向上プログラムの実装（年1回以上）",
+    "detail": "【正式名称】A formal security awareness program is implemented to make all personnel aware of the entity's information security policy and procedures\n【目的・概要】\n公式のセキュリティ意識向上プログラムを実装し、全担当者が情報セキュリティポリシーと手順を認識・理解していることを確保する。\n【主な要件】\n・年1回以上のセキュリティ意識向上トレーニングの実施\n・フィッシング・ソーシャルエンジニアリングへの対処方法の教育\n・受講確認記録の保管\n【実装例】\nKnowBe4等のセキュリティ意識向上プラットフォームで年2回の必須トレーニングとフィッシング訓練を実施する。受講記録を2年間保管する。"
+  },
+  "PCI 12.6.2": {
+    "summary": "PCI 12.6.2 — セキュリティ意識向上プログラムの少なくとも年1回のレビューと更新",
+    "detail": "【正式名称】The security awareness program is reviewed at least once every 12 months, and updated as needed to address any new threats or vulnerabilities\n【目的・概要】\nセキュリティ意識向上プログラムを少なくとも年1回レビューし、新しい脅威・脆弱性に対応した内容に更新する。\n【主な要件】\n・年次プログラムレビューの実施\n・最新の脅威動向・インシデント事例の反映\n・プログラム効果の測定（フィッシングクリック率等）\n【実装例】\n毎年のセキュリティトレーニング計画策定時に前年のフィッシング訓練結果・インシデント動向を分析し、重点教育項目をプログラムに反映する。"
+  },
+  "PCI 12.7.1": {
+    "summary": "PCI 12.7.1 — 採用前のバックグラウンドチェックの実施",
+    "detail": "【正式名称】Potential personnel who will have access to the CDE are screened, within the constraints of local laws, prior to hire\n【目的・概要】\nCDEにアクセスする担当者の採用前にバックグラウンドチェック（身元調査等）を実施し、内部脅威リスクを低減する。\n【主な要件】\n・採用前の身元確認・職歴確認の実施\n・法令・プライバシー要件の遵守\n・チェック結果の記録と管理\n【実装例】\nCDEアクセス権限を持つポジションの採用候補者全員に信用調査機関による身元調査を実施する。結果は機密として管理し、採用判断に活用する。"
+  },
+  "PCI 12.8.1": {
+    "summary": "PCI 12.8.1 — TPSPの管理ポリシーと手順の策定",
+    "detail": "【正式名称】A list of all third-party service providers (TPSPs) with which account data is shared or that could affect the security of account data is maintained\n【目的・概要】\nアカウントデータを共有または処理するサードパーティサービスプロバイダ（TPSP）の一覧を維持し、管理ポリシーを実装する。\n【主な要件】\n・全TPSPの一覧の維持と更新\n・各TPSPが関与するPCI DSS要件の特定\n・TPSPとの契約管理\n【実装例】\nTPSP一覧を作成し、各社が関与するPCI DSS要件・セキュリティ責任の分担・コンプライアンス確認方法を文書化する。"
+  },
+  "PCI 12.8.2": {
+    "summary": "PCI 12.8.2 — TPSPとの書面による契約・セキュリティ責任の明確化",
+    "detail": "【正式名称】Written agreements with all TPSPs are maintained\n【目的・概要】\n全TPSPとのPCI DSSコンプライアンスに関する書面による合意を維持し、セキュリティ責任の範囲を明確にする。\n【主な要件】\n・PCI DSSセキュリティ要件を含む書面合意の締結\n・セキュリティ責任の分担の明文化\n・インシデント通知義務の明記\n【実装例】\n全TPSPとの契約にPCI DSSコンプライアンス要件・インシデント通知義務・監査権を明記する。契約の有効期限を管理し、更新時に内容を見直す。"
+  },
+  "PCI 12.8.3": {
+    "summary": "PCI 12.8.3 — 関与する前のTPSPのPCI DSSコンプライアンス状況の確認",
+    "detail": "【正式名称】An established process is implemented for engaging TPSPs, including proper due diligence prior to engagement\n【目的・概要】\nTPSPと関与する前に適切なデューデリジェンスを実施し、PCI DSSコンプライアンス状況を確認するプロセスを実装する。\n【主な要件】\n・TPSP採用前のセキュリティ評価の実施\n・PCI DSS準拠状況の確認（AOC・SAQ等）\n・評価結果の記録と保管\n【実装例】\nTPSP採用前にSecurityアセスメント質問票の提出を求め、AOC（Attestation of Compliance）の確認を行う。高リスクTPSPはさらに詳細な評価（オンサイト審査等）を実施する。"
+  },
+  "PCI 12.8.4": {
+    "summary": "PCI 12.8.4 — TPSPのPCI DSSコンプライアンス状況の少なくとも年1回の監視",
+    "detail": "【正式名称】A program is implemented to monitor TPSPs' PCI DSS compliance status at least once every 12 months\n【目的・概要】\nTPSPのPCI DSSコンプライアンス状況を少なくとも年1回監視し、継続的なコンプライアンスを確保する。\n【主な要件】\n・年次のTPSPコンプライアンス確認の実施\n・AOC・準拠証明書の収集と管理\n・非準拠TPSPへの対応プロセス\n【実装例】\n年次でTPSP一覧を見直し、各社から最新のAOCまたはROC（Report on Compliance）の提出を求める。期限内に提出されない場合はエスカレーションする。"
+  },
+  "PCI 12.8.5": {
+    "summary": "PCI 12.8.5 — 各TPSPが管理するPCI DSS要件の情報の維持",
+    "detail": "【正式名称】Information is maintained about which PCI DSS requirements are managed by each TPSP\n【目的・概要】\n各TPSPが管理するPCI DSS要件と自組織が管理する要件を明確にした責任分担マトリクスを維持する。\n【主な要件】\n・TPSP責任分担マトリクスの作成と維持\n・自組織とTPSPの責任範囲の明確化\n・分担マトリクスの定期的な更新\n【実装例】\n共有責任マトリクスを作成し、各PCI DSS要件がTPSP・自社・共同のどの責任かを明記する。クラウドプロバイダとのAWSバリューチェーンで責任共有モデルを文書化する。"
+  },
+  "PCI 12.9.1": {
+    "summary": "PCI 12.9.1 — TPSPによるカード会員データ保護責任の書面確認",
+    "detail": "【正式名称】TPSPs acknowledge in writing to customers that they are responsible for the security of account data the TPSP possesses or otherwise stores, processes, or transmits on behalf of the customer\n【目的・概要】\nTPSPは顧客に代わってアカウントデータを保有・処理・送信する場合、そのデータのセキュリティに対する責任を書面で確認する。\n【主な要件】\n・TPSPによる書面での責任確認の取得\n・責任範囲の具体的な記述\n・定期的な書面確認の更新\n【実装例】\nTPSPから「弊社が管理するカード会員データの保護に責任を持つ」旨の確認書面（AOC・責任確認書等）を受領し、契約更新時に最新化する。"
+  },
+  "PCI 12.9.2": {
+    "summary": "PCI 12.9.2 — TPSPのコンプライアンス状況確認への支援体制",
+    "detail": "【正式名称】TPSPs support their customers' requests for information to monitor the TPSP's PCI DSS compliance\n【目的・概要】\nTPSPは顧客がTPSPのPCI DSSコンプライアンス状況を監視するための情報提供要求を支援する。\n【主な要件】\n・コンプライアンス証明書（AOC等）の提供\n・セキュリティ評価への協力\n・インシデント発生時の迅速な情報共有\n【実装例】\nTPSPに対してコンプライアンス証明書の年次提供・四半期セキュリティレビューへの参加・インシデント発生時の24時間以内通知を契約上の義務として課す。"
+  },
+  "PCI 12.10.1": {
+    "summary": "PCI 12.10.1 — インシデント対応計画の策定とテスト",
+    "detail": "【正式名称】An incident response plan exists and is ready to be activated in the event of a system breach\n【目的・概要】\nシステム侵害発生時に即座に対応できるインシデント対応計画を策定・テストし、準備万端の状態を維持する。\n【主な要件】\n・PCI DSS侵害を含むインシデント対応計画の策定\n・役割・責任・連絡先の定義\n・少なくとも年1回のテスト（机上演習・実技訓練）\n【実装例】\nNIST SP 800-61に基づくインシデント対応計画を策定し、カード会員データ侵害シナリオを含む年次机上演習を実施する。QSAへの通知手順とPCI SSCへの連絡先も含める。"
+  },
+  "PCI 12.10.2": {
+    "summary": "PCI 12.10.2 — インシデント対応計画の少なくとも年1回のレビューとテスト",
+    "detail": "【正式名称】At least once every 12 months, the security incident response plan is reviewed and the personnel with responsibilities in this area are tested\n【目的・概要】\nインシデント対応計画を少なくとも年1回レビューし、担当者の能力をテストする。計画の有効性は定期的な訓練でしか確認できない。\n【主な要件】\n・年次のインシデント対応計画レビュー\n・担当者のトレーニングとテストの実施\n・前年のインシデント・演習の教訓の反映\n【実装例】\n毎年インシデント対応計画の年次レビューと机上演習を実施する。演習シナリオにはランサムウェア・カード会員データ漏洩・内部不正を含め、MTTD・MTTRを測定する。"
+  },
+  "PCI 12.10.4": {
+    "summary": "PCI 12.10.4 — インシデント対応担当者への定期的なトレーニング",
+    "detail": "【正式名称】Personnel responsible for responding to suspected and confirmed security incidents are appropriately and regularly trained on their incident response responsibilities\n【目的・概要】\nインシデント対応の責任を持つ担当者に対して、役割に応じた適切・定期的なトレーニングを実施する。\n【主な要件】\n・インシデント対応担当者への役割別トレーニング\n・定期的な訓練・演習の実施\n・最新の脅威・手法に関する教育\n【実装例】\nCSIRTメンバーに年次で外部セキュリティ研修（SANS等）を受講させ、四半期の机上演習で対応手順を訓練する。フォレンジックツールの操作演習も含める。"
+  }
+}
