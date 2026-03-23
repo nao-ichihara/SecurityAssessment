@@ -109,6 +109,22 @@
       "refsFiles": [
         "content/refs_csf.json"
       ]
+    },
+    {
+      "id": "pci_dss",
+      "label": "PCI DSS v4.0",
+      "sublabel": "全12要件",
+      "icon": "💳",
+      "color": "#0052a5",
+      "description": "クレジットカード業界のデータセキュリティ標準。カード会員データを取り扱う全組織に適用。ネットワーク・暗号化・アクセス制御・監視・テストなど12要件で構成。",
+      "file": "questions/pci_dss.json",
+      "env": null,
+      "tags": [
+        "PCI DSS v4.0"
+      ],
+      "refsFiles": [
+        "content/refs_pci.json"
+      ]
     }
   ]
 }
