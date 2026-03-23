@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>企業セキュリティ リスクアセスメント</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
 
@@ -932,6 +933,76 @@
   }
   .org-info-value { font-size: 14px; color: var(--text); font-weight: 500; }
   .org-info-value.empty { color: var(--text-muted); font-style: italic; font-size: 12px; }
+  .org-info-edit-btn {
+    margin-left: auto; align-self: center; padding: 4px 12px;
+    font-size: 11px; border: 1px solid var(--border); border-radius: 4px;
+    background: transparent; color: var(--text-muted); cursor: pointer;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .org-info-edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .org-edit-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .org-edit-field label { font-size: 11px; color: var(--text-muted); font-family: 'Space Mono',monospace; text-transform: uppercase; letter-spacing: .06em; }
+  .org-edit-field input { background: var(--bg); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 13px; padding: 8px 12px; outline: none; transition: border-color .15s; }
+  .org-edit-field input:focus { border-color: var(--accent); }
+  .org-edit-field input[type="date"] { font-family: inherit; }
+
+  /* Markdown editor — 総合評価 */
+  .md-editor-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .md-editor-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; border-bottom: 1px solid var(--border);
+  }
+  .md-editor-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .md-editor-hint  { font-size: 11px; color: var(--text-muted); }
+  .md-toolbar {
+    display: flex; gap: 2px; padding: 6px 10px;
+    border-bottom: 1px solid var(--border); background: var(--bg); flex-wrap: wrap;
+  }
+  .md-toolbar button {
+    background: none; border: 1px solid transparent; border-radius: 4px;
+    color: var(--text-dim); cursor: pointer; font-size: 12px;
+    padding: 3px 8px; transition: all .15s; white-space: nowrap;
+  }
+  .md-toolbar button:hover { background: rgba(255,255,255,.06); border-color: var(--border); color: var(--text); }
+  .md-toolbar .md-sep { width: 1px; background: var(--border); margin: 2px 4px; }
+  .md-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .md-tab {
+    padding: 7px 18px; font-size: 12px; cursor: pointer;
+    border-bottom: 2px solid transparent; color: var(--text-muted);
+    background: none; border-top: none; border-left: none; border-right: none;
+    transition: all .15s;
+  }
+  .md-tab.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .md-editor-textarea {
+    width: 100%; min-height: 160px; background: var(--bg);
+    border: none; color: var(--text); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px; line-height: 1.8; padding: 16px 18px;
+    resize: vertical; outline: none; box-sizing: border-box;
+  }
+  .md-preview {
+    min-height: 160px; padding: 16px 18px;
+    font-size: 13px; line-height: 1.8; color: var(--text-dim);
+    display: none;
+  }
+  .md-preview h1,.md-preview h2,.md-preview h3 { color: var(--text); font-weight: 700; margin: .6em 0 .3em; }
+  .md-preview h1 { font-size: 1.3em; }
+  .md-preview h2 { font-size: 1.15em; }
+  .md-preview h3 { font-size: 1.05em; }
+  .md-preview p  { margin: .4em 0; }
+  .md-preview ul,.md-preview ol { padding-left: 1.4em; margin: .4em 0; }
+  .md-preview li { margin: .15em 0; }
+  .md-preview strong { color: var(--text); font-weight: 700; }
+  .md-preview em { font-style: italic; }
+  .md-preview a  { color: var(--accent); text-decoration: underline; }
+  .md-preview code { background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 3px; font-family: 'Space Mono',monospace; font-size: .9em; }
+  .md-preview blockquote { border-left: 3px solid var(--border); padding-left: 12px; color: var(--text-muted); margin: .4em 0; }
+  .md-preview hr { border: none; border-top: 1px solid var(--border); margin: .8em 0; }
 
   /* Save / Load buttons */
   .btn-save {
@@ -1235,6 +1306,58 @@
   </div>
 </div>
 
+<!-- ===== ORG INFO EDIT MODAL ===== -->
+<div class="g-modal-backdrop" id="orgEditModal">
+  <div class="g-modal g-modal-sm">
+    <div class="g-modal-header">
+      <div class="g-modal-title">✏️ アセスメント情報の編集</div>
+      <button class="g-modal-close" onclick="cancelOrgEdit()">✕ 閉じる</button>
+    </div>
+    <div class="g-modal-body" style="padding:20px 24px 8px;">
+      <div class="org-edit-field">
+        <label>企業名</label>
+        <input type="text" id="orgEditCompany" placeholder="例：株式会社〇〇">
+      </div>
+      <div class="org-edit-field">
+        <label>組織名 / 部署名</label>
+        <input type="text" id="orgEditDept" placeholder="例：情報システム部">
+      </div>
+      <div class="org-edit-field">
+        <label>入力管理者</label>
+        <input type="text" id="orgEditAdmin" placeholder="例：山田 太郎">
+      </div>
+      <div class="org-edit-field">
+        <label>評価実施日</label>
+        <input type="date" id="orgEditDate">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 24px 20px;">
+      <button class="btn btn-secondary" onclick="cancelOrgEdit()">キャンセル</button>
+      <button class="btn btn-primary"   onclick="confirmOrgEdit()">変更する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ORG INFO EDIT CONFIRM DIALOG ===== -->
+<div class="g-modal-backdrop" id="orgEditConfirmModal">
+  <div class="g-modal g-modal-sm" style="max-width:400px;">
+    <div class="g-modal-header">
+      <div class="g-modal-title">✏️ アセスメント情報の変更確認</div>
+    </div>
+    <div class="g-modal-body" style="padding:20px 24px 8px;">
+      <p style="font-size:14px;line-height:1.7;color:var(--text-dim);margin:0 0 8px;">
+        アセスメント情報を以下の内容に変更します。
+      </p>
+      <div id="orgEditConfirmContent" style="font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:10px 14px;line-height:2;margin-bottom:8px;"></div>
+      <p style="font-size:13px;color:var(--text-muted);margin:0;">よろしいですか？</p>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 24px 20px;">
+      <button class="btn btn-secondary" onclick="backToOrgEdit()">戻る</button>
+      <button class="btn btn-primary"   onclick="applyOrgEdit()">変更する</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== RESTART CONFIRM DIALOG ===== -->
 <div class="g-modal-backdrop" id="restartConfirmModal">
   <div class="g-modal g-modal-sm" style="max-width:400px;">
@@ -1379,6 +1502,37 @@
         <div class="result-card-title">改善推奨事項</div>
         <div class="findings-list" id="warnFindings"></div>
       </div>
+    </div>
+
+    <!-- 総合評価（マークダウンエディタ） -->
+    <div class="md-editor-wrap" id="summaryEditorWrap">
+      <div class="md-editor-header">
+        <div>
+          <div class="md-editor-title">📝 総合評価コメント</div>
+          <div class="md-editor-hint">評価結果の所見・推奨事項・経営層向けコメントなどを自由に記述できます（Markdown 形式）。</div>
+        </div>
+      </div>
+      <div class="md-toolbar">
+        <button onclick="mdCmd('bold')"        title="太字 (Ctrl+B)"><strong>B</strong></button>
+        <button onclick="mdCmd('italic')"      title="斜体 (Ctrl+I)"><em>I</em></button>
+        <button onclick="mdCmd('heading')"     title="見出し">H</button>
+        <div class="md-sep"></div>
+        <button onclick="mdCmd('ul')"          title="箇条書き">• リスト</button>
+        <button onclick="mdCmd('ol')"          title="番号リスト">1. リスト</button>
+        <button onclick="mdCmd('blockquote')"  title="引用">❝ 引用</button>
+        <div class="md-sep"></div>
+        <button onclick="mdCmd('link')"        title="リンク">🔗 リンク</button>
+        <button onclick="mdCmd('code')"        title="コード">&lt;/&gt; コード</button>
+        <button onclick="mdCmd('hr')"          title="区切り線">── 区切り</button>
+      </div>
+      <div class="md-tabs">
+        <button class="md-tab active" id="mdTabEdit"    onclick="mdSwitchTab('edit')">編集</button>
+        <button class="md-tab"        id="mdTabPreview" onclick="mdSwitchTab('preview')">プレビュー</button>
+      </div>
+      <textarea class="md-editor-textarea" id="summaryTextarea"
+                placeholder="例：今回の評価では、アクセス制御とインシデント対応に改善の余地が見られました。&#10;&#10;**優先対応事項：**&#10;- 特権アカウントへの MFA 適用（3ヶ月以内）&#10;- インシデント対応計画（IRP）の策定（6ヶ月以内）&#10;&#10;詳細は各セクションの要対応事項を参照してください。"
+                oninput="mdAutoSave()"></textarea>
+      <div class="md-preview" id="summaryPreview"></div>
     </div>
 
     <div style="text-align:center; margin-top:32px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
@@ -2023,6 +2177,75 @@ function getMaturity(score) {
   return { level: 1, label: '初期', color: '#ef4444', desc: 'アドホックな対応が中心、整備が必要' };
 }
 
+// ===================== ORG INFO EDIT =====================
+let _orgEditPrev = null; // 編集前の値を保持（キャンセル用）
+
+function openOrgEdit() {
+  // 編集前の値を保存
+  _orgEditPrev = { ...orgInfo };
+  // モーダルのフィールドに現在値をセット
+  document.getElementById('orgEditCompany').value = orgInfo.company || '';
+  document.getElementById('orgEditDept').value    = orgInfo.dept    || '';
+  document.getElementById('orgEditAdmin').value   = orgInfo.admin   || '';
+  document.getElementById('orgEditDate').value    = orgInfo.date    || '';
+  openModal('orgEditModal');
+}
+
+function cancelOrgEdit() {
+  closeModal('orgEditModal');
+  _orgEditPrev = null;
+}
+
+function confirmOrgEdit() {
+  // 入力値を取得（まだ orgInfo には反映しない）
+  const draft = {
+    company: document.getElementById('orgEditCompany').value.trim(),
+    dept:    document.getElementById('orgEditDept').value.trim(),
+    admin:   document.getElementById('orgEditAdmin').value.trim(),
+    date:    document.getElementById('orgEditDate').value,
+  };
+  // 確認ダイアログに変更内容を表示
+  const fmtDate = iso => {
+    if (!iso) return '（未入力）';
+    const [y,m,d] = iso.split('-');
+    return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+  };
+  document.getElementById('orgEditConfirmContent').innerHTML =
+    `<div><strong>企業名：</strong>${draft.company || '（未入力）'}</div>` +
+    `<div><strong>組織名 / 部署名：</strong>${draft.dept || '（未入力）'}</div>` +
+    `<div><strong>入力管理者：</strong>${draft.admin || '（未入力）'}</div>` +
+    `<div><strong>評価実施日：</strong>${fmtDate(draft.date)}</div>`;
+  // draft を一時保管
+  document.getElementById('orgEditConfirmModal').dataset.draft = JSON.stringify(draft);
+  closeModal('orgEditModal');
+  openModal('orgEditConfirmModal');
+}
+
+function backToOrgEdit() {
+  closeModal('orgEditConfirmModal');
+  openModal('orgEditModal');
+}
+
+function applyOrgEdit() {
+  const draft = JSON.parse(document.getElementById('orgEditConfirmModal').dataset.draft || '{}');
+  // orgInfo に反映
+  orgInfo.company = draft.company;
+  orgInfo.dept    = draft.dept;
+  orgInfo.admin   = draft.admin;
+  orgInfo.date    = draft.date;
+  // 初期画面のフォームフィールドも同期
+  document.getElementById('orgCompany').value = orgInfo.company;
+  document.getElementById('orgDept').value    = orgInfo.dept;
+  document.getElementById('orgAdmin').value   = orgInfo.admin;
+  document.getElementById('orgDate').value    = orgInfo.date;
+  // 情報バーを両方再描画
+  renderOrgInfoStrip('orgInfoStripQ');
+  renderOrgInfoStrip('orgInfoStrip');
+  closeModal('orgEditConfirmModal');
+  _orgEditPrev = null;
+  showToast('✏️ アセスメント情報を更新しました', 'success');
+}
+
 function renderOrgInfoStrip(targetId) {
   const el = document.getElementById(targetId);
   if (!el) return;
@@ -2058,6 +2281,9 @@ function renderOrgInfoStrip(targetId) {
       <span class="org-info-label">評価実施日</span>
       <span class="org-info-value ${orgInfo.date ? '' : 'empty'}">${displayDate}${!orgInfo.date ? '（自動）' : ''}</span>
     </div>
+    <div class="org-info-item" style="flex:0;border-right:none;justify-content:center;padding:8px 16px;">
+      <button class="org-info-edit-btn" onclick="openOrgEdit()">✏️ 編集</button>
+    </div>
   `;
 }
 
@@ -2072,6 +2298,7 @@ function showResults() {
   document.getElementById('envBadge').textContent = fwLabel;
 
   renderOrgInfoStrip('orgInfoStrip');
+  _initSummaryEditor();
 
   // Section scores
   const sectionData = sections.map(sec => {
@@ -2484,7 +2711,7 @@ function saveToFile() {
   const answered = Object.keys(answers).length;
 
   const data = {
-    version: '2.4',
+    version: '2.5',
     savedAt: new Date().toISOString(),
     orgInfo,
     env: currentEnv,
@@ -2492,14 +2719,16 @@ function saveToFile() {
     totalCount: totalQ,
     answers,
     memos,
+    summaryComment: _mdSummary,
     frameworkId: currentFrameworkId,
     sections  // embed question data for self-contained restore
   };
 
   const json = JSON.stringify(data, null, 2);
   const company = orgInfo.company ? orgInfo.company.replace(/[\\/:*?"<>|]/g, '_') : 'assessment';
+  const fw = currentFrameworkMeta ? (currentFrameworkMeta.label + '_' + currentFrameworkMeta.sublabel).replace(/[\\/:*?"<>|\s]/g, '_').replace(/_+/g, '_') : currentFrameworkId;
   const date = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
-  const filename = `security_assessment_${company}_${date}.json`;
+  const filename = `security_assessment_${company}_${fw}_${date}.json`;
 
   // ダウンロード実行
   const blob = new Blob([json], { type: 'application/json' });
@@ -2518,6 +2747,7 @@ function saveToFile() {
 function _finishLoadFromData(data) {
   answers = data.answers || {};
   memos   = data.memos   || {};
+  _mdSummary = data.summaryComment || '';
   currentSectionIdx = 0;
   activeSectionDetail = null;
   if (data.orgInfo) {
@@ -2566,7 +2796,7 @@ function closeModal(id) {
 
 // Close modal on backdrop click
 document.addEventListener('click', e => {
-  ['guideModal','loadModal','versionModal','restartConfirmModal'].forEach(id => {
+  ['guideModal','loadModal','versionModal','restartConfirmModal','orgEditModal','orgEditConfirmModal'].forEach(id => {
     const el = document.getElementById(id);
     if (el && e.target === el) closeModal(id);
   });
@@ -2574,7 +2804,7 @@ document.addEventListener('click', e => {
 // Close on Escape key
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    ['guideModal','loadModal','versionModal','restartConfirmModal'].forEach(id => closeModal(id));
+    ['guideModal','loadModal','versionModal','restartConfirmModal','orgEditModal','orgEditConfirmModal'].forEach(id => closeModal(id));
   }
 });
 
@@ -2744,6 +2974,109 @@ function loadFromData(data) {
   }).catch(e => showToast('質問データの読み込みに失敗しました: ' + e.message, 'error'));
 }
 
+// ===================== MARKDOWN EDITOR =====================
+let _mdSummary = ''; // 総合評価テキスト（グローバル保持）
+
+function mdAutoSave() {
+  _mdSummary = document.getElementById('summaryTextarea').value;
+}
+
+function mdSwitchTab(tab) {
+  const ta  = document.getElementById('summaryTextarea');
+  const pre = document.getElementById('summaryPreview');
+  const tabEdit    = document.getElementById('mdTabEdit');
+  const tabPreview = document.getElementById('mdTabPreview');
+  if (tab === 'preview') {
+    _mdSummary = ta.value;
+    pre.innerHTML = typeof marked !== 'undefined'
+      ? marked.parse(_mdSummary || '*（まだ入力されていません）*', { breaks: true })
+      : '<em>プレビューには marked.js が必要です（インターネット接続を確認してください）</em>';
+    ta.style.display  = 'none';
+    pre.style.display = 'block';
+    tabEdit.classList.remove('active');
+    tabPreview.classList.add('active');
+  } else {
+    ta.style.display  = '';
+    pre.style.display = 'none';
+    tabEdit.classList.add('active');
+    tabPreview.classList.remove('active');
+  }
+}
+
+function mdCmd(cmd) {
+  const ta = document.getElementById('summaryTextarea');
+  // プレビュー中なら編集タブに戻す
+  if (ta.style.display === 'none') mdSwitchTab('edit');
+  ta.focus();
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.slice(start, end);
+  const before = ta.value.slice(0, start);
+  const after  = ta.value.slice(end);
+
+  let insert = '', cursorOffset = 0;
+  switch (cmd) {
+    case 'bold':
+      insert = `**${sel || 'テキスト'}**`;
+      cursorOffset = sel ? insert.length : 2;
+      break;
+    case 'italic':
+      insert = `*${sel || 'テキスト'}*`;
+      cursorOffset = sel ? insert.length : 1;
+      break;
+    case 'heading':
+      insert = `\n## ${sel || '見出し'}`;
+      cursorOffset = insert.length;
+      break;
+    case 'ul':
+      insert = sel
+        ? sel.split('\n').map(l => `- ${l}`).join('\n')
+        : `\n- リスト項目`;
+      cursorOffset = insert.length;
+      break;
+    case 'ol':
+      insert = sel
+        ? sel.split('\n').map((l,i) => `${i+1}. ${l}`).join('\n')
+        : `\n1. リスト項目`;
+      cursorOffset = insert.length;
+      break;
+    case 'blockquote':
+      insert = `\n> ${sel || '引用テキスト'}`;
+      cursorOffset = insert.length;
+      break;
+    case 'link': {
+      const url = sel && sel.startsWith('http') ? sel : 'https://';
+      const txt = sel && !sel.startsWith('http') ? sel : 'リンクテキスト';
+      insert = `[${txt}](${url})`;
+      cursorOffset = insert.length;
+      break;
+    }
+    case 'code':
+      insert = sel ? `\`${sel}\`` : '`コード`';
+      cursorOffset = sel ? insert.length : 1;
+      break;
+    case 'hr':
+      insert = `\n\n---\n`;
+      cursorOffset = insert.length;
+      break;
+    default:
+      return;
+  }
+  ta.value = before + insert + after;
+  const pos = start + cursorOffset;
+  ta.setSelectionRange(pos, pos);
+  _mdSummary = ta.value;
+}
+
+// showResults 呼び出し時にエディタを初期化
+function _initSummaryEditor() {
+  const ta = document.getElementById('summaryTextarea');
+  if (!ta) return;
+  ta.value = _mdSummary;
+  // 編集タブに戻す
+  mdSwitchTab('edit');
+}
+
 // ===================== PDF EXPORT =====================
 function exportPDF() {
   const btn = document.getElementById('btnExportPdf');
@@ -2782,6 +3115,12 @@ function exportPDF() {
     // ── レーダーチャート画像取得 ──────────────────────────
     const canvas  = document.getElementById('radarChart');
     const chartImg = canvas ? canvas.toDataURL('image/png') : '';
+
+    // ── 総合評価コメント（Markdown→HTML変換）────────────────
+    const summaryMd   = _mdSummary || '';
+    const summaryHtml = summaryMd.trim()
+      ? (typeof marked !== 'undefined' ? marked.parse(summaryMd, { breaks: true }) : summaryMd.replace(/\n/g,'<br>'))
+      : '';
 
     // ── スコアバー生成 ────────────────────────────────────
     const scoreBar = (score) => {
@@ -2903,6 +3242,22 @@ function exportPDF() {
   table.crit th { background: #dc2626; }
   table.warn th { background: #d97706; }
 
+  table.crit th { background: #dc2626; }
+  table.warn th { background: #d97706; }
+
+  /* Markdown 総合評価 */
+  .md-content h1,.md-content h2,.md-content h3 { color:#1e3a5f; font-weight:700; margin:.5em 0 .25em; }
+  .md-content h1 { font-size:1.2em; } .md-content h2 { font-size:1.1em; } .md-content h3 { font-size:1em; }
+  .md-content p  { margin:.35em 0; }
+  .md-content ul,.md-content ol { padding-left:1.4em; margin:.35em 0; }
+  .md-content li { margin:.12em 0; }
+  .md-content strong { font-weight:700; }
+  .md-content em { font-style:italic; }
+  .md-content a  { color:#2563eb; }
+  .md-content code { background:#f1f5f9; padding:1px 5px; border-radius:3px; font-size:.88em; }
+  .md-content blockquote { border-left:3px solid #cbd5e1; padding-left:10pt; color:#64748b; margin:.35em 0; }
+  .md-content hr { border:none; border-top:1px solid #e2e8f0; margin:.6em 0; }
+
   /* 改ページ */
   .pagebreak { page-break-before: always; }
 
@@ -2964,6 +3319,20 @@ function exportPDF() {
 
   <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
 </div>
+
+<!-- ======== 総合評価コメント（入力がある場合のみ） ======== -->
+${summaryHtml ? `
+<div class="pagebreak"></div>
+<div class="page-header">
+  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${fwLabel}</span>
+</div>
+<div style="padding:0 14pt;">
+  <div class="section-title">総合評価コメント</div>
+  <div class="md-content" style="padding:12pt 0;">${summaryHtml}</div>
+  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+</div>
+` : ''}
 
 <!-- ======== セクション別スコア ======== -->
 <div class="pagebreak"></div>
@@ -3102,6 +3471,7 @@ function confirmRestart() {
   orgInfo = { company: '', dept: '', admin: '', date: '' };
   REF_DEFINITIONS = {};
   Object.keys(_defCache).forEach(k => delete _defCache[k]);
+  _mdSummary = '';
   document.getElementById('orgCompany').value = '';
   document.getElementById('orgDept').value = '';
   document.getElementById('orgAdmin').value = '';
