@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "framework": "CSA Cloud Security Maturity Model v2.0",
+    "description": "Cloud Security Alliance が策定した CSMM v2.0 の識別番号定義。Governance・Lifecycle・Infrastructure・Operations・Resilience の5ドメイン16カテゴリ16件を収録。",
+    "count": 16
+  },
+  "CSMM GV-1": {
+    "summary": "CSMM GV-1 — クラウドセキュリティ戦略の策定とビジネスと整合したリスクマネジメント",
+    "detail": "【正式名称】GV-1: Cloud Security Strategy and Risk Management\n【目的・概要】\nクラウドセキュリティ戦略をビジネス目標・リスク許容度と整合した形で策定し、クラウド固有のリスク（設定ミス・共有責任モデル・Shadow IT等）を体系的に管理する。戦略なきクラウドセキュリティは場当たり的な対応になる。\n【主な要件】\n・クラウドセキュリティ戦略の文書化と経営層承認\n・クラウド固有リスクの体系的な評価プロセス\n・共有責任モデルの理解と自組織責任範囲の明確化\n・経営層へのリスク状況の定期報告\n【実装例】\n「クラウドセキュリティ戦略書」を策定しCISO承認を取得する。CSA Cloud Controls Matrix（CCM）を活用してクラウドリスクを評価し、四半期ごとに経営層に報告する。"
+  },
+  "CSMM GV-2": {
+    "summary": "CSMM GV-2 — クラウド利用ポリシーの整備と法令・規制・業界標準へのコンプライアンス管理",
+    "detail": "【正式名称】GV-2: Policy and Compliance\n【目的・概要】\nクラウド利用に関するセキュリティポリシーを整備し、適用される法令・規制・業界標準（個人情報保護法・GDPR・SOC2・PCI DSS等）へのコンプライアンスを継続的に監視する。\n【主な要件】\n・クラウドセキュリティポリシーの策定と全社周知\n・適用法令・規制・業界標準の特定とギャップ分析\n・継続的なコンプライアンス監視（CSPM等の活用）\n・定期的な監査とコンプライアンス評価\n【実装例】\n「クラウド利用セキュリティポリシー」を策定し承認済みクラウドサービス・データ分類要件・アクセス制御要件を明記する。AWS Config RulesとAzure Policyで継続的なコンプライアンスチェックを実施する。"
+  },
+  "CSMM GV-3": {
+    "summary": "CSMM GV-3 — クラウドサービスプロバイダーの選定基準とサードパーティリスクの継続的管理",
+    "detail": "【正式名称】GV-3: Vendor and Third-Party Risk Management\n【目的・概要】\nクラウドサービスプロバイダー（CSP）の選定にセキュリティ評価を組み込み、利用中のクラウドサービスのリスクを継続的に管理する。Shadow ITの検出と管理も含む。\n【主な要件】\n・CSP選定時のSOC2・ISO27001・CSA STAR認証の確認\n・クラウド利用契約へのセキュリティ要件の組み込み\n・Shadow IT（未承認クラウドサービス）の検出と管理\n・全クラウドサービスのインベントリの維持\n【実装例】\nCASB（Netskope等）でShadow ITを自動検出し、承認済みサービスリストと照合する。CSPの選定チェックリストにSOC2 Type2・ISO27001・CSA STAR認証を必須要件として設定する。"
+  },
+  "CSMM LC-4": {
+    "summary": "CSMM LC-4 — クラウドリソースの自動インベントリ管理と分類・孤立リソースの定期クリーンアップ",
+    "detail": "【正式名称】LC-4: Cloud Asset Management\n【目的・概要】\n全クラウドリソースのインベントリを自動的に維持し、機密性・重要性に基づく分類を実施する。孤立したリソースの定期的なクリーンアップでセキュリティリスクとコストを最適化する。\n【主な要件】\n・クラウド資産の自動インベントリ（CSPM・CMDB連携）\n・タグポリシーによる一貫した資産分類\n・孤立リソース（Orphaned AMI・未使用SG・古いスナップショット等）の定期削除\n・インベントリと実態の乖離の継続的な検出\n【実装例】\nAWS ConfigとAzure Resource Graphで全リソースを自動インベントリし、タグポリシーで「Environment・Owner・DataClassification」を必須タグとして強制する。月次で孤立リソースをスキャンして削除する。"
+  },
+  "CSMM LC-5": {
+    "summary": "CSMM LC-5 — CI/CDパイプラインへのセキュリティ統合（DevSecOps）とセキュアコーディングの推進",
+    "detail": "【正式名称】LC-5: Secure DevOps / DevSecOps\n【目的・概要】\nセキュリティをソフトウェア開発ライフサイクルの全フェーズに統合（Shift Left）し、CI/CDパイプラインへのセキュリティスキャンの自動化とセキュアコーディング文化を醸成する。\n【主な要件】\n・CI/CDへのSAST・DAST・SCA・コンテナスキャンの統合\n・IaC（Terraform・CloudFormation等）のセキュリティ静的解析\n・重大脆弱性によるデプロイブロックの設定\n・開発者向けセキュリティトレーニングとセキュリティチャンピオン\n【実装例】\nGitHub Actionsにtfsec・Trivy・Semgrep・ZAPを組み込み、CVSS7.0以上の脆弱性でPRをブロックする。AWS CDK+cfn-guardでIaCポリシーを自動チェックする。"
+  },
+  "CSMM LC-6": {
+    "summary": "CSMM LC-6 — クラウド上データの分類・暗号化・保持・廃棄を含む完全なデータライフサイクル管理",
+    "detail": "【正式名称】LC-6: Data Lifecycle Management\n【目的・概要】\nクラウド上のデータについて、分類・暗号化・保持・廃棄の各フェーズを適切に管理し、データの機密性・完全性・可用性を保護する。DLPによるデータ漏洩防止も含む。\n【主な要件】\n・データ分類スキームの定義とラベリング\n・保存中・転送中データの暗号化\n・鍵管理（KMS・HSM等）の適切な実装\n・データ保持・廃棄ポリシーの定義と実施\n・DLPによる不正なデータ転送の検知・防止\n【実装例】\nMicrosoft Purview（またはAWS Macie）でデータを自動分類・ラベリングし、S3バケット・RDS・EBSのデフォルト暗号化を全リソースに強制する。AWS KMS CMKで鍵を管理する。"
+  },
+  "CSMM IF-7": {
+    "summary": "CSMM IF-7 — 最小権限・MFA・シークレット管理を含むクラウドIAMの包括的な実装",
+    "detail": "【正式名称】IF-7: Identity and Access Management\n【目的・概要】\nクラウド環境のIDとアクセス管理において最小権限の原則・MFA・SSO・シークレット管理を包括的に実装し、アカウント侵害・過剰権限悪用のリスクを最小化する。\n【主な要件】\n・最小権限IAMポリシーの実装と定期レビュー\n・全ユーザー・管理者へのMFA必須化\n・SSO/IdPによる統合認証管理\n・サービスアカウント・APIキーの安全な管理とローテーション\n【実装例】\nAWS IAM Access AnalyzerとMicrosoft Entra ID Access Reviewsで定期的に過剰権限を特定・削除する。HashiCorp VaultまたはAWS Secrets Managerで全シークレットを管理し自動ローテーションを設定する。"
+  },
+  "CSMM IF-8": {
+    "summary": "CSMM IF-8 — VPC/VNetのセグメント分割・デフォルト拒否・ネットワークトラフィック監視の実装",
+    "detail": "【正式名称】IF-8: Network Security\n【目的・概要】\nクラウドネットワークを適切にセグメント分割し、デフォルト拒否・明示的許可の原則でトラフィックを制御する。ネットワークトラフィックの継続的な監視で異常通信を早期検知する。\n【主な要件】\n・VPC/VNetによるネットワーク分離\n・セキュリティグループ・NACLの「デフォルト拒否」設定\n・プライベートサブネットへの重要ワークロードの配置\n・VPCフローログ・CloudTrailによるトラフィック監視\n【実装例】\nAWSではTransit GatewayとAWS Network Firewallで「East-West」「North-South」のセグメント分割を実装する。VPCフローログをS3+Athenaで分析し、C2通信・データ漏洩パターンを検知する。"
+  },
+  "CSMM IF-9": {
+    "summary": "CSMM IF-9 — CISベースラインのクラウドワークロード適用とコンテナ・Kubernetesセキュリティの強化",
+    "detail": "【正式名称】IF-9: Workload and Container Security\n【目的・概要】\nクラウドワークロードにセキュリティベースライン設定を適用し、コンテナイメージの脆弱性スキャン・署名検証・Kubernetesセキュリティポリシーを実装する。\n【主な要件】\n・CIS Benchmarksに基づくワークロードのハードニング\n・コンテナイメージの脆弱性スキャンと署名検証\n・Kubernetesのセキュリティ設定（RBAC・PodSecurity・NetworkPolicy）\n・設定ドリフトの継続的な検出と修復\n【実装例】\nAnsibleでCIS Level1を自動適用し、Trivyでコンテナイメージをスキャンして署名済みイメージのみデプロイを許可する。KubernetesにOPAで組織ポリシーを強制し、Falcoで実行時の異常を検知する。"
+  },
+  "CSMM IF-10": {
+    "summary": "CSMM IF-10 — EDR・MDM・ZTNAによるクラウドアクセスエンドポイントの保護",
+    "detail": "【正式名称】IF-10: Endpoint Security\n【目的・概要】\nクラウドリソースにアクセスするエンドポイントをEDR・MDMで管理し、ZTNA・CASBによるデバイス状態ベースの動的なアクセス制御を実装する。\n【主な要件】\n・全エンドポイントへのEDRとMDMの展開\n・コンプライアンス未準拠デバイスからのクラウドアクセスのブロック\n・ZTNAまたはCASBによるデバイス状態に基づく動的アクセス制御\n・エンドポイントのセキュリティ状態の継続的な可視化\n【実装例】\nMicrosoft Intune + Defender for EndpointでデバイスコンプライアンスをEntra ID条件付きアクセスポリシーに連携する。CASBでShadow ITとデータの不正持ち出しを検知する。"
+  },
+  "CSMM OP-11": {
+    "summary": "CSMM OP-11 — クラウド環境の全ログ集約とCSPM・CNAPPによる継続的な脅威検知体制の構築",
+    "detail": "【正式名称】OP-11: Security Monitoring and Threat Detection\n【目的・概要】\nマルチクラウド環境の全ログをSIEMに集約し、CSPM・CNAPPによってクラウド固有の脅威（設定ミス・過剰権限の悪用・異常なAPI呼び出し等）を継続的に検知する。\n【主な要件】\n・クラウドログ（CloudTrail・VPCフローログ・Audit Log等）のSIEM集約\n・CSPMによる設定ミス・コンプライアンス違反の継続的な検出\n・クラウド固有の脅威検知ルールの実装\n・MTTD・MTTRの測定と継続的な改善\n【実装例】\nAWS Security Hub + Microsoft Defender for CloudでマルチクラウドのCSPMを統合する。Splunk CloudにCloudTrail・VPCフローログ・GuardDutyアラートを集約し、MITRE ATT&CKベースの検知ルールを実装する。"
+  },
+  "CSMM OP-12": {
+    "summary": "CSMM OP-12 — クラウドワークロードの脆弱性継続スキャンとCSPMによる設定ミス自動検出・修復",
+    "detail": "【正式名称】OP-12: Vulnerability and Patch Management\n【目的・概要】\nクラウドワークロードの脆弱性を継続的にスキャンし、CSPMによる設定ミスの自動検出と修復、Immutable Infrastructureによるパッチ適用の自動化を実装する。\n【主な要件】\n・クラウドワークロードの継続的な脆弱性スキャン（AWS Inspector等）\n・設定ミスのCSPMによる自動検出と修復\n・Immutable Infrastructureによるパッチ適用の自動化\n・脆弱性対処のSLAの定義と遵守\n【実装例】\nAWS Inspector v2でEC2・Lambda・コンテナの脆弱性を継続スキャンする。GitHub ActionsでGolden AMIを定期的に再ビルドし古いインスタンスを自動置換する。Prowler等でCSPMチェックを週次実施する。"
+  },
+  "CSMM OP-13": {
+    "summary": "CSMM OP-13 — クラウド固有Playbookの整備と証拠保全・復旧のIaC活用によるインシデント対応",
+    "detail": "【正式名称】OP-13: Incident Response and Recovery\n【目的・概要】\nクラウド固有のインシデント対応Playbookを整備し、証拠保全・リソース隔離を自動化するとともに、IaC・スナップショットを活用した迅速な復旧体制を構築する。\n【主な要件】\n・クラウド固有インシデントシナリオのPlaybook整備\n・クラウドインシデント時の証拠保全（スナップショット・ログ保管）の自動化\n・侵害リソースの隔離自動化（SG遮断・IAMポリシー無効化等）\n・IaC・スナップショットを活用した環境の迅速な再構築\n【実装例】\nAWS Step Functionsでランサムウェア対応Playbookを自動化（EC2隔離→スナップショット取得→フォレンジックインスタンス起動）する。SOARプラットフォームでクラウドAPIを呼び出して封じ込めを自動実行する。"
+  },
+  "CSMM RS-14": {
+    "summary": "CSMM RS-14 — マルチAZ・マルチリージョン・マルチクラウドの冗長設計と定期的なDR訓練の実施",
+    "detail": "【正式名称】RS-14: Business Continuity and Disaster Recovery\n【目的・概要】\nクラウドサービス障害・リージョン障害を想定したBCP・DRPを策定し、マルチAZ・マルチリージョン・マルチクラウドの冗長設計とDR訓練を実施してサービスの継続性を確保する。\n【主な要件】\n・クラウド障害シナリオを含むBCP・DRPの策定\n・マルチAZ・マルチリージョン・マルチクラウドの冗長構成\n・RTO/RPO目標値の定義と定期的な達成確認\n・フェールオーバーテスト・カオスエンジニアリングの実施\n【実装例】\nAWSではマルチリージョンActive-Activeアーキテクチャを採用し、Route53フェールオーバーを設定する。Chaos Engineeringツール（AWS Fault Injection Simulator等）で定期的な障害インジェクション訓練を実施する。"
+  },
+  "CSMM RS-15": {
+    "summary": "CSMM RS-15 — クラウド上個人データの法令準拠処理とデータ処理契約・クロスボーダー転送管理",
+    "detail": "【正式名称】RS-15: Data Privacy and Protection\n【目的・概要】\nクラウド上の個人データの処理・保管・転送を適用されるプライバシー法令（個人情報保護法・GDPR等）に準拠させ、データ処理契約の締結とクロスボーダーデータ転送の適法性を確保する。\n【主な要件】\n・クラウド上の個人データの処理目的・根拠・保管場所の明確化\n・クラウドプロバイダーとのDPA（データ処理契約）の締結\n・クロスボーダーデータ転送の法的メカニズムの適用\n・データ主体の権利対応（アクセス・削除・訂正等）プロセスの整備\n【実装例】\nAWS・Azure・GCPとのDPAを締結し、個人データが保管されるリージョンを日本・EU等の適法なリージョンに限定する。個人情報管理台帳にクラウド上の保管場所を記録する。"
+  },
+  "CSMM RS-16": {
+    "summary": "CSMM RS-16 — クラウドセキュリティリスクに関する役割別・全社的なトレーニングの定期実施",
+    "detail": "【正式名称】RS-16: Security Awareness and Training\n【目的・概要】\nクラウド固有のセキュリティリスク（設定ミス・過剰権限・Shadow IT等）に関する全社的な意識向上トレーニングと、役割別（アーキテクト・開発者・SRE等）の専門トレーニングを定期的に実施する。\n【主な要件】\n・クラウドセキュリティ意識向上トレーニングの全従業員への実施\n・役割別クラウドセキュリティトレーニング（クラウド資格取得支援等）\n・トレーニング効果の測定（設定ミス件数の推移等）\n・最新のクラウドセキュリティ脅威に対応したコンテンツの更新\n【実装例】\n全従業員に年次クラウドセキュリティ意識向上研修を実施する。開発者・SREにはAWS Security Specialty・GCP Professional Cloud Security Engineer等の取得を支援する。設定ミス件数をKPIとして効果を測定する。"
+  }
+}
