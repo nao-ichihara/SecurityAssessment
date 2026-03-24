@@ -1,6 +1,6 @@
 # 企業セキュリティ リスクアセスメントシステム 設計書
 
-**バージョン：v2.6**　　**最終更新：2026-03-21**
+**バージョン：v2.7**　　**最終更新：2026-03-21**
 
 ---
 
@@ -46,6 +46,9 @@ questions/
 ├── iso27001.json             ← ISO/IEC 27001:2022（93問）
 ├── nist_csf.json             ← NIST CSF v2.0（63問）
 └── pci_dss.json              ← PCI DSS v4.0（67問）
+├── csmg_v3.json              ← サイバーセキュリティ経営ガイドライン ver3.0（43問）
+├── sim3.json                 ← SIM3 v1.1 CSIRTインシデント管理成熟度モデル（44問）
+└── csmm_v2.json              ← CSA Cloud Security Maturity Model v2.0（51問）
 content/
 ├── guide.json                ← 解説書コンテンツ
 ├── version.json              ← バージョン情報
@@ -54,7 +57,10 @@ content/
 ├── refs_csa.json             ← CSA CCM v4 定義（16件）
 ├── refs_iso27001.json        ← ISO/IEC 27001:2022 定義（93件）
 ├── refs_csf.json             ← NIST CSF v2.0 定義（63件）
-└── refs_pci.json             ← PCI DSS v4.0 定義（104件）
+├── refs_pci.json             ← PCI DSS v4.0 定義（104件）
+├── refs_csmg.json            ← サイバーセキュリティ経営ガイドライン ver3.0 定義（53件）
+├── refs_sim3.json            ← SIM3 v1.1 定義（44件）
+└── refs_csmm.json            ← CSA CSMM v2.0 定義（16件）
 docs/
 ├── design.md                 ← 本設計書
 ├── test_spec.md              ← テスト仕様書
@@ -166,8 +172,11 @@ docs/
 | iso27001 | ISO/IEC 27001:2022（全10ドメイン） | 93問 | refs_iso27001.json |
 | nist_csf | NIST CSF v2.0（全6機能） | 63問 | refs_csf.json |
 | pci_dss | PCI DSS v4.0（全12要件） | 67問 | refs_pci.json |
+| csmg_v3 | サイバーセキュリティ経営ガイドライン ver3.0（重要10項目） | 43問 | refs_csmg.json |
+| sim3 | SIM3 v1.1（4グループ44パラメータ） | 44問 | refs_sim3.json |
+| csmm_v2 | CSA Cloud Security Maturity Model v2.0（5ドメイン） | 51問 | refs_csmm.json |
 
-**識別番号辞書：合計 488件**
+**識別番号辞書：合計 601件**
 
 | ファイル | フレームワーク | 件数 |
 |---|---|---|
@@ -177,6 +186,9 @@ docs/
 | refs_iso27001.json | ISO/IEC 27001:2022 | 93件 |
 | refs_csf.json | NIST CSF v2.0 | 63件 |
 | refs_pci.json | PCI DSS v4.0 | 104件 |
+| refs_csmg.json | サイバーセキュリティ経営ガイドライン ver3.0 | 53件 |
+| refs_sim3.json | SIM3 v1.1 | 44件 |
+| refs_csmm.json | CSA CSMM v2.0 | 16件 |
 
 ---
 
@@ -234,27 +246,92 @@ docs/
 
 ### 5.7 データの保存と読み込み
 
-**保存：** Blob + `<a download>` による直接ダウンロード  
-**ファイル名：** `security_assessment_(企業名)_(フレームワーク名)_(日付).json`  
-**保存データ構造：**
+**保存：** Blob + `<a download>` による直接ダウンロード
+
+#### ファイル名形式
+
+```
+security_assessment_{企業名}_{フレームワーク名}_{日付}.json
+```
+
+| 部分 | 内容 | 例 |
+|---|---|---|
+| `{企業名}` | `orgInfo.company` の値。未入力時は `assessment` | `株式会社ABC` |
+| `{フレームワーク名}` | `label_sublabel` の形式。スペース・記号は `_` に変換し連続 `_` を1つに正規化 | `PCI_DSS_v4.0_全12要件` |
+| `{日付}` | 保存日を `YYYYMMDD` 形式で付与 | `20260321` |
+
+例：`security_assessment_株式会社ABC_PCI_DSS_v4.0_全12要件_20260321.json`
+
+---
+
+#### 保存ファイルのフィールド仕様
+
+ファイル形式は **UTF-8 エンコードの JSON**（インデント2スペース）。
+
+| フィールド名 | 型 | 必須 | 内容 |
+|---|---|---|---|
+| `version` | string | ○ | ファイルフォーマットバージョン（例：`"2.6"`）。読み込み時の互換性確認に使用。 |
+| `savedAt` | string | ○ | 保存日時。ISO 8601 形式（例：`"2026-03-21T10:30:00.000Z"`）。 |
+| `orgInfo` | object | ○ | 組織情報オブジェクト。下記サブフィールドを参照。 |
+| `orgInfo.company` | string | - | 企業名。未入力時は空文字 `""`。 |
+| `orgInfo.dept` | string | - | 組織名 / 部署名。未入力時は空文字 `""`。 |
+| `orgInfo.admin` | string | - | 入力管理者名。未入力時は空文字 `""`。 |
+| `orgInfo.date` | string | - | 評価実施日。`YYYY-MM-DD` 形式（例：`"2026-03-21"`）。未入力時は空文字 `""`。 |
+| `env` | string \| null | - | レガシー互換フィールド。`frameworkId` で代替。環境種別がある場合は `"onprem"` / `"cloud"` / `"hybrid"`、それ以外は `null`。 |
+| `frameworkId` | string | ○ | 選択フレームワークの ID（`manifest.json` の `id` フィールドと一致）。読み込み時の主キー。例：`"pci_dss"` |
+| `answeredCount` | number | ○ | 回答済み質問数（保存時点のスナップショット）。 |
+| `totalCount` | number | ○ | 総質問数（保存時点のスナップショット）。 |
+| `answers` | object | ○ | 回答データ。キーは質問番号（`no` フィールド）、値は回答値。下記の回答値を参照。 |
+| `memos` | object | ○ | メモデータ。キーは質問番号、値はメモテキスト（string）。 |
+| `summaryComment` | string | ○ | 総合評価コメント（Markdown テキスト）。未入力時は空文字 `""`。 |
+| `sections` | array | ○ | 質問データの完全な埋め込みコピー。質問 JSON ファイルの `sections` 配列と同一構造。異なる環境への移動後も質問ファイルなしで復元できる自己完結形式。 |
+
+**`answers` フィールドの回答値：**
+
+| 値 | 意味 | スコア |
+|---|---|---|
+| `"yes"` | はい（完全に対応済み） | 100% |
+| `"most"` | ほとんど（ほぼ対応済み） | 75% |
+| `"part"` | 一部（部分的に対応済み） | 50% |
+| `"no"` | いいえ（未対応） | 0% |
+| ※未回答の質問はキー自体が存在しない | | — |
+
+---
+
+#### 保存ファイルの例（抜粋）
 
 ```json
 {
   "version": "2.6",
-  "savedAt": "ISO 8601 形式",
-  "orgInfo": { "company": "", "dept": "", "admin": "", "date": "" },
-  "env": "フレームワークID or null",
-  "frameworkId": "フレームワークID",
-  "answeredCount": 件数,
-  "totalCount": 件数,
-  "answers": { "質問番号": "yes|most|part|no" },
-  "memos": { "質問番号": "メモテキスト" },
-  "summaryComment": "Markdown テキスト",
-  "sections": [ ... ]
+  "savedAt": "2026-03-21T10:30:00.000Z",
+  "orgInfo": {
+    "company": "株式会社ABC",
+    "dept": "情報システム部",
+    "admin": "山田 太郎",
+    "date": "2026-03-21"
+  },
+  "env": null,
+  "frameworkId": "pci_dss",
+  "answeredCount": 42,
+  "totalCount": 67,
+  "answers": {
+    "1.1": "yes",
+    "1.2": "most",
+    "1.3": "part",
+    "1.4": "no"
+  },
+  "memos": {
+    "1.3": "次四半期中に対応予定。担当：田中"
+  },
+  "summaryComment": "## 総評\n\n全体スコアは **62%（Lv.3 定義）** でした。\n\n- ネットワーク管理策は整備済み\n- 脆弱性管理の改善が急務",
+  "sections": [ "... 質問データ（省略）..." ]
 }
 ```
 
-**読み込み：** `frameworkId` を主キーとしてフレームワークを特定。全フレームワーク対応。読み込み完了後に Step 1 へ自動遷移。
+---
+
+**読み込み：** `frameworkId` を主キーとしてフレームワークを特定。全フレームワーク対応。読み込み完了後に Step 1 へ自動遷移。  
+**後方互換性：** `frameworkId` が存在しない旧フォーマットは `env` フィールドで代替復元。`version` フィールドが存在しない場合は非対応フォーマットとしてエラー表示。
 
 ### 5.8 PDF レポート出力
 
@@ -331,6 +408,9 @@ docs/
 | ISO/IEC 27001 | `ISO 27001 AN.N` | `ISO 27001 A5.1` |
 | NIST CSF | `CSF XX.XX-NN` | `CSF GV.OC-01` |
 | PCI DSS | `PCI N.N.N` | `PCI 1.1.1` |
+| サイバーセキュリティ経営ガイドライン | `CSMG 原則N` / `CSMG 指示N` / `CSMG 指示N-N` | `CSMG 指示1-2` |
+| SIM3 | `SIM3 XN` | `SIM3 O1` / `SIM3 P10` |
+| CSA CSMM | `CSMM XX-N` | `CSMM GV-1` / `CSMM OP-11` |
 
 ---
 
@@ -346,3 +426,4 @@ docs/
 | v2.4 | 2026-03-21 | 保存方式をダウンロード方式に変更（saveModal廃止）。NIST CSF 保存・読み込みバグ修正。ファイル名にフレームワーク名を追加。アセスメント情報バー編集機能追加。評価結果ページのハードコード表記削除。 |
 | v2.5 | 2026-03-21 | 総合評価コメント欄追加（Markdownエディタ・プレビュー切替・PDFレポートへの反映・保存復元対応）。 |
 | v2.6 | 2026-03-21 | PCI DSS v4.0 対応追加（6カテゴリ・12要件・67問・refs_pci.json 104件）。識別番号辞書計488件に拡張。ドキュメントを Markdown 形式に移行。 |
+| v2.7 | 2026-03-21 | サイバーセキュリティ経営ガイドライン ver3.0 対応追加（5セクション・43問・refs_csmg.json 53件）。SIM3 v1.1 対応追加（4グループ・44問・refs_sim3.json 44件）。CSA CSMM v2.0 対応追加（5ドメイン・51問・refs_csmm.json 16件）。識別番号辞書計601件に拡張。 |
