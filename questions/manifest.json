@@ -125,6 +125,54 @@
       "refsFiles": [
         "content/refs_pci.json"
       ]
+    },
+    {
+      "id": "csmg_v3",
+      "label": "サイバーセキュリティ経営ガイドライン",
+      "sublabel": "ver3.0 重要10項目",
+      "icon": "🏛️",
+      "color": "#b45309",
+      "description": "経済産業省が策定したサイバーセキュリティ経営ガイドライン ver3.0。経営者が認識すべき3原則と重要10項目（指示事項）で構成。経営視点でのセキュリティ対策を網羅。",
+      "file": "questions/csmg_v3.json",
+      "env": null,
+      "tags": [
+        "サイバーセキュリティ経営ガイドライン ver3.0"
+      ],
+      "refsFiles": [
+        "content/refs_csmg.json"
+      ]
+    },
+    {
+      "id": "sim3",
+      "label": "SIM3",
+      "sublabel": "CSIRTインシデント管理成熟度モデル",
+      "icon": "🚨",
+      "color": "#7c3aed",
+      "description": "ENISA・TF-CSIRTが策定したCSIRT向けセキュリティインシデント管理成熟度モデル。組織・人的・ツール・プロセスの4グループ44パラメータでCSIRTの成熟度を評価。",
+      "file": "questions/sim3.json",
+      "env": null,
+      "tags": [
+        "SIM3 v1.1"
+      ],
+      "refsFiles": [
+        "content/refs_sim3.json"
+      ]
+    },
+    {
+      "id": "csmm_v2",
+      "label": "Cloud Security Maturity Model",
+      "sublabel": "CSA CSMM v2.0 全5ドメイン",
+      "icon": "☁️",
+      "color": "#0369a1",
+      "description": "Cloud Security Allianceが策定したクラウドセキュリティ成熟度モデル v2.0。ガバナンス・ライフサイクル・インフラ・運用・レジリエンスの5ドメイン16カテゴリでクラウドセキュリティの成熟度を評価。",
+      "file": "questions/csmm_v2.json",
+      "env": null,
+      "tags": [
+        "CSA CSMM v2.0"
+      ],
+      "refsFiles": [
+        "content/refs_csmm.json"
+      ]
     }
   ]
 }
