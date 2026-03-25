@@ -99,7 +99,51 @@
     white-space: nowrap;
   }
 
-  /* Steps */
+  /* ── Progress Dashboard（回答入力画面上部） ── */
+  .progress-dashboard {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 18px;
+    margin-bottom: 16px;
+  }
+  .progress-meter-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+  .progress-meter-label {
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .progress-meter-label-text {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: .06em;
+  }
+  .progress-meter-pct {
+    font-size: 18px; font-weight: 700; color: var(--accent);
+    font-family: 'Space Mono', monospace; line-height: 1;
+  }
+  .progress-meter-bar-outer {
+    height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-meter-bar-inner {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px; transition: width 0.4s ease;
+  }
+  .progress-counter {
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 2px; flex-shrink: 0; padding-left: 16px;
+    border-left: 1px solid var(--border);
+  }
+  .progress-counter-label {
+    font-size: 10px; color: var(--text-muted);
+    font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: .06em;
+  }
+  .progress-counter-value {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    font-family: 'Space Mono', monospace; white-space: nowrap;
+  }
+  .progress-counter-value em {
+    font-style: normal; color: var(--text-muted); font-size: 13px; font-weight: 400;
+  }
+
+
   .step { display: none; padding: 40px 0 80px; }
   .step.active { display: block; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
@@ -1004,6 +1048,23 @@
   .md-preview blockquote { border-left: 3px solid var(--border); padding-left: 12px; color: var(--text-muted); margin: .4em 0; }
   .md-preview hr { border: none; border-top: 1px solid var(--border); margin: .8em 0; }
 
+  .lang-switcher {
+    display: flex; align-items: center; gap: 2px;
+    margin-left: auto;
+    padding-left: 12px;
+    border-left: 1px solid var(--border);
+  }
+  .lang-btn {
+    background: none; border: none;
+    font-size: 11px; font-family: 'Space Mono', monospace;
+    color: var(--text-muted); cursor: pointer;
+    padding: 3px 8px; border-radius: 3px;
+    letter-spacing: .02em; transition: all .15s;
+  }
+  .lang-btn:hover { color: var(--text); background: rgba(255,255,255,.06); }
+  .lang-btn.active { color: var(--accent); font-weight: 700; background: rgba(59,130,246,.1); }
+  .lang-sep { color: var(--border); font-size: 10px; user-select: none; }
+
   /* Save / Load buttons */
   .btn-save {
     background: rgba(139,92,246,0.12);
@@ -1244,15 +1305,20 @@
 
 <!-- Menu Bar -->
 <nav class="menu-bar">
-  <button class="menu-item" onclick="openGuideModal()"><span class="menu-icon">📖</span>解説書</button>
+  <button class="menu-item" onclick="openGuideModal()"><span class="menu-icon">📖</span><span data-i18n="menu_guide">解説書</span></button>
   <div class="menu-divider"></div>
   <button class="menu-item" id="menuSaveBtn" onclick="saveToFile()" disabled
           style="opacity:0.4;cursor:not-allowed;pointer-events:none;">
-    <span class="menu-icon">💾</span>保存
+    <span class="menu-icon">💾</span><span data-i18n="menu_save">保存</span>
   </button>
-  <button class="menu-item" onclick="openLoadModal()"><span class="menu-icon">📂</span>読み込み</button>
+  <button class="menu-item" onclick="openLoadModal()"><span class="menu-icon">📂</span><span data-i18n="menu_load">読み込み</span></button>
   <div class="menu-divider"></div>
-  <button class="menu-item" onclick="openVersionModal()"><span class="menu-icon">ℹ️</span>バージョン情報</button>
+  <button class="menu-item" onclick="openVersionModal()"><span class="menu-icon">ℹ️</span><span data-i18n="menu_version">バージョン情報</span></button>
+  <div class="lang-switcher">
+    <button class="lang-btn active" data-lang="ja" onclick="switchLang('ja')">日本語</button>
+    <span class="lang-sep">|</span>
+    <button class="lang-btn" data-lang="en" onclick="switchLang('en')">ENGLISH</button>
+  </div>
 </nav>
 
 <!-- ===== GUIDE MODAL ===== -->
@@ -1260,11 +1326,11 @@
 <div class="g-modal-backdrop" id="guideModal">
   <div class="g-modal">
     <div class="g-modal-header">
-      <div class="g-modal-title">📖 解説書 — 使い方ガイド</div>
-      <button class="g-modal-close" onclick="closeModal('guideModal')">✕ 閉じる</button>
+      <div class="g-modal-title"><span data-i18n="modal_guide_title">📖 解説書 — 使い方ガイド</span></div>
+      <button class="g-modal-close" onclick="closeModal('guideModal')"><span data-i18n="modal_close">✕ 閉じる</span></button>
     </div>
     <div class="g-modal-body" id="guideModalBody">
-      <div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>
+      <div class="fw-loading"><div class="pop-spinner"></div><span data-i18n="loading_def">読み込み中...</span></div>
     </div>
   </div>
 </div>
@@ -1273,11 +1339,11 @@
 <div class="g-modal-backdrop" id="loadModal">
   <div class="g-modal g-modal-sm">
     <div class="g-modal-header">
-      <div class="g-modal-title">📂 回答ファイルの読み込み</div>
-      <button class="g-modal-close" onclick="closeModal('loadModal')">✕ 閉じる</button>
+      <div class="g-modal-title"><span data-i18n="modal_load_title">📂 回答ファイルの読み込み</span></div>
+      <button class="g-modal-close" onclick="closeModal('loadModal')"><span data-i18n="modal_close">✕ 閉じる</span></button>
     </div>
     <div class="g-modal-body">
-      <p class="guide-p" style="margin-bottom:16px;">以前に保存した <strong>.json</strong> ファイルを選択するか、ここにドラッグ＆ドロップしてください。回答内容・アセスメント情報・メモがすべて復元されます。</p>
+      <p class="guide-p" style="margin-bottom:16px;" data-i18n-html="load_drop_intro"></p>
       <div class="modal-upload-zone" id="modalUploadZone"
            ondragover="event.preventDefault(); this.classList.add('drag-over')"
            ondragleave="this.classList.remove('drag-over')"
@@ -1285,10 +1351,10 @@
         <input type="file" accept=".json" onchange="handleModalFileSelect(event)">
         <div style="pointer-events:none;">
           <div style="font-size:36px; margin-bottom:10px;">📂</div>
-          <div style="font-size:13px; color:var(--text-muted);">クリックしてファイルを選択<br><span style="font-size:11px;">または .json ファイルをドロップ</span></div>
+          <div style="font-size:13px; color:var(--text-muted);"><span data-i18n="load_btn_click">クリックしてファイルを選択</span><br><span style="font-size:11px;"><span data-i18n="load_btn_drop">または .json ファイルをドロップ</span></span></div>
         </div>
       </div>
-      <p style="font-size:11px; color:var(--text-muted); text-align:center;">※ 現在の回答内容は読み込んだファイルの内容で上書きされます</p>
+      <p style="font-size:11px; color:var(--text-muted); text-align:center;"><span data-i18n="load_overwrite">※ 現在の回答内容は読み込んだファイルの内容で上書きされます</span></p>
     </div>
   </div>
 </div>
@@ -1297,11 +1363,11 @@
 <div class="g-modal-backdrop" id="versionModal">
   <div class="g-modal g-modal-sm">
     <div class="g-modal-header">
-      <div class="g-modal-title">ℹ️ バージョン情報</div>
-      <button class="g-modal-close" onclick="closeModal('versionModal')">✕ 閉じる</button>
+      <div class="g-modal-title"><span data-i18n="modal_version_title">ℹ️ バージョン情報</span></div>
+      <button class="g-modal-close" onclick="closeModal('versionModal')"><span data-i18n="modal_close">✕ 閉じる</span></button>
     </div>
     <div class="g-modal-body" id="versionModalBody">
-      <div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>
+      <div class="fw-loading"><div class="pop-spinner"></div><span data-i18n="loading_def">読み込み中...</span></div>
     </div>
   </div>
 </div>
@@ -1310,30 +1376,30 @@
 <div class="g-modal-backdrop" id="orgEditModal">
   <div class="g-modal g-modal-sm">
     <div class="g-modal-header">
-      <div class="g-modal-title">✏️ アセスメント情報の編集</div>
-      <button class="g-modal-close" onclick="cancelOrgEdit()">✕ 閉じる</button>
+      <div class="g-modal-title"><span data-i18n="modal_edit_title">✏️ アセスメント情報の編集</span></div>
+      <button class="g-modal-close" onclick="cancelOrgEdit()"><span data-i18n="modal_close">✕ 閉じる</span></button>
     </div>
     <div class="g-modal-body" style="padding:20px 24px 8px;">
       <div class="org-edit-field">
-        <label>企業名</label>
-        <input type="text" id="orgEditCompany" placeholder="例：株式会社〇〇">
+        <label data-i18n="org_company">企業名</label>
+        <input type="text" id="orgEditCompany" data-i18n-ph="ph_company" placeholder="例：株式会社〇〇">
       </div>
       <div class="org-edit-field">
-        <label>組織名 / 部署名</label>
-        <input type="text" id="orgEditDept" placeholder="例：情報システム部">
+        <label data-i18n="org_dept">組織名 / 部署名</label>
+        <input type="text" id="orgEditDept" data-i18n-ph="ph_dept"    placeholder="例：情報システム部">
       </div>
       <div class="org-edit-field">
-        <label>入力管理者</label>
-        <input type="text" id="orgEditAdmin" placeholder="例：山田 太郎">
+        <label data-i18n="org_admin">入力管理者</label>
+        <input type="text" id="orgEditAdmin" data-i18n-ph="ph_admin"   placeholder="例：山田 太郎">
       </div>
       <div class="org-edit-field">
-        <label>評価実施日</label>
+        <label data-i18n="org_date">評価実施日</label>
         <input type="date" id="orgEditDate">
       </div>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 24px 20px;">
-      <button class="btn btn-secondary" onclick="cancelOrgEdit()">キャンセル</button>
-      <button class="btn btn-primary"   onclick="confirmOrgEdit()">変更する</button>
+      <button class="btn btn-secondary" onclick="cancelOrgEdit()"><span data-i18n="modal_cancel">キャンセル</span></button>
+      <button class="btn btn-primary"   onclick="confirmOrgEdit()"><span data-i18n="modal_confirm">変更する</span></button>
     </div>
   </div>
 </div>
@@ -1342,18 +1408,18 @@
 <div class="g-modal-backdrop" id="orgEditConfirmModal">
   <div class="g-modal g-modal-sm" style="max-width:400px;">
     <div class="g-modal-header">
-      <div class="g-modal-title">✏️ アセスメント情報の変更確認</div>
+      <div class="g-modal-title"><span data-i18n="modal_confirm_title">✏️ アセスメント情報の変更確認</span></div>
     </div>
     <div class="g-modal-body" style="padding:20px 24px 8px;">
       <p style="font-size:14px;line-height:1.7;color:var(--text-dim);margin:0 0 8px;">
-        アセスメント情報を以下の内容に変更します。
+        <span data-i18n="modal_confirm_msg">アセスメント情報を以下の内容に変更します。</span>
       </p>
       <div id="orgEditConfirmContent" style="font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:10px 14px;line-height:2;margin-bottom:8px;"></div>
-      <p style="font-size:13px;color:var(--text-muted);margin:0;">よろしいですか？</p>
+      <p style="font-size:13px;color:var(--text-muted);margin:0;"><span data-i18n="modal_ok">よろしいですか？</span></p>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 24px 20px;">
-      <button class="btn btn-secondary" onclick="backToOrgEdit()">戻る</button>
-      <button class="btn btn-primary"   onclick="applyOrgEdit()">変更する</button>
+      <button class="btn btn-secondary" onclick="backToOrgEdit()"><span data-i18n="modal_back">戻る</span></button>
+      <button class="btn btn-primary"   onclick="applyOrgEdit()"><span data-i18n="modal_confirm">変更する</span></button>
     </div>
   </div>
 </div>
@@ -1362,24 +1428,23 @@
 <div class="g-modal-backdrop" id="restartConfirmModal">
   <div class="g-modal g-modal-sm" style="max-width:400px;">
     <div class="g-modal-header">
-      <div class="g-modal-title">🔄 最初からやり直す</div>
+      <div class="g-modal-title"><span data-i18n="modal_restart_title">🔄 最初からやり直す</span></div>
     </div>
     <div class="g-modal-body" style="padding:20px 24px 8px;">
-      <p style="font-size:14px;line-height:1.7;color:var(--text-dim);margin:0 0 8px;">
-        これまでの<strong>回答内容・メモ・組織情報がすべてクリア</strong>されます。
-      </p>
+      <p style="font-size:14px;line-height:1.7;color:var(--text-dim);margin:0 0 8px;"
+         data-i18n-html="restart_modal_body"></p>
       <p style="font-size:13px;color:var(--text-muted);margin:0;">
-        よろしいですか？
+        <span data-i18n="modal_ok">よろしいですか？</span>
       </p>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 24px 20px;">
       <button class="btn btn-secondary"
               onclick="closeModal('restartConfirmModal')"
-              style="min-width:80px;">キャンセル</button>
+              style="min-width:80px;"><span data-i18n="modal_cancel">キャンセル</span></button>
       <button class="btn"
               onclick="confirmRestart()"
               style="min-width:80px;background:var(--danger);border-color:var(--danger);color:#fff;">
-        やり直す
+        <span data-i18n="modal_restart_btn">やり直す</span>
       </button>
     </div>
   </div>
@@ -1390,26 +1455,26 @@
   <div class="container">
     <div class="hero">
       <div class="hero-tag">Security Assessment</div>
-      <h1>企業セキュリティ<br><em>リスクアセスメント</em></h1>
-      <p class="hero-sub">評価するフレームワーク・カテゴリを選択してください</p>
+      <h1><span data-i18n="hero_title1">企業セキュリティ</span><br><em><span data-i18n="hero_title2">リスクアセスメント</span></em></h1>
+      <p class="hero-sub"><span data-i18n="hero_subtitle">評価するフレームワーク・カテゴリを選択してください</span></p>
 
       <div class="org-form">
-        <div class="org-form-title">アセスメント情報</div>
+        <div class="org-form-title"><span data-i18n="org_section_title">アセスメント情報</span></div>
         <div class="org-fields">
           <div class="org-field full">
-            <label>企業名</label>
-            <input type="text" id="orgCompany" placeholder="例：株式会社〇〇" oninput="saveOrgInfo()">
+            <label data-i18n="org_company">企業名</label>
+            <input type="text" id="orgCompany" data-i18n-ph="ph_company" placeholder="例：株式会社〇〇" oninput="saveOrgInfo()">
           </div>
           <div class="org-field">
-            <label>組織名 / 部署名</label>
-            <input type="text" id="orgDept" placeholder="例：情報システム部" oninput="saveOrgInfo()">
+            <label data-i18n="org_dept">組織名 / 部署名</label>
+            <input type="text" id="orgDept" data-i18n-ph="ph_dept"    placeholder="例：情報システム部" oninput="saveOrgInfo()">
           </div>
           <div class="org-field">
-            <label>入力管理者</label>
-            <input type="text" id="orgAdmin" placeholder="例：山田 太郎" oninput="saveOrgInfo()">
+            <label data-i18n="org_admin">入力管理者</label>
+            <input type="text" id="orgAdmin" data-i18n-ph="ph_admin"   placeholder="例：山田 太郎" oninput="saveOrgInfo()">
           </div>
           <div class="org-field full">
-            <label>評価実施日</label>
+            <label data-i18n="org_date">評価実施日</label>
             <input type="date" id="orgDate" oninput="saveOrgInfo()">
           </div>
         </div>
@@ -1424,7 +1489,7 @@
         <div class="fw-grid" id="fwGrid"></div>
         <div style="text-align:center;">
           <button class="btn-start" id="btnStartAssessment" onclick="startAssessment()" disabled>
-            アセスメントを開始する →
+            <span data-i18n="btn_start">アセスメントを開始する →</span>
           </button>
         </div>
       </div>
@@ -1437,7 +1502,7 @@
       <input type="file" accept=".json" onchange="handleFileSelect(event)">
       <div class="upload-zone-inner">
         <span style="font-size:18px;">📂</span>
-        <span>以前の回答ファイルを読み込む &nbsp;—&nbsp; <strong>クリックまたはドラッグ＆ドロップ（.json）</strong></span>
+        <span><span data-i18n="upload_label">以前の回答ファイルを読み込む</span> &nbsp;—&nbsp; <strong><span data-i18n="upload_hint">クリックまたはドラッグ＆ドロップ（.json）</span></strong></span>
       </div>
     </div>
   </div>
@@ -1447,6 +1512,28 @@
 <div class="step" id="step-1">
   <div class="container">
     <div class="org-info-strip" id="orgInfoStripQ"></div>
+
+    <!-- 進捗ダッシュボード -->
+    <div class="progress-dashboard" id="progressDashboard">
+      <div class="progress-meter-wrap">
+        <div class="progress-meter-label">
+          <span class="progress-meter-label-text" data-i18n="progress_label">回答進捗</span>
+          <span class="progress-meter-pct" id="dashboardPct">0%</span>
+        </div>
+        <div class="progress-meter-bar-outer">
+          <div class="progress-meter-bar-inner" id="dashboardBar"></div>
+        </div>
+      </div>
+      <div class="progress-counter">
+        <span class="progress-counter-label" data-i18n="progress_section_label">このセクション</span>
+        <span class="progress-counter-value" id="dashboardSectionCount">— <em>/ —</em></span>
+      </div>
+      <div class="progress-counter">
+        <span class="progress-counter-label" data-i18n="progress_total_label">全質問</span>
+        <span class="progress-counter-value" id="dashboardTotalCount">— <em>/ —</em></span>
+      </div>
+    </div>
+
     <div class="section-tabs" id="sectionTabs"></div>
     <div id="questionArea"></div>
   </div>
@@ -1459,15 +1546,15 @@
       <div class="hero-tag" id="envBadge">結果</div>
       <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <div>
-          <h1 style="font-size:32px; margin-bottom:8px;">セキュリティ評価結果</h1>
+          <h1 style="font-size:32px; margin-bottom:8px;"><span data-i18n="result_title">セキュリティ評価結果</span></h1>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <div class="results-updating" id="resultsUpdating">
-            <div class="pulse-dot"></div>結果を更新中...
+            <div class="pulse-dot"></div><span data-i18n="result_updating">結果を更新中...</span>
           </div>
           <button class="btn btn-save" id="btnExportPdf" onclick="exportPDF()"
                   style="gap:6px;display:flex;align-items:center;">
-            📄 PDFレポート出力
+            <span data-i18n="btn_export_pdf">📄 PDFレポート出力</span>
           </button>
         </div>
       </div>
@@ -1480,11 +1567,11 @@
     <!-- Radar + section scores -->
     <div class="results-grid">
       <div class="result-card">
-        <div class="result-card-title">レーダーチャート</div>
+        <div class="result-card-title"><span data-i18n="radar_title">レーダーチャート</span></div>
         <div class="radar-wrapper"><canvas id="radarChart"></canvas></div>
       </div>
       <div class="result-card">
-        <div class="result-card-title">セクション別スコア</div>
+        <div class="result-card-title"><span data-i18n="section_scores">セクション別スコア</span></div>
         <div class="section-scores" id="sectionScores"></div>
       </div>
     </div>
@@ -1495,11 +1582,11 @@
     <!-- Findings -->
     <div class="results-grid">
       <div class="result-card">
-        <div class="result-card-title">要対応事項</div>
+        <div class="result-card-title"><span data-i18n="critical_title">要対応事項</span></div>
         <div class="findings-list" id="criticalFindings"></div>
       </div>
       <div class="result-card">
-        <div class="result-card-title">改善推奨事項</div>
+        <div class="result-card-title"><span data-i18n="warn_title">改善推奨事項</span></div>
         <div class="findings-list" id="warnFindings"></div>
       </div>
     </div>
@@ -1508,37 +1595,37 @@
     <div class="md-editor-wrap" id="summaryEditorWrap">
       <div class="md-editor-header">
         <div>
-          <div class="md-editor-title">📝 総合評価コメント</div>
-          <div class="md-editor-hint">評価結果の所見・推奨事項・経営層向けコメントなどを自由に記述できます（Markdown 形式）。</div>
+          <div class="md-editor-title"><span data-i18n="summary_title">📝 総合評価コメント</span></div>
+          <div class="md-editor-hint"><span data-i18n="summary_hint">評価結果の所見・推奨事項・経営層向けコメントなどを自由に記述できます（Markdown 形式）。</span></div>
         </div>
       </div>
       <div class="md-toolbar">
         <button onclick="mdCmd('bold')"        title="太字 (Ctrl+B)"><strong>B</strong></button>
         <button onclick="mdCmd('italic')"      title="斜体 (Ctrl+I)"><em>I</em></button>
-        <button onclick="mdCmd('heading')"     title="見出し">H</button>
+        <button onclick="mdCmd('heading')"     data-i18n-title="md_heading_title" title="見出し">H</button>
         <div class="md-sep"></div>
-        <button onclick="mdCmd('ul')"          title="箇条書き">• リスト</button>
-        <button onclick="mdCmd('ol')"          title="番号リスト">1. リスト</button>
-        <button onclick="mdCmd('blockquote')"  title="引用">❝ 引用</button>
+        <button onclick="mdCmd('ul')"          data-i18n-title="md_ul_title" title="箇条書き"><span data-i18n="md_ul">• リスト</span></button>
+        <button onclick="mdCmd('ol')"          data-i18n-title="md_ol_title" title="番号リスト"><span data-i18n="md_ol">1. リスト</span></button>
+        <button onclick="mdCmd('blockquote')"  title="引用"><span data-i18n="md_bq">❝ 引用</span></button>
         <div class="md-sep"></div>
-        <button onclick="mdCmd('link')"        title="リンク">🔗 リンク</button>
-        <button onclick="mdCmd('code')"        title="コード">&lt;/&gt; コード</button>
-        <button onclick="mdCmd('hr')"          title="区切り線">── 区切り</button>
+        <button onclick="mdCmd('link')"        data-i18n-title="md_link_title" title="リンク"><span data-i18n="md_link">🔗 リンク</span></button>
+        <button onclick="mdCmd('code')"        data-i18n-title="md_code_title" title="コード"><span data-i18n="md_code">&lt;/&gt; コード</span></button>
+        <button onclick="mdCmd('hr')"          data-i18n-title="md_hr_title" title="区切り線"><span data-i18n="md_hr">── 区切り</span></button>
       </div>
       <div class="md-tabs">
         <button class="md-tab active" id="mdTabEdit"    onclick="mdSwitchTab('edit')">編集</button>
-        <button class="md-tab"        id="mdTabPreview" onclick="mdSwitchTab('preview')">プレビュー</button>
+        <button class="md-tab"        id="mdTabPreview" onclick="mdSwitchTab('preview')"><span data-i18n="tab_preview">プレビュー</span></button>
       </div>
       <textarea class="md-editor-textarea" id="summaryTextarea"
-                placeholder="例：今回の評価では、アクセス制御とインシデント対応に改善の余地が見られました。&#10;&#10;**優先対応事項：**&#10;- 特権アカウントへの MFA 適用（3ヶ月以内）&#10;- インシデント対応計画（IRP）の策定（6ヶ月以内）&#10;&#10;詳細は各セクションの要対応事項を参照してください。"
+                data-i18n-ph="summary_placeholder" placeholder="例：今回の評価では、アクセス制御とインシデント対応に改善の余地が見られました。&#10;&#10;**優先対応事項：**&#10;- 特権アカウントへの MFA 適用（3ヶ月以内）&#10;- インシデント対応計画（IRP）の策定（6ヶ月以内）&#10;&#10;詳細は各セクションの要対応事項を参照してください。"
                 oninput="mdAutoSave()"></textarea>
       <div class="md-preview" id="summaryPreview"></div>
     </div>
 
     <div style="text-align:center; margin-top:32px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <button class="btn btn-save" onclick="saveToFile()">💾 回答をファイル保存</button>
-      <button class="btn btn-jump" onclick="backToQuestions()" style="font-size:12px;">← 回答ページに戻る</button>
-      <button class="btn btn-secondary" onclick="restart()">🔄 最初からやり直す</button>
+      <button class="btn btn-save" onclick="saveToFile()"><span data-i18n="btn_save_result">💾 回答をファイル保存</span></button>
+      <button class="btn btn-jump" onclick="backToQuestions()" style="font-size:12px;"><span data-i18n="btn_back_q">← 回答ページに戻る</span></button>
+      <button class="btn btn-secondary" onclick="restart()"><span data-i18n="btn_restart">🔄 最初からやり直す</span></button>
     </div>
   </div>
 </div>
@@ -1552,7 +1639,7 @@
 <!-- Ref hover tooltip -->
 <div id="refTooltip">
   <div class="tip-label" id="tipLabel"></div>
-  <div id="tipBody">ホバーで概要を表示 / クリックで詳細</div>
+  <div id="tipBody"><span data-i18n="tip_body">ホバーで概要を表示 / クリックで詳細</span></div>
 </div>
 
 <!-- Ref click popover -->
@@ -1564,7 +1651,7 @@
     <button class="pop-close-btn" onclick="closePopover()">✕ 閉じる</button>
   </div>
   <div class="pop-body" id="popBody">
-    <div class="pop-loading"><div class="pop-spinner"></div>定義を取得中...</div>
+    <div class="pop-loading"><div class="pop-spinner"></div><span data-i18n="pop_loading">定義を取得中...</span></div>
   </div>
 </div>
 
@@ -1573,11 +1660,11 @@
   <div class="nav-inner">
     <div class="nav-info" id="navInfo"></div>
     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-      <button class="btn btn-save" onclick="saveToFile()" title="回答内容をJSONファイルに保存">💾 保存</button>
-      <button class="btn btn-secondary" onclick="restart()" title="最初からやり直す" style="font-size:11px;">🔄 最初からやり直す</button>
-      <button class="btn btn-jump" id="btnJumpResult" onclick="showResults()" title="途中でも結果ページへ移動できます">📊 評価結果を見る</button>
-      <button class="btn btn-secondary" id="btnBack" onclick="prevSection()">← 戻る</button>
-      <button class="btn btn-primary" id="btnNext" onclick="nextSection()">次へ →</button>
+      <button class="btn btn-save" onclick="saveToFile()" data-i18n-title="btn_save_title" title="回答内容をJSONファイルに保存"><span data-i18n="nav_save">💾 保存</span></button>
+      <button class="btn btn-secondary" onclick="restart()" data-i18n-title="btn_restart_title" title="最初からやり直す" style="font-size:11px;"><span data-i18n="btn_restart">🔄 最初からやり直す</span></button>
+      <button class="btn btn-jump" id="btnJumpResult" onclick="showResults()" data-i18n-title="btn_result_title" title="途中でも結果ページへ移動できます"><span data-i18n="nav_results">📊 評価結果を見る</span></button>
+      <button class="btn btn-secondary" id="btnBack" onclick="prevSection()"><span data-i18n="nav_back">← 戻る</span></button>
+      <button class="btn btn-primary" id="btnNext" onclick="nextSection()"><span data-i18n="btn_next">次へ →</span></button>
     </div>
   </div>
 </div>
@@ -1599,7 +1686,7 @@ async function loadManifest() {
     document.getElementById('fwLoadingArea').style.display = 'none';
     const errEl = document.getElementById('fwErrorArea');
     errEl.style.display = 'block';
-    errEl.innerHTML = '<div class="fw-error">⚠️ 質問セットの読み込みに失敗しました。<br><br>' +
+    errEl.innerHTML = '<div class="fw-error">' + t('err_fw_load') + '。<br><br>' +
       '<code>' + e.message + '</code><br><br>' +
       'このファイルはWebサーバー経由で開く必要があります。<br>' +
       '例: <code>python3 -m http.server 8080</code> → <code>http://localhost:8080</code></div>';
@@ -1641,7 +1728,7 @@ async function startAssessment() {
   if (!currentFrameworkId || !currentFrameworkMeta) return;
   const btn = document.getElementById('btnStartAssessment');
   btn.disabled = true;
-  btn.textContent = '読み込み中...';
+  btn.textContent = t('btn_loading');
 
   try {
     // 質問データと識別番号定義を並列 fetch
@@ -1668,7 +1755,7 @@ async function startAssessment() {
     updateNav();
   } catch(e) {
     btn.disabled = false;
-    btn.textContent = 'アセスメントを開始する →';
+    btn.textContent = t('btn_start');
     const msg = e.message.includes('refs') || e.message.includes('content/')
       ? '識別番号定義ファイルの読み込みに失敗しました。\ncontent/ フォルダが正しく配置されているか確認してください。\n\n' + e.message
       : '質問データの読み込みに失敗しました: ' + e.message;
@@ -1686,6 +1773,7 @@ let currentFrameworkId = null;
 let currentFrameworkMeta = null;
 let sections = [];
 let currentSectionIdx = 0;
+let currentStep = 0;        // 現在表示中のステップ（0=スタート / 1=回答 / 2=結果）
 let answers = {}; // { "1.1": "yes"|"most"|"part"|"no" }
 let memos   = {}; // { "1.1": "メモテキスト" }
 let radarChart = null;
@@ -1705,6 +1793,7 @@ function selectEnv(env) {
 }
 
 function showStep(n) {
+  currentStep = n;
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('step-' + n).classList.add('active');
   closePopover();
@@ -1827,7 +1916,7 @@ function openRefPopover(event, ref) {
   document.getElementById('popCopyBtn').textContent = 'コピー';
   document.getElementById('popCopyBtn').classList.remove('copied');
   document.getElementById('popBody').innerHTML =
-    '<div class="pop-loading"><div class="pop-spinner"></div>定義を取得中...</div>';
+    '<div class="pop-loading"><div class="pop-spinner"></div><span data-i18n="pop_loading">定義を取得中...</span></div>';
 
   popover.classList.add('open');
   arrow.classList.add('open');
@@ -1879,7 +1968,7 @@ function copyPopoverContent() {
   if (!text || text.includes('取得中')) return;
   navigator.clipboard.writeText(`${_popoverRef}\n\n${text}`).then(() => {
     const btn = document.getElementById('popCopyBtn');
-    btn.textContent = '✓ コピー済';
+    btn.textContent = t('toast_copied');
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
   });
@@ -1891,10 +1980,10 @@ async function fetchRefDefinition(ref) {
   // REF_DEFINITIONS がまだ空なら再ロードを試みる
   if (Object.keys(REF_DEFINITIONS).length === 0 && currentFrameworkMeta && currentFrameworkMeta.refsFiles) {
     try {
-      bodyEl.innerHTML = '<div class="pop-loading"><div class="pop-spinner"></div>定義ファイルを読み込み中...</div>';
+      bodyEl.innerHTML = '<div class="pop-loading"><div class="pop-spinner"></div>' + t('loading_def') + '</div>';
       await loadRefDefinitions(currentFrameworkMeta.refsFiles);
     } catch(e) {
-      bodyEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;">定義ファイルの読み込みに失敗しました。<br><small>${e.message}</small></div>`;
+      bodyEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;">${t('err_def_file')}。<br><small>${e.message}</small></div>`;
       return;
     }
   }
@@ -2000,7 +2089,7 @@ function renderSection(idx) {
           </div>
           <div class="q-memo-row">
             <span class="q-memo-icon">📝</span>
-            <input class="q-memo-input" type="text" placeholder="メモ（任意）"
+            <input class="q-memo-input" type="text" data-i18n-ph="memo_placeholder" placeholder="メモ（任意）"
               value="${memo.replace(/"/g,'&quot;')}"
               onchange="setMemo('${q.no}', this.value)">
           </div>
@@ -2116,17 +2205,21 @@ function updateNav() {
   const curAnswered = curQ.filter(q => answers[q.no]).length;
 
   document.getElementById('navInfo').innerHTML =
-    `セクション <strong>${currentSectionIdx + 1}/${sections.length}</strong>　回答済み <strong>${curAnswered}/${curQ.length}</strong>`;
+    `${currentLang==='en'?'Section':'セクション'} <strong>${currentSectionIdx + 1}/${sections.length}</strong>　${currentLang==='en'?'Answered':'回答済み'} <strong>${curAnswered}/${curQ.length}</strong>`;
+
+  // 進捗ダッシュボードのセクションカウンター
+  const dashSection = document.getElementById('dashboardSectionCount');
+  if (dashSection) dashSection.innerHTML = `${curQ.length} <em>/ ${allQ.length}</em>`;
 
   document.getElementById('btnBack').disabled = currentSectionIdx === 0;
 
   const isLast = currentSectionIdx === sections.length - 1;
   const btnNext = document.getElementById('btnNext');
   if (isLast) {
-    btnNext.textContent = '結果を見る →';
+    btnNext.innerHTML = `<span data-i18n="btn_finish">${t('btn_finish')}</span>`;
     btnNext.onclick = showResults;
   } else {
-    btnNext.textContent = '次へ →';
+    btnNext.innerHTML = `<span data-i18n="btn_next">${t('btn_next')}</span>`;
     btnNext.onclick = nextSection;
   }
 }
@@ -2153,8 +2246,25 @@ function updateProgress() {
   const allQ = sections.flatMap(s => s.subsections.flatMap(sub => sub.questions));
   const answered = allQ.filter(q => answers[q.no]).length;
   const pct = allQ.length ? Math.round(answered / allQ.length * 100) : 0;
+
+  // ヘッダーのプログレスバー（既存）
   document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('progressText').textContent = `${answered} / ${allQ.length}`;
+
+  // 進捗ダッシュボード
+  const dashBar = document.getElementById('dashboardBar');
+  const dashPct = document.getElementById('dashboardPct');
+  const dashTotal = document.getElementById('dashboardTotalCount');
+  if (dashBar) dashBar.style.width = pct + '%';
+  if (dashPct) dashPct.textContent = pct + '%';
+  if (dashTotal) dashTotal.innerHTML = `${answered} <em>/ ${allQ.length}</em>`;
+
+  // メーターの色を進捗に応じて変化
+  if (dashBar) {
+    if (pct >= 100) dashBar.style.background = '#10b981';
+    else if (pct >= 60) dashBar.style.background = 'linear-gradient(90deg,var(--accent),var(--accent2))';
+    else dashBar.style.background = 'linear-gradient(90deg,var(--accent),var(--accent2))';
+  }
 }
 
 // ===================== RESULTS =====================
@@ -2170,11 +2280,371 @@ function calcScore(questions) {
 }
 
 function getMaturity(score) {
-  if (score >= 85) return { level: 5, label: '最適化', color: '#10b981', desc: '継続的改善が実施されている最高水準' };
-  if (score >= 70) return { level: 4, label: '管理', color: '#3b82f6', desc: '定量的管理と測定が実施されている' };
-  if (score >= 55) return { level: 3, label: '定義', color: '#06b6d4', desc: 'プロセスが標準化・文書化されている' };
-  if (score >= 35) return { level: 2, label: '管理的', color: '#f59e0b', desc: '基本的なプロセスはあるが標準化不足' };
-  return { level: 1, label: '初期', color: '#ef4444', desc: 'アドホックな対応が中心、整備が必要' };
+  if (score >= 85) return { level: 5, label: t('mat_5'), color: '#10b981', desc: t('mat_5_desc') };
+  if (score >= 70) return { level: 4, label: t('mat_4'), color: '#3b82f6', desc: t('mat_4_desc') };
+  if (score >= 55) return { level: 3, label: t('mat_3'), color: '#06b6d4', desc: t('mat_3_desc') };
+  if (score >= 35) return { level: 2, label: t('mat_2'), color: '#f59e0b', desc: t('mat_2_desc') };
+  return          { level: 1, label: t('mat_1'), color: '#ef4444', desc: t('mat_1_desc') };
+}
+
+// ===================== I18N =====================
+const I18N = {
+  ja: {
+    // メニューバー
+    menu_guide:'解説書', menu_save:'保存', menu_load:'読み込み',
+    menu_version:'バージョン情報',
+    // モーダル共通
+    modal_close:'✕ 閉じる', modal_cancel:'キャンセル', modal_confirm:'変更する',
+    modal_back:'戻る', modal_restart_btn:'やり直す',
+    // ガイドモーダル
+    modal_guide_title:'📖 解説書 — 使い方ガイド',
+    // 読み込みモーダル
+    modal_load_title:'📂 回答ファイルの読み込み',
+    load_drop_intro:'以前に保存した <strong>.json</strong> ファイルを選択するか、ここにドラッグ＆ドロップしてください。回答内容・アセスメント情報・メモがすべて復元されます。',
+    load_drop_main:'ファイルを選択するか、ここにドラッグ＆ドロップしてください。回答内容・アセスメント情報・メモがすべて復元されます。',
+    load_btn_click:'クリックしてファイルを選択',
+    load_btn_drop:'または .json ファイルをドロップ',
+    load_overwrite:'※ 現在の回答内容は読み込んだファイルの内容で上書きされます',
+    // バージョンモーダル
+    modal_version_title:'ℹ️ バージョン情報',
+    // 編集モーダル
+    modal_edit_title:'✏️ アセスメント情報の編集',
+    modal_confirm_title:'✏️ アセスメント情報の変更確認',
+    modal_confirm_msg:'アセスメント情報を以下の内容に変更します。',
+    modal_ok:'よろしいですか？',
+    // やり直しモーダル
+    modal_restart_title:'🔄 最初からやり直す',
+    restart_body:'回答内容・メモ・組織情報がすべてクリア',
+    restart_body2:'されます。',
+    restart_modal_body:'これまでの<strong>回答内容・メモ・組織情報がすべてクリア</strong>されます。',
+    // org フォームラベル
+    org_section_title:'アセスメント情報',
+    org_company:'企業名', org_dept:'組織名 / 部署名',
+    org_admin:'入力管理者', org_date:'評価実施日',
+    // placeholder
+    ph_company:'例：株式会社〇〇', ph_dept:'例：情報システム部',
+    ph_admin:'例：山田 太郎',
+    memo_placeholder:'メモ（任意）',
+    summary_placeholder:'例：今回の評価では、アクセス制御とインシデント対応に改善の余地が見られました。\n\n**優先対応事項：**\n- 特権アカウントへの MFA 適用（3ヶ月以内）\n- インシデント対応計画（IRP）の策定（6ヶ月以内）\n\n詳細は各セクションの要対応事項を参照してください。',
+    // Step0
+    hero_title1:'企業セキュリティ', hero_title2:'リスクアセスメント',
+    hero_subtitle:'評価するフレームワーク・カテゴリを選択してください',
+    upload_label:'以前の回答ファイルを読み込む',
+    upload_hint:'クリックまたはドラッグ＆ドロップ（.json）',
+    btn_start:'アセスメントを開始する →',
+    loading_fw:'読み込み中...',
+    // Step1 操作
+    bulk_select_all:'全て選択', bulk_select_none:'選択解除',
+    ans_yes:'はい', ans_most:'ほとんど', ans_part:'一部', ans_no:'いいえ', ans_clear:'クリア',
+    btn_prev:'← 前のセクション', btn_next:'次のセクション →',
+    btn_show_result:'📊 評価結果を見る',
+    btn_finish:'結果を見る →',
+    // Step2
+    result_title:'セキュリティ評価結果',
+    result_updating:'結果を更新中...',
+    btn_export_pdf:'📄 PDFレポート出力',
+    card_total_score:'総合スコア', card_maturity:'成熟度レベル',
+    card_answered:'回答済み',
+    radar_title:'レーダーチャート',
+    section_scores:'セクション別スコア',
+    critical_title:'要対応事項', warn_title:'改善推奨事項',
+    no_critical:'✓ 要対応事項はありません', no_warn:'✓ 改善推奨事項はありません',
+    summary_title:'📝 総合評価コメント',
+    summary_hint:'評価結果の所見・推奨事項・経営層向けコメントなどを自由に記述できます（Markdown 形式）。',
+    btn_save_result:'💾 回答をファイル保存',
+    btn_back_q:'← 回答ページに戻る',
+    btn_restart:'🔄 最初からやり直す',
+    // nav bar
+    nav_save:'💾 保存', nav_results:'📊 評価結果を見る', nav_back:'← 戻る',
+    btn_restart_title:'最初からやり直す',
+    // 情報バー
+    info_company:'企業名', info_dept:'組織名 / 部署名',
+    info_admin:'入力管理者', info_env:'対象環境', info_date:'評価実施日',
+    btn_edit_info:'✏️ 編集', info_empty:'未入力', info_auto_date:'（自動）',
+    // confirm orgEdit
+    confirm_company:'企業名：', confirm_dept:'組織名 / 部署名：',
+    confirm_admin:'入力管理者：', confirm_date:'評価実施日：', confirm_empty:'（未入力）',
+    // MD エディタ
+    md_ul:'• リスト', md_ol:'1. リスト', md_bq:'❝ 引用',
+    md_link:'🔗 リンク', md_code:'&lt;/&gt; コード', md_hr:'── 区切り',
+    tab_preview:'プレビュー', tab_edit:'編集',
+    md_heading_title:'見出し', md_ul_title:'箇条書き', md_ol_title:'番号リスト',
+    md_link_title:'リンク', md_code_title:'コード', md_hr_title:'区切り線',
+    // ポップオーバー・ツールチップ
+    pop_copy:'コピー', pop_close:'✕ 閉じる',
+    pop_loading:'定義を取得中...', pop_not_found:'の定義情報が見つかりませんでした。',
+    tip_body:'ホバーで概要を表示 / クリックで詳細',
+    // ボタン title
+    btn_save_title:'回答内容をJSONファイルに保存',
+    btn_result_title:'途中でも結果ページへ移動できます',
+    btn_detail_title:'クリックで回答詳細を表示',
+    // 進捗ダッシュボード
+    progress_label:'回答進捗',
+    progress_section_label:'このセクション',
+    progress_total_label:'全質問',
+    // トースト・エラー
+    toast_updated:'✏️ アセスメント情報を更新しました',
+    toast_copied:'📋 コピーしました',
+    toast_saved:'💾 保存しました：',
+    toast_saved_suffix:' 項目）',
+    toast_loaded:'📂 読み込み完了（',
+    toast_loaded_suffix:' 項目）',
+    err_fw_required:'フレームワークを選択してください',
+    err_invalid_file:'対応していないファイル形式です',
+    err_no_fw:'フレームワーク情報が見つかりません',
+    err_fw_not_found:'対応フレームワークが見つかりません: ',
+    err_q_load:'質問データの読み込みに失敗しました: ',
+    err_file_load:'ファイルの読み込みに失敗しました',
+    err_file_type:'JSONファイル（.json）を選択してください',
+    // ボタン動的
+    btn_loading:'読み込み中...',
+    btn_generating:'⏳ 生成中...',
+    btn_export_pdf_label:'📄 PDFレポート出力',
+    // PDF
+    pdf_popup_blocked:'ポップアップがブロックされました。ブラウザの設定でポップアップを許可してください。',
+    pdf_opened:'📄 印刷ダイアログを開きました。「PDFに保存」を選択してください。',
+    pdf_error:'レポート生成に失敗しました: ',
+    pdf_title:'企業セキュリティ リスクアセスメント報告書',
+    pdf_critical_sub:'回答が「いいえ」の項目です。優先的な対応が必要です。',
+    pdf_warn_sub:'「一部対応」または「ほとんど対応」の項目です。さらなる強化を推奨します。',
+    pdf_no_critical:'✓ 要対応事項はありません',
+    pdf_no_warn:'✓ 改善推奨事項はありません',
+    pdf_generated_at:'生成日時：',
+    pdf_print_hint:'ブラウザの印刷ダイアログが開きます。<br>「送信先」で <strong>「PDFに保存」</strong> を選択してください。',
+    pdf_print_btn:'📄 PDFとして保存',
+    pdf_section_scores:'セクション別スコア',
+    pdf_critical:'要対応事項', pdf_warn:'改善推奨事項',
+    pdf_summary_comment:'総合評価コメント',
+    pdf_col_section:'セクション', pdf_col_score:'スコア',
+    pdf_col_maturity:'成熟度', pdf_col_bar:'スコアバー（各5%）',
+    pdf_col_no:'No.', pdf_col_q:'質問内容', pdf_col_ans:'回答',
+    // 成熟度
+    mat_5:'最適化', mat_4:'管理', mat_3:'定義', mat_2:'管理的', mat_1:'初期',
+    mat_5_desc:'継続的改善が実施されている最高水準',
+    mat_4_desc:'定量的管理と測定が実施されている',
+    mat_3_desc:'プロセスが標準化・文書化されている',
+    mat_2_desc:'基本的なプロセスはあるが標準化不足',
+    mat_1_desc:'アドホックな対応が中心、整備が必要',
+    // 結果詳細
+    result_click_hint:'クリックで回答詳細を表示',
+    result_all_items:'全 {n} 項目の平均',
+    answered_label:' 項目',
+    answered_rate_label:'回答率',
+    // エラー・ローディング（動的生成）
+    err_fw_load:'⚠️ 質問セットの読み込みに失敗しました',
+    err_guide_load:'⚠️ 解説書の読み込みに失敗しました',
+    err_version_load:'⚠️ バージョン情報の読み込みに失敗しました',
+    loading_def:'読み込み中...',
+    err_def_file:'定義ファイルの読み込みに失敗しました',
+  },
+
+  en: {
+    // Menu bar
+    menu_guide:'Guide', menu_save:'Save', menu_load:'Load',
+    menu_version:'Version',
+    // Modal common
+    modal_close:'✕ Close', modal_cancel:'Cancel', modal_confirm:'Confirm',
+    modal_back:'Back', modal_restart_btn:'Start Over',
+    // Guide modal
+    modal_guide_title:'📖 User Guide',
+    // Load modal
+    modal_load_title:'📂 Load Answer File',
+    load_drop_intro:'Select a previously saved <strong>.json</strong> file or drag & drop it here. Answers, assessment info, and notes will all be restored.',
+    load_drop_main:'Select a file or drag & drop it here. Answers, assessment info, and notes will all be restored.',
+    load_btn_click:'Click to select a file',
+    load_btn_drop:'or drop a .json file here',
+    load_overwrite:'※ Current answers will be overwritten by the loaded file.',
+    // Version modal
+    modal_version_title:'ℹ️ Version Info',
+    // Edit modal
+    modal_edit_title:'✏️ Edit Assessment Info',
+    modal_confirm_title:'✏️ Confirm Changes',
+    modal_confirm_msg:'The following changes will be applied.',
+    modal_ok:'Are you sure?',
+    // Restart modal
+    modal_restart_title:'🔄 Start Over',
+    restart_body:'All answers, notes, and assessment info will be cleared',
+    restart_body2:'.',
+    restart_modal_body:'<strong>All answers, notes, and assessment info will be cleared.</strong>',
+    // Org form labels
+    org_section_title:'Assessment Info',
+    org_company:'Organization', org_dept:'Department / Division',
+    org_admin:'Assessor', org_date:'Assessment Date (MM/DD/YYYY)',
+    // Placeholders
+    ph_company:'e.g. Acme Corp.', ph_dept:'e.g. Information Security Dept.',
+    ph_admin:'e.g. John Smith',
+    memo_placeholder:'Notes (optional)',
+    summary_placeholder:'e.g. This assessment identified improvement areas in access control and incident response.\n\n**Priority Actions:**\n- Apply MFA to privileged accounts (within 3 months)\n- Develop an Incident Response Plan (within 6 months)\n\nSee the Action Required section for details.',
+    // Step0
+    hero_title1:'Enterprise Security', hero_title2:'Risk Assessment',
+    hero_subtitle:'Select a framework to begin your assessment',
+    upload_label:'Load a previously saved file',
+    upload_hint:'Click or drag & drop (.json)',
+    btn_start:'Start Assessment →',
+    loading_fw:'Loading...',
+    // Step1
+    bulk_select_all:'Select All', bulk_select_none:'Deselect All',
+    ans_yes:'Yes', ans_most:'Mostly', ans_part:'Partial', ans_no:'No', ans_clear:'Clear',
+    btn_prev:'← Previous', btn_next:'Next →',
+    btn_show_result:'📊 View Results',
+    btn_finish:'View Results →',
+    // Step2
+    result_title:'Security Assessment Results',
+    result_updating:'Updating results...',
+    btn_export_pdf:'📄 Export PDF Report',
+    card_total_score:'Overall Score', card_maturity:'Maturity Level',
+    card_answered:'Answered',
+    radar_title:'Radar Chart',
+    section_scores:'Section Scores',
+    critical_title:'Action Required', warn_title:'Improvement Recommended',
+    no_critical:'✓ No action-required items', no_warn:'✓ No improvement items',
+    summary_title:'📝 Overall Assessment Comment',
+    summary_hint:'Write your findings, recommendations, or executive summary here (Markdown supported).',
+    btn_save_result:'💾 Save Answers',
+    btn_back_q:'← Back to Questions',
+    btn_restart:'🔄 Start Over',
+    // nav bar
+    nav_save:'💾 Save', nav_results:'📊 View Results', nav_back:'← Back',
+    btn_restart_title:'Start Over',
+    // 情報バー
+    info_company:'Organization', info_dept:'Department',
+    info_admin:'Assessor', info_env:'Framework', info_date:'Assessment Date',
+    btn_edit_info:'✏️ Edit', info_empty:'(not set)', info_auto_date:'(auto)',
+    // confirm orgEdit
+    confirm_company:'Organization: ', confirm_dept:'Department: ',
+    confirm_admin:'Assessor: ', confirm_date:'Date: ', confirm_empty:'(not set)',
+    // MD editor
+    md_ul:'• List', md_ol:'1. List', md_bq:'❝ Quote',
+    md_link:'🔗 Link', md_code:'&lt;/&gt; Code', md_hr:'── HR',
+    tab_preview:'Preview', tab_edit:'Edit',
+    md_heading_title:'Heading', md_ul_title:'Bullet list', md_ol_title:'Numbered list',
+    md_link_title:'Link', md_code_title:'Code', md_hr_title:'Horizontal rule',
+    // Popover / tooltip
+    pop_copy:'Copy', pop_close:'✕ Close',
+    pop_loading:'Loading definition...', pop_not_found:'definition not found.',
+    tip_body:'Hover for summary / Click for details',
+    // Button titles
+    btn_save_title:'Save answers to a JSON file',
+    btn_result_title:'View results at any time',
+    btn_detail_title:'Click to show answer details',
+    // Toast / Errors
+    toast_updated:'✏️ Assessment info updated',
+    toast_copied:'📋 Copied',
+    toast_saved:'💾 Saved: ',
+    toast_saved_suffix:' items)',
+    toast_loaded:'📂 File loaded (',
+    toast_loaded_suffix:' items)',
+    err_fw_required:'Please select a framework',
+    err_invalid_file:'Unsupported file format',
+    err_no_fw:'Framework information not found',
+    err_fw_not_found:'Framework not found: ',
+    err_q_load:'Failed to load question data: ',
+    err_file_load:'Failed to load file',
+    err_file_type:'Please select a JSON file (.json)',
+    // Dynamic buttons
+    btn_loading:'Loading...',
+    btn_generating:'⏳ Generating...',
+    btn_export_pdf_label:'📄 Export PDF Report',
+    // PDF
+    pdf_popup_blocked:'Popup was blocked. Please allow popups in your browser settings.',
+    pdf_opened:'📄 Print dialog opened. Select "Save as PDF".',
+    pdf_error:'Failed to generate report: ',
+    pdf_title:'Enterprise Security Risk Assessment Report',
+    pdf_critical_sub:'Items answered "No" — immediate action needed.',
+    pdf_warn_sub:'Items answered "Partial" or "Mostly" — further improvement recommended.',
+    pdf_no_critical:'✓ No action-required items',
+    pdf_no_warn:'✓ No improvement-recommended items',
+    pdf_generated_at:'Generated: ',
+    pdf_print_hint:'The print dialog will open.<br>Select <strong>"Save as PDF"</strong> as the destination.',
+    pdf_print_btn:'📄 Save as PDF',
+    pdf_section_scores:'Section Scores',
+    pdf_critical:'Action Required', pdf_warn:'Improvement Recommended',
+    pdf_summary_comment:'Overall Assessment Comment',
+    pdf_col_section:'Section', pdf_col_score:'Score',
+    pdf_col_maturity:'Maturity', pdf_col_bar:'Score Bar (per 5%)',
+    pdf_col_no:'No.', pdf_col_q:'Question', pdf_col_ans:'Answer',
+    // Maturity
+    mat_5:'Optimized', mat_4:'Managed', mat_3:'Defined', mat_2:'Repeatable', mat_1:'Initial',
+    mat_5_desc:'Highest level with continuous improvement in place',
+    mat_4_desc:'Quantitative management and measurement in place',
+    mat_3_desc:'Processes are standardized and documented',
+    mat_2_desc:'Basic processes exist but lack standardization',
+    mat_1_desc:'Ad-hoc responses; formal processes needed',
+    // Result detail
+    result_click_hint:'Click to show answer details',
+    result_all_items:'Avg. of {n} items',
+    answered_label:' items',
+    answered_rate_label:'Response Rate',
+    // Progress dashboard
+    progress_label:'Response Progress',
+    progress_section_label:'This Section',
+    progress_total_label:'All Questions',
+    // Errors / Loading (dynamic)
+    err_fw_load:'⚠️ Failed to load question sets',
+    err_guide_load:'⚠️ Failed to load guide',
+    err_version_load:'⚠️ Failed to load version info',
+    loading_def:'Loading...',
+    err_def_file:'Failed to load definition file',
+  }
+};
+
+let currentLang = (function(){
+  try { return localStorage.getItem('lang') || 'ja'; } catch(e){ return 'ja'; }
+})();
+
+function t(key, vars) {
+  const dict = I18N[currentLang] || I18N.ja;
+  let s = (dict[key] !== undefined ? dict[key] : (I18N.ja[key] !== undefined ? I18N.ja[key] : key));
+  if (vars) Object.keys(vars).forEach(k => { s = s.replace('{'+k+'}', vars[k]); });
+  return s;
+}
+
+function applyI18n() {
+  document.documentElement.lang = currentLang;
+  // html 属性を先に処理（innerHTML で子要素ごと置き換える）
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  // テキスト属性（data-i18n-html の内部に生成された要素には影響しない）
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPh);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+  // MD editor tab 「編集」は動的生成なので直接セット
+  const tabEdit = document.getElementById('mdTabEdit');
+  if (tabEdit) tabEdit.textContent = t('tab_edit');
+  const tabPrev = document.getElementById('mdTabPreview');
+  if (tabPrev) tabPrev.textContent = t('tab_preview');
+}
+
+function switchLang(lang) {
+  if (lang === currentLang) return;
+  currentLang = lang;
+  try { localStorage.setItem('lang', lang); } catch(e){}
+  // ボタンのアクティブ状態を更新
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+  applyI18n();
+  if (typeof currentStep !== 'undefined') {
+    if (currentStep === 0 && typeof renderFrameworkGrid === 'function') {
+      renderFrameworkGrid();
+    } else if (currentStep === 1) {
+      if (typeof buildTabs === 'function') buildTabs();
+      if (typeof renderSection === 'function') renderSection(currentSectionIdx || 0);
+      if (typeof renderOrgInfoStrip === 'function') {
+        renderOrgInfoStrip('orgInfoStripQ');
+      }
+      if (typeof updateNav === 'function') updateNav();
+    } else if (currentStep === 2) {
+      if (typeof showResults === 'function') showResults();
+    }
+  }
 }
 
 // ===================== ORG INFO EDIT =====================
@@ -2187,7 +2657,7 @@ function openOrgEdit() {
   document.getElementById('orgEditCompany').value = orgInfo.company || '';
   document.getElementById('orgEditDept').value    = orgInfo.dept    || '';
   document.getElementById('orgEditAdmin').value   = orgInfo.admin   || '';
-  document.getElementById('orgEditDate').value    = orgInfo.date    || '';
+  document.getElementById('orgEditDate').value = orgInfo.date || '';
   openModal('orgEditModal');
 }
 
@@ -2206,15 +2676,17 @@ function confirmOrgEdit() {
   };
   // 確認ダイアログに変更内容を表示
   const fmtDate = iso => {
-    if (!iso) return '（未入力）';
+    if (!iso) return t('confirm_empty');
     const [y,m,d] = iso.split('-');
-    return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+    return currentLang === 'en'
+      ? `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]} ${parseInt(d)}, ${y}`
+      : `${y}年${parseInt(m)}月${parseInt(d)}日`;
   };
   document.getElementById('orgEditConfirmContent').innerHTML =
-    `<div><strong>企業名：</strong>${draft.company || '（未入力）'}</div>` +
-    `<div><strong>組織名 / 部署名：</strong>${draft.dept || '（未入力）'}</div>` +
-    `<div><strong>入力管理者：</strong>${draft.admin || '（未入力）'}</div>` +
-    `<div><strong>評価実施日：</strong>${fmtDate(draft.date)}</div>`;
+    `<div><strong>${t('confirm_company')}</strong>${draft.company || t('confirm_empty')}</div>` +
+    `<div><strong>${t('confirm_dept')}</strong>${draft.dept || t('confirm_empty')}</div>` +
+    `<div><strong>${t('confirm_admin')}</strong>${draft.admin || t('confirm_empty')}</div>` +
+    `<div><strong>${t('confirm_date')}</strong>${fmtDate(draft.date)}</div>`;
   // draft を一時保管
   document.getElementById('orgEditConfirmModal').dataset.draft = JSON.stringify(draft);
   closeModal('orgEditModal');
@@ -2237,13 +2709,13 @@ function applyOrgEdit() {
   document.getElementById('orgCompany').value = orgInfo.company;
   document.getElementById('orgDept').value    = orgInfo.dept;
   document.getElementById('orgAdmin').value   = orgInfo.admin;
-  document.getElementById('orgDate').value    = orgInfo.date;
+  document.getElementById('orgDate').value = orgInfo.date || '';
   // 情報バーを両方再描画
   renderOrgInfoStrip('orgInfoStripQ');
   renderOrgInfoStrip('orgInfoStrip');
   closeModal('orgEditConfirmModal');
   _orgEditPrev = null;
-  showToast('✏️ アセスメント情報を更新しました', 'success');
+  showToast(t('toast_updated'), 'success');
 }
 
 function renderOrgInfoStrip(targetId) {
@@ -2252,37 +2724,39 @@ function renderOrgInfoStrip(targetId) {
   const fmtDate = (iso) => {
     if (!iso) return null;
     const [y, m, d] = iso.split('-');
-    return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+    return currentLang === 'en'
+      ? `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]} ${parseInt(d)}, ${y}`
+      : `${y}年${parseInt(m)}月${parseInt(d)}日`;
   };
   const displayDate = orgInfo.date
     ? fmtDate(orgInfo.date)
-    : new Date().toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' });
+    : new Date().toLocaleDateString(currentLang === 'en' ? 'en-US' : 'ja-JP', { year:'numeric', month:'long', day:'numeric' });
   const envLabel = currentFrameworkMeta
     ? currentFrameworkMeta.label + ' ' + currentFrameworkMeta.sublabel
     : (currentEnv || '—');
   el.innerHTML = `
     <div class="org-info-item">
-      <span class="org-info-label">企業名</span>
-      <span class="org-info-value ${orgInfo.company ? '' : 'empty'}">${orgInfo.company || '未入力'}</span>
+      <span class="org-info-label">${t('info_company')}</span>
+      <span class="org-info-value ${orgInfo.company ? '' : 'empty'}">${orgInfo.company || t('info_empty')}</span>
     </div>
     <div class="org-info-item">
-      <span class="org-info-label">組織名 / 部署名</span>
-      <span class="org-info-value ${orgInfo.dept ? '' : 'empty'}">${orgInfo.dept || '未入力'}</span>
+      <span class="org-info-label">${t('info_dept')}</span>
+      <span class="org-info-value ${orgInfo.dept ? '' : 'empty'}">${orgInfo.dept || t('info_empty')}</span>
     </div>
     <div class="org-info-item">
-      <span class="org-info-label">入力管理者</span>
-      <span class="org-info-value ${orgInfo.admin ? '' : 'empty'}">${orgInfo.admin || '未入力'}</span>
+      <span class="org-info-label">${t('info_admin')}</span>
+      <span class="org-info-value ${orgInfo.admin ? '' : 'empty'}">${orgInfo.admin || t('info_empty')}</span>
     </div>
     <div class="org-info-item">
-      <span class="org-info-label">対象環境</span>
+      <span class="org-info-label">${t('info_env')}</span>
       <span class="org-info-value">${envLabel}</span>
     </div>
     <div class="org-info-item">
-      <span class="org-info-label">評価実施日</span>
-      <span class="org-info-value ${orgInfo.date ? '' : 'empty'}">${displayDate}${!orgInfo.date ? '（自動）' : ''}</span>
+      <span class="org-info-label">${t('info_date')}</span>
+      <span class="org-info-value ${orgInfo.date ? '' : 'empty'}">${displayDate}${!orgInfo.date ? t('info_auto_date') : ''}</span>
     </div>
     <div class="org-info-item" style="flex:0;border-right:none;justify-content:center;padding:8px 16px;">
-      <button class="org-info-edit-btn" onclick="openOrgEdit()">✏️ 編集</button>
+      <button class="org-info-edit-btn" onclick="openOrgEdit()">${t('btn_edit_info')}</button>
     </div>
   `;
 }
@@ -2312,12 +2786,12 @@ function showResults() {
   // Top cards
   document.getElementById('topCards').innerHTML = `
     <div class="result-card">
-      <div class="result-card-title">総合スコア</div>
+      <div class="result-card-title">${t('card_total_score')}</div>
       <div class="score-big" style="color:${maturity.color}">${overallScore}<span style="font-size:24px; color:var(--text-muted)">%</span></div>
-      <div class="score-label">全 ${sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length} 項目の平均</div>
+      <div class="score-label">${t('result_all_items', {n: sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length})}</div>
     </div>
     <div class="result-card">
-      <div class="result-card-title">成熟度レベル</div>
+      <div class="result-card-title">${t('card_maturity')}</div>
       <div style="margin:8px 0;">
         <div class="maturity-badge" style="background:${maturity.color}20; color:${maturity.color}; border:1px solid ${maturity.color}40;">
           <span style="font-family:'Space Mono',monospace; font-size:20px;">Lv.${maturity.level}</span>
@@ -2327,11 +2801,11 @@ function showResults() {
       <div style="font-size:13px; color:var(--text-muted);">${maturity.desc}</div>
     </div>
     <div class="result-card">
-      <div class="result-card-title">回答率</div>
+      <div class="result-card-title">${t('answered_rate_label')}</div>
       <div class="score-big" style="color:var(--accent2)">
         ${Math.round(Object.keys(answers).length / sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length * 100)}<span style="font-size:24px; color:var(--text-muted)">%</span>
       </div>
-      <div class="score-label">${Object.keys(answers).length} / ${sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length} 項目</div>
+      <div class="score-label">${Object.keys(answers).length} / ${sections.flatMap(s=>s.subsections.flatMap(q=>q.questions)).length}${t('answered_label')}</div>
     </div>
   `;
 
@@ -2343,7 +2817,7 @@ function showResults() {
     const m = getMaturity(s.score);
     scoresHtml += `
       <div class="section-score-row" id="score-row-${i}">
-        <a class="section-score-label-link" onclick="toggleDetail(${i})" title="クリックで回答詳細を表示">${s.label}</a>
+        <a class="section-score-label-link" onclick="toggleDetail(${i})" data-i18n-title="btn_detail_title" title=t('result_click_hint')>${s.label}</a>
         <div class="section-score-pct" style="color:${m.color}">${s.score}%</div>
         <div class="score-bar"><div class="score-bar-fill" style="width:${s.score}%; background:${col};"></div></div>
       </div>
@@ -2363,7 +2837,7 @@ function showResults() {
     data: {
       labels: radarLabels,
       datasets: [{
-        label: 'スコア',
+        label: t('pdf_col_score'),
         data: radarScores,
         backgroundColor: 'rgba(59,130,246,0.15)',
         borderColor: 'rgba(59,130,246,0.8)',
@@ -2540,7 +3014,7 @@ function renderDetailPanel(idx) {
           </div>
           <div class="detail-memo" style="grid-column:2/-1;">
             <span style="font-size:11px;color:var(--text-muted);flex-shrink:0;">📝</span>
-            <input class="detail-memo-input" type="text" placeholder="メモ（任意）"
+            <input class="detail-memo-input" type="text" data-i18n-ph="memo_placeholder" placeholder="メモ（任意）"
               value="${memo.replace(/"/g,'&quot;')}"
               onchange="setMemoFromResult('${q.no}', this.value, ${idx})">
           </div>
@@ -2597,12 +3071,12 @@ function refreshResults(openSectionIdx) {
   // Update top cards
   document.getElementById('topCards').innerHTML = `
     <div class="result-card">
-      <div class="result-card-title">総合スコア</div>
+      <div class="result-card-title">${t('card_total_score')}</div>
       <div class="score-big" style="color:${maturity.color}">${overallScore}<span style="font-size:24px; color:var(--text-muted)">%</span></div>
       <div class="score-label">全 ${totalQ} 項目の平均</div>
     </div>
     <div class="result-card">
-      <div class="result-card-title">成熟度レベル</div>
+      <div class="result-card-title">${t('card_maturity')}</div>
       <div style="margin:8px 0;">
         <div class="maturity-badge" style="background:${maturity.color}20; color:${maturity.color}; border:1px solid ${maturity.color}40;">
           <span style="font-family:'Space Mono',monospace; font-size:20px;">Lv.${maturity.level}</span>
@@ -2612,7 +3086,7 @@ function refreshResults(openSectionIdx) {
       <div style="font-size:13px; color:var(--text-muted);">${maturity.desc}</div>
     </div>
     <div class="result-card">
-      <div class="result-card-title">回答率</div>
+      <div class="result-card-title">${t('answered_rate_label')}</div>
       <div class="score-big" style="color:var(--accent2)">
         ${Math.round(Object.keys(answers).length / totalQ * 100)}<span style="font-size:24px; color:var(--text-muted)">%</span>
       </div>
@@ -2628,7 +3102,7 @@ function refreshResults(openSectionIdx) {
     const m2 = getMaturity(s.score);
     scoresHtml += `
       <div class="section-score-row" id="score-row-${i}">
-        <a class="section-score-label-link ${i === openSectionIdx ? 'active' : ''}" onclick="toggleDetail(${i})" title="クリックで回答詳細を表示">${s.label}</a>
+        <a class="section-score-label-link ${i === openSectionIdx ? 'active' : ''}" onclick="toggleDetail(${i})" data-i18n-title="btn_detail_title" title=t('result_click_hint')>${s.label}</a>
         <div class="section-score-pct" style="color:${m2.color}">${s.score}%</div>
         <div class="score-bar"><div class="score-bar-fill" style="width:${s.score}%; background:${col};"></div></div>
       </div>
@@ -2705,13 +3179,13 @@ function backToQuestions() {
 
 // ===================== SAVE / LOAD =====================
 function saveToFile() {
-  if (!currentFrameworkId) { showToast('フレームワークを選択してください', 'error'); return; }
+  if (!currentFrameworkId) { showToast(t('err_fw_required'), 'error'); return; }
 
   const totalQ = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
   const answered = Object.keys(answers).length;
 
   const data = {
-    version: '2.6',
+    version: '2.9',
     savedAt: new Date().toISOString(),
     orgInfo,
     env: currentEnv,
@@ -2741,7 +3215,7 @@ function saveToFile() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  showToast(`💾 保存しました：${filename}（${answered} / ${totalQ} 項目）`, 'success');
+  showToast(t('toast_saved') + filename + '（' + answered + ' / ' + totalQ + t('toast_saved_suffix'), 'success');
 }
 
 function _finishLoadFromData(data) {
@@ -2755,7 +3229,7 @@ function _finishLoadFromData(data) {
     document.getElementById('orgCompany').value = orgInfo.company || '';
     document.getElementById('orgDept').value    = orgInfo.dept    || '';
     document.getElementById('orgAdmin').value   = orgInfo.admin   || '';
-    document.getElementById('orgDate').value    = orgInfo.date    || '';
+    document.getElementById('orgDate').value = orgInfo.date || '';
   }
   document.querySelectorAll('.fw-card').forEach(c => c.classList.remove('selected'));
   if (document.getElementById('fw-card-' + currentFrameworkId))
@@ -2770,7 +3244,7 @@ function _finishLoadFromData(data) {
   updateNav();
   const answered = Object.keys(answers).length;
   const total = sections.flatMap(s => s.subsections.flatMap(q => q.questions)).length;
-  showToast('📂 読み込み完了（' + answered + ' / ' + total + ' 項目）', 'success');
+  showToast(t('toast_loaded') + answered + ' / ' + total + t('toast_loaded_suffix'), 'success');
 }
 
 function handleFileDrop(event) {
@@ -2824,7 +3298,7 @@ const _contentCache = {};
 async function loadGuide() {
   const body = document.getElementById('guideModalBody');
   if (_contentCache.guide) { body.innerHTML = _contentCache.guide; return; }
-  body.innerHTML = '<div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>';
+  body.innerHTML = '<div class="fw-loading"><div class="pop-spinner"></div><span data-i18n="loading_def">読み込み中...</span></div>';
   try {
     const res = await fetch('content/guide.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2834,14 +3308,14 @@ async function loadGuide() {
     body.innerHTML = html;
   } catch(e) {
     console.error('loadGuide error:', e);
-    body.innerHTML = `<div class="fw-error">⚠️ 解説書の読み込みに失敗しました。<br><code>content/guide.json</code> が存在するか確認してください。<br><small style="color:var(--text-muted)">${e.message}</small></div>`;
+    body.innerHTML = `<div class="fw-error">${t("err_guide_load")}。<br><code>content/guide.json</code><br><small style="color:var(--text-muted)">${e.message}</small></div>`;
   }
 }
 
 async function loadVersion() {
   const body = document.getElementById('versionModalBody');
   if (_contentCache.version) { body.innerHTML = _contentCache.version; return; }
-  body.innerHTML = '<div class="fw-loading"><div class="pop-spinner"></div>読み込み中...</div>';
+  body.innerHTML = '<div class="fw-loading"><div class="pop-spinner"></div><span data-i18n="loading_def">読み込み中...</span></div>';
   try {
     const res = await fetch('content/version.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2851,7 +3325,7 @@ async function loadVersion() {
     body.innerHTML = html;
   } catch(e) {
     console.error('loadVersion error:', e);
-    body.innerHTML = `<div class="fw-error">⚠️ バージョン情報の読み込みに失敗しました。<br><code>content/version.json</code> が存在するか確認してください。<br><small style="color:var(--text-muted)">${e.message}</small></div>`;
+    body.innerHTML = `<div class="fw-error">${t("err_version_load")}。<br><code>content/version.json</code><br><small style="color:var(--text-muted)">${e.message}</small></div>`;
   }
 }
 
@@ -2913,7 +3387,7 @@ function handleModalFileSelect(event) {
 
 function readFile(file) {
   if (!file.name.endsWith('.json')) {
-    showToast('JSONファイル（.json）を選択してください', 'error'); return;
+    showToast(t('err_file_type'), 'error'); return;
   }
   const reader = new FileReader();
   reader.onload = e => {
@@ -2921,7 +3395,7 @@ function readFile(file) {
       const data = JSON.parse(e.target.result);
       loadFromData(data);
     } catch {
-      showToast('ファイルの読み込みに失敗しました', 'error');
+      showToast(t('err_file_load'), 'error');
     }
   };
   reader.readAsText(file);
@@ -2930,12 +3404,12 @@ function readFile(file) {
 function loadFromData(data) {
   // Validate structure
   if (!data.version || !data.answers) {
-    showToast('対応していないファイル形式です', 'error'); return;
+    showToast(t('err_invalid_file'), 'error'); return;
   }
   // frameworkId が必須（旧形式は env から復元）
   const fwId = data.frameworkId || data.env;
   if (!fwId) {
-    showToast('フレームワーク情報が見つかりません', 'error'); return;
+    showToast(t('err_no_fw'), 'error'); return;
   }
 
   // Restore org info
@@ -2944,7 +3418,7 @@ function loadFromData(data) {
     document.getElementById('orgCompany').value = orgInfo.company || '';
     document.getElementById('orgDept').value    = orgInfo.dept    || '';
     document.getElementById('orgAdmin').value   = orgInfo.admin   || '';
-    document.getElementById('orgDate').value    = orgInfo.date    || '';
+    document.getElementById('orgDate').value = orgInfo.date || '';
   }
 
   currentEnv         = data.env || fwId;
@@ -2959,7 +3433,7 @@ function loadFromData(data) {
   }
   const fwMeta = frameworkCatalog.find(f => f.id === fwId);
   if (!fwMeta) {
-    showToast('対応フレームワークが見つかりません: ' + fwId, 'error'); return;
+    showToast(t('err_fw_not_found') + fwId, 'error'); return;
   }
   // 識別番号定義もあわせて読み込む
   Promise.all([
@@ -2971,7 +3445,7 @@ function loadFromData(data) {
   ]).then(([qdata]) => {
     sections = qdata.sections;
     _finishLoadFromData(data);
-  }).catch(e => showToast('質問データの読み込みに失敗しました: ' + e.message, 'error'));
+  }).catch(e => showToast(t('err_q_load') + e.message, 'error'));
 }
 
 // ===================== MARKDOWN EDITOR =====================
@@ -3081,7 +3555,7 @@ function _initSummaryEditor() {
 function exportPDF() {
   const btn = document.getElementById('btnExportPdf');
   btn.disabled = true;
-  btn.textContent = '⏳ 生成中...';
+  btn.textContent = t('btn_generating');
 
   try {
     // ── データ収集 ────────────────────────────────────────
@@ -3089,9 +3563,12 @@ function exportPDF() {
       ? currentFrameworkMeta.label + ' ' + currentFrameworkMeta.sublabel
       : (currentEnv || '');
     const fmtDate = iso => {
-      if (!iso) return new Date().toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'});
+      const locale = currentLang === 'en' ? 'en-US' : 'ja-JP';
+      if (!iso) return new Date().toLocaleDateString(locale, {year:'numeric',month:'long',day:'numeric'});
       const [y,m,d] = iso.split('-');
-      return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+      return currentLang === 'en'
+        ? `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]} ${parseInt(d)}, ${y}`
+        : `${y}年${parseInt(m)}月${parseInt(d)}日`;
     };
     const today = fmtDate(orgInfo.date);
 
@@ -3149,10 +3626,10 @@ function exportPDF() {
       </tr>`;
     };
     const critRows = critical.length === 0
-      ? '<tr><td colspan="3" class="ok">✓ 要対応事項はありません</td></tr>'
+      ? `<tr><td colspan="3" class="ok">${t('pdf_no_critical')}</td></tr>`
       : critical.map((q,i) => findingRow(q, i%2===0 ? '#fff5f5' : '#fff')).join('');
     const warnRows = warns.length === 0
-      ? '<tr><td colspan="3" class="ok">✓ 改善推奨事項はありません</td></tr>'
+      ? `<tr><td colspan="3" class="ok">${t('pdf_no_warn')}</td></tr>`
       : warns.map((q,i) => {
           const ans = answers[q.no] === 'most' ? 'ほとんど' : '一部';
           const memo = memos[q.no] || '';
@@ -3166,10 +3643,10 @@ function exportPDF() {
 
     // ── 印刷ウィンドウのHTML ──────────────────────────────
     const html = `<!DOCTYPE html>
-<html lang="ja">
+<html lang="${currentLang === 'en' ? 'en-US' : 'ja-JP'}">
 <head>
 <meta charset="UTF-8">
-<title>セキュリティ評価報告書</title>
+<title>${t('pdf_title')}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -3279,135 +3756,134 @@ function exportPDF() {
 <!-- ======== 表紙 ======== -->
 <div class="cover-header">
   <h1>Security Assessment</h1>
-  <h2>企業セキュリティ リスクアセスメント報告書</h2>
+  <h2>${t("pdf_title")}</h2>
   <div class="fw">${fwLabel}</div>
 </div>
 
 <div style="padding:0 14pt;">
 
-  <div class="section-title">アセスメント情報</div>
+  <div class="section-title"><span data-i18n="org_section_title">アセスメント情報</span></div>
   <table class="info-table">
     <tr><td>企業名</td><td>${orgInfo.company || '—'}</td></tr>
-    <tr><td>組織名 / 部署名</td><td>${orgInfo.dept || '—'}</td></tr>
-    <tr><td>入力管理者</td><td>${orgInfo.admin || '—'}</td></tr>
-    <tr><td>評価実施日</td><td>${today}</td></tr>
-    <tr><td>対象フレームワーク</td><td>${fwLabel}</td></tr>
+    <tr><td>${t('info_dept')}</td><td>${orgInfo.dept || '—'}</td></tr>
+    <tr><td>${t('info_admin')}</td><td>${orgInfo.admin || '—'}</td></tr>
+    <tr><td>${t('info_date')}</td><td>${today}</td></tr>
+    <tr><td>${t('info_env')}</td><td>${fwLabel}</td></tr>
   </table>
 
-  <div class="section-title">評価サマリー</div>
+  <div class="section-title">${t('pdf_summary_card')}</div>
   <div class="cards">
     <div class="card card-blue">
-      <div class="lbl">総合スコア</div>
+      <div class="lbl">${t('card_total_score')}</div>
       <div class="val">${overallScore}%</div>
     </div>
     <div class="card" style="background:${maturity.color};">
-      <div class="lbl">成熟度レベル</div>
+      <div class="lbl">${t('card_maturity')}</div>
       <div class="val">Lv.${maturity.level}</div>
       <div class="sub">${maturity.label}</div>
     </div>
     <div class="card card-gray">
-      <div class="lbl">回答率</div>
+      <div class="lbl">${t('answered_rate_label')}</div>
       <div class="val">${ansRate}%</div>
-      <div class="sub">${answered.length} / ${allQ.length} 問</div>
+      <div class="sub">${answered.length} / ${allQ.length}${t('answered_label')}</div>
     </div>
   </div>
 
   ${chartImg ? `
-  <div class="section-title">レーダーチャート</div>
-  <div class="chart-wrap"><img src="${chartImg}" alt="レーダーチャート"></div>
+  <div class="section-title">${t('radar_title')}</div>
+  <div class="chart-wrap"><img src="${chartImg}" alt="${t('radar_title')}"></div>
   ` : ''}
 
-  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+  <div class="footer">${t('pdf_generated_at')}${new Date().toLocaleString(currentLang === 'en' ? 'en-US' : 'ja-JP')}</div>
 </div>
 
 <!-- ======== 総合評価コメント（入力がある場合のみ） ======== -->
 ${summaryHtml ? `
 <div class="pagebreak"></div>
 <div class="page-header">
-  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${t("pdf_title")}</span>
   <span>${fwLabel}</span>
 </div>
 <div style="padding:0 14pt;">
-  <div class="section-title">総合評価コメント</div>
+  <div class="section-title">${t('pdf_summary_comment')}</div>
   <div class="md-content" style="padding:12pt 0;">${summaryHtml}</div>
-  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+  <div class="footer">${t('pdf_generated_at')}${new Date().toLocaleString(currentLang === 'en' ? 'en-US' : 'ja-JP')}</div>
 </div>
 ` : ''}
 
 <!-- ======== セクション別スコア ======== -->
 <div class="pagebreak"></div>
 <div class="page-header">
-  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${t("pdf_title")}</span>
   <span>${fwLabel}</span>
 </div>
 <div style="padding:0 14pt;">
-  <div class="section-title">セクション別スコア</div>
+  <div class="section-title">${t('pdf_section_scores')}</div>
   <table class="data">
     <thead><tr>
-      <th>セクション</th>
-      <th class="num">スコア</th>
-      <th class="cen">成熟度</th>
-      <th class="bar">スコアバー（各5%）</th>
+      <th>${t('pdf_col_section')}</th>
+      <th class="num">${t('pdf_col_score')}</th>
+      <th class="cen">${t('pdf_col_maturity')}</th>
+      <th class="bar">${t('pdf_col_bar')}</th>
     </tr></thead>
     <tbody>${secRows}</tbody>
   </table>
-  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+  <div class="footer">${t('pdf_generated_at')}${new Date().toLocaleString(currentLang === 'en' ? 'en-US' : 'ja-JP')}</div>
 </div>
 
 <!-- ======== 要対応事項 ======== -->
 <div class="pagebreak"></div>
 <div class="page-header">
-  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${t("pdf_title")}</span>
   <span>${fwLabel}</span>
 </div>
 <div style="padding:0 14pt;">
   <div class="section-title" style="color:#dc2626;border-color:#dc2626;">
-    要対応事項（${critical.length}件）
+    ${t('pdf_critical')}（${critical.length}${currentLang==='en'?' items':'件'}）
   </div>
-  <div class="section-sub">回答が「いいえ」の項目です。優先的な対応が必要です。</div>
+  <div class="section-sub">${t('pdf_critical_sub')}</div>
   <table class="data crit">
     <thead><tr>
-      <th style="width:90pt;">セクション</th>
+      <th style="width:90pt;">${t('pdf_col_section')}</th>
       <th class="cen" style="width:40pt;">No.</th>
-      <th>質問内容</th>
+      <th>${t('pdf_col_q')}</th>
     </tr></thead>
     <tbody>${critRows}</tbody>
   </table>
-  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+  <div class="footer">${t('pdf_generated_at')}${new Date().toLocaleString(currentLang === 'en' ? 'en-US' : 'ja-JP')}</div>
 </div>
 
 <!-- ======== 改善推奨事項 ======== -->
 <div class="pagebreak"></div>
 <div class="page-header">
-  <span>企業セキュリティ リスクアセスメント報告書</span>
+  <span>${t("pdf_title")}</span>
   <span>${fwLabel}</span>
 </div>
 <div style="padding:0 14pt;">
   <div class="section-title" style="color:#d97706;border-color:#d97706;">
-    改善推奨事項（${warns.length}件）
+    ${t('pdf_warn')}（${warns.length}${currentLang==='en'?' items':'件'}）
   </div>
-  <div class="section-sub">「一部対応」または「ほとんど対応」の項目です。さらなる強化を推奨します。</div>
+  <div class="section-sub">${t('pdf_warn_sub')}</div>
   <table class="data warn">
     <thead><tr>
-      <th style="width:90pt;">セクション</th>
+      <th style="width:90pt;">${t('pdf_col_section')}</th>
       <th class="cen" style="width:40pt;">No.</th>
-      <th class="cen" style="width:46pt;">回答</th>
-      <th>質問内容</th>
+      <th class="cen" style="width:46pt;">${t('pdf_col_ans')}</th>
+      <th>${t('pdf_col_q')}</th>
     </tr></thead>
     <tbody>${warnRows}</tbody>
   </table>
-  <div class="footer">生成日時：${new Date().toLocaleString('ja-JP')}</div>
+  <div class="footer">${t('pdf_generated_at')}${new Date().toLocaleString(currentLang === 'en' ? 'en-US' : 'ja-JP')}</div>
 </div>
 
 <div class="no-print" style="text-align:center;padding:20pt;font-family:sans-serif;">
   <p style="font-size:11pt;color:#64748b;margin-bottom:12pt;">
-    ブラウザの印刷ダイアログが開きます。<br>
-    「送信先」で <strong>「PDFに保存」</strong> を選択してください。
+    ${t('pdf_print_hint')}
   </p>
   <button onclick="window.print()"
     style="padding:10pt 28pt;font-size:12pt;background:#2563eb;color:#fff;
            border:none;border-radius:6pt;cursor:pointer;">
-    📄 PDFとして保存
+    ${t('pdf_print_btn')}
   </button>
 </div>
 
@@ -3417,7 +3893,7 @@ ${summaryHtml ? `
     // ── 印刷ウィンドウを開く ──────────────────────────────
     const win = window.open('', '_blank', 'width=900,height=700');
     if (!win) {
-      showToast('ポップアップがブロックされました。ブラウザの設定でポップアップを許可してください。', 'error');
+      showToast(t('pdf_popup_blocked'), 'error');
       return;
     }
     win.document.write(html);
@@ -3428,14 +3904,14 @@ ${summaryHtml ? `
       setTimeout(() => win.print(), 600);
     });
 
-    showToast('📄 印刷ダイアログを開きました。「PDFに保存」を選択してください。', 'success');
+    showToast(t('pdf_opened'), 'success');
 
   } catch(e) {
     console.error('[exportPDF]', e);
-    showToast('レポート生成に失敗しました: ' + e.message, 'error');
+    showToast(t('pdf_error') + e.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '📄 PDFレポート出力';
+    btn.innerHTML = `<span data-i18n="btn_export_pdf">${t('btn_export_pdf')}</span>`;
   }
 }
 
@@ -3478,7 +3954,7 @@ function confirmRestart() {
   document.getElementById('orgDate').value = '';
   document.querySelectorAll('.fw-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('btnStartAssessment').disabled = true;
-  document.getElementById('btnStartAssessment').textContent = 'アセスメントを開始する →';
+  document.getElementById('btnStartAssessment').textContent = t('btn_start');
   document.getElementById('navBar').style.display = 'none';
   document.getElementById('progressBar').style.width = '0%';
   document.getElementById('progressText').textContent = '0 / 0';
@@ -3487,7 +3963,14 @@ function confirmRestart() {
 }
 
 // Init on load
-document.addEventListener("DOMContentLoaded", loadManifest);
+document.addEventListener("DOMContentLoaded", function() {
+  // 言語ボタンの初期アクティブ状態
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+  applyI18n();
+  loadManifest();
+});
 </script>
 </body>
 </html>

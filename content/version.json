@@ -1,12 +1,12 @@
 {
   "appName": "Security/Assessment",
   "appNameJa": "企業セキュリティ リスクアセスメントシステム",
-  "version": "2.7",
+  "version": "2.9",
   "releaseDate": "2026-03-21",
   "rows": [
     {
       "label": "バージョン",
-      "value": "2.7"
+      "value": "2.9"
     },
     {
       "label": "アーキテクチャ",
